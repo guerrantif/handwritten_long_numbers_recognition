@@ -9,7 +9,7 @@ The aim of this project is to reach a good level of accuracy in the recognition 
 Linux/MacOS/Windows:
 
 ```sh
-git clone https://github.com/filippoguerranti/handwritten_long_digit_recognition
+git clone https://github.com/filippoguerranti/handwritten_long_digit_recognition.git
 cd handwritten_long_number_recognition
 ```
 
