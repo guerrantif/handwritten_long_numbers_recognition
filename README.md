@@ -1,12 +1,23 @@
 # Recognition of handwritten (long) numbers
 > Neural Network recognizer of long handwritten numbers via the use of a webcam.
 
-The aim of this project is to reach a good level of accuracy in the recognition of long numbers (composed of several digits) written by hand. 
+The aim of this project is to build a Neural Network capable to recognize long numbers (composed of several digits) written by hand. 
 ![](header.png)
+
+## Table of Contents
+* [Download](#download)
+* [Development Setup](#development-setup)
+* [Usage example](#usage-example)
+* [History](#history)
+* [Directory structure](#directory-structure)
+* [References](#references)
+* [Info](#info)
+
+---
 
 ## Download
 
-Linux/MacOS/Windows:
+You can download the project directory using the following commands in your Linux/MacOS/Windows terminal:
 
 ```sh
 git clone https://github.com/filippoguerranti/handwritten_long_digit_recognition.git
@@ -16,13 +27,8 @@ cd handwritten_long_number_recognition
 ## Development setup
 
 After downloading the directory, make sure all the dependencies are installed.
-In particular: 
 
-```sh
-numpy, torch, torchvision, opencv, matplotlib
-```
-
-Install them if needed. To check if everything is correctly set run the following command:
+To check if everything is correctly set run the following command:
 
 ```sh
 python3 requirements_check.py
@@ -34,7 +40,9 @@ You should get something like:
 All the dependecies are correctly installed.
 ```
 
-Otherwise, you will get an error message explaining you what to do.
+If something is missig, you will be notified by an error message.
+
+> **NOTE**: informations about how to install OpenCV in your platform can be found [here][opencv-installation].
 
 ## Usage example
 
@@ -47,26 +55,46 @@ python3 main.py
 _For more examples and usage, please refer to the [Wiki][wiki]._
 
 
-## Release History
+## History
 
-* 0.0.1
-    * Work in progress
+* _2020/12/03_
+   * project starts
+   * first tests using openCV
+   
+   
+## Directory structure
 
-## Meta
+```
+handwritten_long_numbers_recognition
+├── LICENSE
+├── README.md
+├── img
+│   ├── numbers.jpg
+│   └── stuff.jpg
+└── src
+    └── prova.py
+```
+  
+## References
+
+* [NumPy documentation][numpy]
+* [PyTorch documentation][torch]
+* [OpenCV documentation][opencv]
+
+
+## Info
 
 Filippo Guerranti – filippo.guerranti@student.unisi.it
 
 Distributed under the Apache-2.0 License. See ``LICENSE`` for more information.
 
-[https://github.com/filippoguerranti/handwritten_long_digit_recognition](https://github.com/filippoguerranti/handwritten_long_digit_recognition)
+Link to this project: [https://github.com/filippoguerranti/handwritten_long_digit_recognition][project]
 
-## Contributing
-
-1. Fork it (<https://github.com/filippoguerranti/handwritten_long_digit_recognition/fork>)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
 
 <!-- Markdown link & img dfn's -->
 [wiki]: https://github.com/filippoguerranti/handwritten_long_digit_recognition/wiki
+[numpy]: https://numpy.org/doc/stable/
+[torch]: https://pytorch.org/docs/stable/index.html
+[opencv]: https://docs.opencv.org/master/index.html
+[opencv-installation]: https://docs.opencv.org/master/df/d65/tutorial_table_of_content_introduction.html
+[project]: https://github.com/filippoguerranti/handwritten_long_digit_recognition
