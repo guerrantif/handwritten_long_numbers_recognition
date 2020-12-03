@@ -82,6 +82,7 @@ handwritten_long_numbers_recognition
   
 ## References
 
+* [MNIST dataset][mnist]
 * [NumPy documentation][numpy]
 * [PyTorch documentation][torch]
 * [OpenCV documentation][opencv]
@@ -98,6 +99,7 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_numb
 
 <!-- Markdown link & img dfn's -->
 [wiki]: https://github.com/filippoguerranti/handwritten_long_digit_recognition/wiki
+[mnist]: http://yann.lecun.com/exdb/mnist/
 [numpy]: https://numpy.org/doc/stable/
 [torch]: https://pytorch.org/docs/stable/index.html
 [opencv]: https://docs.opencv.org/master/index.html
