@@ -2,7 +2,7 @@
 > Neural Network recognizer of long handwritten numbers via the use of a webcam.
 
 The aim of this project is to build a Neural Network capable to recognize long numbers (composed of several digits) written by hand. 
-![](header.png)
+![](logo.jpg)
 
 ---
 * [How it works](#how-it-works)
@@ -57,8 +57,6 @@ In order to start the application, do the following
 python3 main.py
 ```
 
-_For more examples and usage, please refer to the [Wiki][wiki]._
-
 
 ## History
 
@@ -90,9 +88,13 @@ handwritten_long_numbers_recognition
 
 ## Info
 
-Filippo Guerranti – filippo.guerranti@student.unisi.it
+Author: Filippo Guerranti <filippo.guerranti@student.unisi.it>
 
-Distributed under the Apache-2.0 License. See ``LICENSE`` for more information.
+I am a M.Sc. student in Computer and Automation Engineering at [University of Siena][unisi], [Department of Information Engineering and Mathematical Sciences][diism]. This project is inherent the Neural Network course held by prof. [Stefano Melacci][melacci].
+
+For any suggestion or doubts please contact me by email.
+
+Distributed under the Apache-2.0 License. _See ``LICENSE`` for more information._
 
 Link to this project: [https://github.com/filippoguerranti/handwritten_long_numbers_recognition][project]
 
@@ -105,3 +107,6 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_numb
 [opencv]: https://docs.opencv.org/master/index.html
 [opencv-installation]: https://docs.opencv.org/master/df/d65/tutorial_table_of_content_introduction.html
 [project]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition
+[unisi]: https://www.unisi.it/
+[diism]: https://www.diism.unisi.it/it
+[melacci]: https://www3.diism.unisi.it/~melacci/index.html
