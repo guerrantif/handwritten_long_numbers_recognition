@@ -88,7 +88,7 @@ Filippo Guerranti – filippo.guerranti@student.unisi.it
 
 Distributed under the Apache-2.0 License. See ``LICENSE`` for more information.
 
-Link to this project: [https://github.com/filippoguerranti/handwritten_long_digit_recognition][project]
+Link to this project: [https://github.com/filippoguerranti/handwritten_long_numbers_recognition][project]
 
 
 <!-- Markdown link & img dfn's -->
@@ -97,4 +97,4 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_digi
 [torch]: https://pytorch.org/docs/stable/index.html
 [opencv]: https://docs.opencv.org/master/index.html
 [opencv-installation]: https://docs.opencv.org/master/df/d65/tutorial_table_of_content_introduction.html
-[project]: https://github.com/filippoguerranti/handwritten_long_digit_recognition
+[project]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition
