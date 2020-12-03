@@ -70,11 +70,12 @@ python3 main.py
 
 ```
 handwritten_long_numbers_recognition
-├── LICENSE
-├── README.md
 ├── img
+│   ├── logo_unisi.jpg
 │   ├── numbers.jpg
 │   └── stuff.jpg
+├── LICENSE
+├── README.md
 └── src
     └── prova.py
 ```
