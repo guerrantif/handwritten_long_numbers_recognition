@@ -1,9 +1,9 @@
+![](img/logo_unisi.jpg)
+
 # Recognition of handwritten (long) numbers
 > Neural Network recognizer of long handwritten numbers via the use of a webcam.
 
 The aim of this project is to build a Neural Network capable to recognize long numbers (composed of several digits) written by hand. 
-
-![](img/logo_unisi.jpg)
 
 ---
 * [How it works](#how-it-works)
