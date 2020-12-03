@@ -15,11 +15,26 @@ cd handwritten_long_number_recognition
 
 ## Development setup
 
-After downloading the directory, make sure all the dependencies are installed
+After downloading the directory, make sure all the dependencies are installed.
+In particular: 
 
 ```sh
-pip3 install -r requirements.txt
+numpy, torch, torchvision, opencv, matplotlib
 ```
+
+Install them if needed. To check if everything is correctly set run the following command:
+
+```sh
+python3 requirements_check.py
+```
+
+You should get something like:
+
+```sh
+All the dependecies are correctly installed.
+```
+
+Otherwise, you will get an error message explaining you what to do.
 
 ## Usage example
 
