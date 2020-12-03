@@ -4,7 +4,8 @@
 The aim of this project is to build a Neural Network capable to recognize long numbers (composed of several digits) written by hand. 
 ![](header.png)
 
-## Table of Contents
+---
+* [How it works?](#how-it-works?)
 * [Download](#download)
 * [Development Setup](#development-setup)
 * [Usage example](#usage-example)
@@ -14,6 +15,10 @@ The aim of this project is to build a Neural Network capable to recognize long n
 * [Info](#info)
 
 ---
+
+## How it works?
+
+> **TODO**: here goes the explanation of the entire project 
 
 ## Download
 
