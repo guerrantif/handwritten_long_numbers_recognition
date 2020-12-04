@@ -1,4 +1,4 @@
-![](img/logo_unisi.jpg)
+<!--![](img/logo_unisi.jpg) -->
 
 # Recognition of handwritten (long) numbers
 > Neural Network recognizer of long handwritten numbers via the use of a webcam.
@@ -18,6 +18,9 @@ The aim of this project is to build a Neural Network capable to recognize long n
 ---
 
 ## How it works
+
+**Workflow**
+![](img/workflow.png)
 
 > **TODO**: here goes the explanation of the entire project 
 
