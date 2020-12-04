@@ -74,11 +74,18 @@ python3 main.py
 ```
 handwritten_long_numbers_recognition
 ├── img
-│   ├── logo_unisi.jpg
-│   ├── numbers.jpg
-│   └── stuff.jpg
+│   ├── logo_unisi.jpg
+│   ├── numbers.jpg
+│   ├── stuff.jpg
+│   └── workflow.png
 ├── LICENSE
 ├── README.md
+├── references
+│   ├── 1412.6980.pdf
+│   ├── 1502.01852.pdf
+│   ├── 1506.02025.pdf
+│   └── 2001.09136.pdf
+├── requirements.txt
 └── src
     └── prova.py
 ```
