@@ -18,18 +18,17 @@ limitations under the License.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
 import re   # regular expressions
 from typing import Any, Callable, Optional, Sequence
 
 
 
 class CNN(nn.Module):
-
-    num_outputs: int
-    name: str
-    device: str
-    net: nn.Sequential
-
+    """
+    Convolutional Neural Network class for MNIST dataset.
+    It provides several models from which one can choose.
+    """
 
     def __init__(
           self
@@ -133,30 +132,30 @@ class CNN(nn.Module):
         torch.save(self.net.state_dict(), path)
 
 
-    def save_all(
-          self
-        , epoch: int
-        , loss: torch.Tensor
-        , path: str
-        ) -> None:
-        """
-        Save the classifier and the other hyperparameters.
-        All the useful parameters of the network are saved to memory, plus other informations
-        such as the number of epochs and the optimizer parameters.
-        More info here: https://pytorch.org/tutorials/beginner/saving_loading_models.html
+    # def save_all(
+    #       self
+    #     , epoch: int
+    #     , loss: torch.Tensor
+    #     , path: str
+    #     ) -> None:
+    #     """
+    #     Save the classifier and the other hyperparameters.
+    #     All the useful parameters of the network are saved to memory, plus other informations
+    #     such as the number of epochs and the optimizer parameters.
+    #     More info here: https://pytorch.org/tutorials/beginner/saving_loading_models.html
         
-        Args:
-            epochs        (int): number of epochs computed till the current moment
-            loss (torch.Tensor): loss of the network till the current moment
-            path          (str): path of the saved file, must have .pth extension
-        """
+    #     Args:
+    #         epochs        (int): number of epochs computed till the current moment
+    #         loss (torch.Tensor): loss of the network till the current moment
+    #         path          (str): path of the saved file, must have .pth extension
+    #     """
 
-        torch.save({
-                    'epoch': epoch,
-                    'model_state_dict': self.net.state_dict(),
-                    'optimizer_state_dict': self.optimizer.state_dict(),
-                    'loss_state_dict': loss.state_dict()
-                    }, path)
+    #     torch.save({
+    #                 'epoch': epoch,
+    #                 'model_state_dict': self.net.state_dict(),
+    #                 'optimizer_state_dict': self.optimizer.state_dict(),
+    #                 'loss': loss
+    #                 }, path)
 
 
     def load(
@@ -177,35 +176,34 @@ class CNN(nn.Module):
         self.net.to(self.device)
 
 
-    def load_all(
-          self
-        , path: str
-        ) -> Sequence:
-        """
-        Load the classifier and the other hyperparameters.
-        All the useful parameters of the network are loaded from memory, plus other informations
-        such as the number of epochs and the optimizer parameters.
-        More info here: https://pytorch.org/tutorials/beginner/saving_loading_models.html
-        map-location indicates the location where all tensors should be loaded
+    # def load_all(
+    #       self
+    #     , path: str
+    #     ) -> Sequence:
+    #     """
+    #     Load the classifier and the other hyperparameters.
+    #     All the useful parameters of the network are loaded from memory, plus other informations
+    #     such as the number of epochs and the optimizer parameters.
+    #     More info here: https://pytorch.org/tutorials/beginner/saving_loading_models.html
+    #     map-location indicates the location where all tensors should be loaded
         
-        Args:
-            path          (str): path of the saved file, must have .pth extension
+    #     Args:
+    #         path          (str): path of the saved file, must have .pth extension
 
-        Returns:
-            epochs        (int): number of epochs computed till the saved moment
-            loss (torch.Tensor): loss of the network till the saved moment
-        """
+    #     Returns:
+    #         epochs        (int): number of epochs computed till the saved moment
+    #         loss (torch.Tensor): loss of the network till the saved moment
+    #     """
 
-        checkpoint = torch.load(path)
-        self.net.load_state_dict(checkpoint['model_state_dict'], map_location=self.device)
-        self.net.to(self.device)
-        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'], map_location=self.device)
-        self.optimizer.to(self.device)
-        loss.load_state_dict(checkpoint['loss_state_dict'], map_location=self.device)
-        loss.to(self.device)
-        epoch = checkpoint['epoch']
+    #     checkpoint = torch.load(path)
+    #     self.net.load_state_dict(checkpoint['model_state_dict'], map_location=self.device)
+    #     self.net.to(self.device)
+    #     self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'], map_location=self.device)
+    #     self.optimizer.to(self.device)
+    #     loss = checkpoint['loss']
+    #     epoch = checkpoint['epoch']
 
-        return epoch, loss
+    #     return epoch, loss
 
 
     def forward(
@@ -284,8 +282,7 @@ class CNN(nn.Module):
 
     @staticmethod
     def __performance(
-          self
-        , outputs: torch.Tensor
+          outputs: torch.Tensor
         , labels: torch.Tensor
         ) -> float:
         """
@@ -313,7 +310,6 @@ class CNN(nn.Module):
           self
         , training_set: torch.utils.data.DataLoader
         , validation_set: torch.utils.data.DataLoader
-        , batch_size: Optional[int]=64
         , optimizer_mode: Optional[str]="adam"
         , lr: Optional[float]=0.001
         , epochs: Optional[int]=10
@@ -325,15 +321,12 @@ class CNN(nn.Module):
         Args:
             training_set    (DataLoader): DataLoader of the training set
             validation_set  (DataLoader): DataLoader of the validation set
-            batch_size             (int): number of samples for each mini-batch
             optimizer_mode         (str): {"adam", "sgd"}, type of optimizer
             lr                   (float): learning rate
             epochs                 (int): number of training epochs
             momentum             (float): momentum for the SGD optimizer
         """
         
-        best_validation_accuracy = -1.  # best accuracy on the validation data
-        best_epoch = -1                 # epoch in which best accuracy was computed
 
         # set network in training mode (affect on dropout module)
         self.net.train()
@@ -347,7 +340,6 @@ class CNN(nn.Module):
                                                 )
                                 , lr=lr
                                 )
-            self.optimizer.to(self.device)
 
         elif optimizer_mode == "sgd":
             self.optimizer = torch.optim.SGD(
@@ -358,25 +350,35 @@ class CNN(nn.Module):
                                 , lr=lr
                                 , momentum=momentum
                                 )
-            self.optimizer.to(self.device)
 
         else:
             raise ValueError("Invalid optimizer {}: \'adam\' or \'sgd\' must be provided")
 
 
+        best_validation_accuracy = -1.              # best accuracy on the validation data
+        best_epoch = -1                             # epoch in which best accuracy was computed
+        epochs_validation_accuracy_list = list()    # list of epoch accuracies on validation set
+        epochs_training_accuracy_list = list()      # list of epoch accuracies on training set
+
+        first_batch_flag = True                     # flag for first mini-batch
+        batch_size = 0                              # user batch-sized
 
         # start train phase (looping on epochs)
         # ----------------------
         for e in range(0, epochs):
 
-            epoch_train_accuracy = 0.           # accuracy of current epoch over training set
-            epoch_train_loss = 0.               # loss of current epoch over training set
+            epoch_training_accuracy = 0.        # accuracy of current epoch over training set
+            epoch_training_loss = 0.            # loss of current epoch over training set
             epoch_num_training_examples = 0     # accumulated number of training examples for current epoch
 
             # looping on batches
             # ----------------------
             for X, Y in training_set:
                 
+                if first_batch_flag:
+                    batch_size = X.shape[0]     # take user batch-size
+                    first_batch_flag = False    # reset flag
+
                 # generally == batch_size, != in last batch if len(training_set) % batch_size != 0
                 batch_num_training_examples = X.shape[0] 
                 epoch_num_training_examples += batch_num_training_examples 
@@ -392,9 +394,9 @@ class CNN(nn.Module):
                 loss = CNN.__loss(logits, Y)
 
                 # computing gradients and updating network weights
-                optimizer.zero_grad()       # put all gradients to zero before computing backward phase
+                self.optimizer.zero_grad()       # put all gradients to zero before computing backward phase
                 loss.backward()             # computing gradients (for parameters with requires_grad=True)
-                optimizer.step()            # updating parameters according to optimizer
+                self.optimizer.step()            # updating parameters according to optimizer
 
                 # evaluating performances on mini-batches
                 with torch.no_grad():       # keeping off the autograd engine
@@ -402,16 +404,16 @@ class CNN(nn.Module):
                     self.net.eval()         # setting network out of training mode (affects dropout layer)
 
                     # evaluating performance of current mini-batch
-                    batch_train_accuracy = self.__performance(outputs, Y)
+                    batch_training_accuracy = CNN.__performance(outputs, Y)
 
                     # accumulating accuracy of all mini-batches for current epoch (batches normalized)
-                    epoch_train_accuracy += batch_train_accuracy * batch_num_training_examples
+                    epoch_training_accuracy += batch_training_accuracy * batch_num_training_examples
 
                     # accumulating loss of all mini-batches for current epoch (batches normalized)
-                    epoch_train_loss += loss.item() * batch_num_training_examples       # loss.item() to access value
+                    epoch_training_loss += loss.item() * batch_num_training_examples       # loss.item() to access value
 
                     # printing (mini-batch related) stats on screen
-                    print("  mini-batch:\tloss={0:.4f}, tr_acc={1:.2f}".format(loss.item(), batch_train_accuracy))
+                    print("  mini-batch:\tloss={0:.4f}, tr_acc={1:.2f}".format(loss.item(), batch_training_accuracy))
 
                     # switching to train mode
                     self.net.train() 
@@ -422,23 +424,38 @@ class CNN(nn.Module):
             # epoch scope
             # ----------------------
 
-            # netwrok evaluation on validation set (end of each epoch)
+            # network evaluation on validation set (end of each epoch)
             validation_accuracy = self.eval_cnn(validation_set)
+            epochs_validation_accuracy_list.append(validation_accuracy)
+
+            epochs_training_accuracy_list.append(epoch_training_accuracy / epoch_num_training_examples)
 
             if validation_accuracy > best_validation_accuracy:
                 best_validation_accuracy = validation_accuracy
                 best_epoch = e + 1
-                self.save_all(epoch=e, loss=loss, path="./models/CNN-{0}.pth".format(self.name))
+                # self.save_all(epoch=e, loss=loss, path="./models/{0}.pth".format(self.name))
+                self.save(path="./models/{0}.pth".format(self.name))
 
             # epoch loss computation
-            epoch_train_loss /= epoch_num_training_examples
+            epoch_training_loss /= epoch_num_training_examples
 
             # printing (epoch related) stats on screen
             print(("epoch={0}/{1}:\tloss={2:.4f}, tr_acc={3:.2f}, val_acc={4:.2f}"
                    + (", BEST!" if best_epoch == e + 1 else ""))
-                  .format(e + 1, epochs, epoch_train_loss,
-                          epoch_train_acc / epoch_num_train_examples, val_acc))
+                  .format(e + 1, epochs, epoch_training_loss,
+                          epoch_training_accuracy / epoch_num_training_examples, validation_accuracy))
+        
+        # end of epoch scope
+        # ----------------------
 
+        # plotting 
+        CNN.__plot(
+                  epochs=epochs
+                , training_accuracy=epochs_training_accuracy_list
+                , validation_accuracy=epochs_validation_accuracy_list
+                , model_name=self.name
+                , batch_size=batch_size)
+        
 
     def eval_cnn(
           self
@@ -480,3 +497,38 @@ class CNN(nn.Module):
             self.net.train()    # restoring training state
         
         return accuracy
+
+
+    @staticmethod
+    def __plot(
+          epochs: int
+        , training_accuracy: list
+        , validation_accuracy: list
+        , model_name: str
+        , batch_size: int
+        ) -> None:
+        """
+        Plots validation and testing accuracy over the epochs.
+
+        Args:
+            epochs               (int): number of runned epochs
+            training_accuracy   (list): list of training accuracy for each epoch
+            validation_accuracy (list): list of validation accuracy for each epoch
+            model_name           (str): name of the used model
+            batch_size           (int): number of samples for each batch
+        """
+        x = list(range(1, epochs + 1))
+        plt.plot(x, training_accuracy, label='Training')
+        plt.plot(x, validation_accuracy, label='Validation')
+        plt.xlabel('Epochs')
+        plt.ylabel('Accuracy %')
+        plt.title('Training/Validation accuracy over epochs')
+        plt.legend()
+        plt.savefig(
+            "./img/results/{0}-{1}_epochs-{2}_batchsize.png".format(
+                                                                  model_name
+                                                                , epochs
+                                                                , batch_size
+                                                                ) 
+            , dpi=1000
+            )
