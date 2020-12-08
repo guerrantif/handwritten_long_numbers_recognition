@@ -44,7 +44,7 @@ I'm not able to guarantee that other versions will work correctly.
 
 Then, the project directory can be downloaded using the following commands in a Linux/MacOS/Windows terminal:
 
-* `git clone https://github.com/filippoguerranti/handwritten_long_digit_recognition.git`
+* `git clone https://github.com/filippoguerranti/handwritten_long_numbers_recognition.git`
 * `cd handwritten_long_number_recognition`
 
 After downloading the folder, you can type:
