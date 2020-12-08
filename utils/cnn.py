@@ -1,3 +1,20 @@
+"""
+Copyright December 2020 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -163,7 +180,7 @@ class CNN(nn.Module):
     def load_all(
           self
         , path: str
-        ) -> Sequence[int, torch.Tensor]:
+        ) -> Sequence:
         """
         Load the classifier and the other hyperparameters.
         All the useful parameters of the network are loaded from memory, plus other informations
@@ -247,7 +264,7 @@ class CNN(nn.Module):
 
         Args:
             logits  (torch.Tensor): 2D output Tensor of the net (before softmax act.) [batch_size, 10]
-            labels  (torch.Tensor): 1D labels Tensor of the samples in the mini-batch [batch_size]
+            labels  (torch.Tensor): 1D label Tensor of the outputs [batch_size]
             weights (torch.Tensor): 1D weight Tensor of the classes, usefull in unbalanced datasets. 
                                     For the MNIST dataset the weights are computed dividing the overall
                                     number of examples by the frequency of each class. The classes 
@@ -263,6 +280,33 @@ class CNN(nn.Module):
                             , reduction='mean'
                             )
         return tot_loss
+
+
+    @staticmethod
+    def __performance(
+          self
+        , outputs: torch.Tensor
+        , labels: torch.Tensor
+        ) -> float:
+        """
+        Compute the accuracy in predicting the main classes.
+
+        Args:
+            outputs     (torch.Tensor): 2D output Tensor of the net (after softmax act.) [batch_size, 10]
+            labels      (torch.Tensor): 1D label Tensor of the outputs [batch_size]
+
+        Returns:
+            accuracy           (float): accuracy in predicting the main classes
+        """
+
+        # taking a decision
+        decisions = CNN.__decision(outputs)
+
+        # computing the accuracy on main classes
+        right_decisions = torch.eq(decisions, labels)     # element-wise equality
+        accuracy = torch.mean(right_decisions.to(torch.float) * 100.0).item()
+
+        return accuracy
 
 
     def train_cnn(
@@ -430,3 +474,9 @@ class CNN(nn.Module):
                 batch_labels.append(Y)
             
             # computing network performances on validation set
+            accuracy = CNN.__performance(torch.cat(batch_outputs, dim=0), torch.cat(batch_labels, dim=0))
+
+        if training_mode_originally_on:
+            self.net.train()    # restoring training state
+        
+        return accuracy
