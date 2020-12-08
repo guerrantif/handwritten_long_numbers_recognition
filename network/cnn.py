@@ -21,7 +21,8 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import re   # regular expressions
 from typing import Any, Callable, Optional, Sequence
-
+from tqdm import tqdm
+import datetime
 
 
 class CNN(nn.Module):
@@ -46,7 +47,7 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
 
         self.num_outputs = 10       # for MNIST dataset: 10-class classification problem
-        self.name = "CNN-{0}".format(model)
+        self.name = "CNN-{}".format(model)
 
         # device setup
         if torch.cuda.is_available() and bool(re.findall("cuda:[\d]+$", device)): 
@@ -110,7 +111,7 @@ class CNN(nn.Module):
             )
 
         else:
-            raise ValueError('{0}: undefined model'.format(model))
+            raise ValueError('{}: undefined model'.format(model))
 
         # moving network to the correct device memory
         self.net.to(self.device)
@@ -132,32 +133,6 @@ class CNN(nn.Module):
         torch.save(self.net.state_dict(), path)
 
 
-    # def save_all(
-    #       self
-    #     , epoch: int
-    #     , loss: torch.Tensor
-    #     , path: str
-    #     ) -> None:
-    #     """
-    #     Save the classifier and the other hyperparameters.
-    #     All the useful parameters of the network are saved to memory, plus other informations
-    #     such as the number of epochs and the optimizer parameters.
-    #     More info here: https://pytorch.org/tutorials/beginner/saving_loading_models.html
-        
-    #     Args:
-    #         epochs        (int): number of epochs computed till the current moment
-    #         loss (torch.Tensor): loss of the network till the current moment
-    #         path          (str): path of the saved file, must have .pth extension
-    #     """
-
-    #     torch.save({
-    #                 'epoch': epoch,
-    #                 'model_state_dict': self.net.state_dict(),
-    #                 'optimizer_state_dict': self.optimizer.state_dict(),
-    #                 'loss': loss
-    #                 }, path)
-
-
     def load(
           self
         , path: str
@@ -174,36 +149,6 @@ class CNN(nn.Module):
 
         self.net.load_state_dict(torch.load(path, map_location=self.device))
         self.net.to(self.device)
-
-
-    # def load_all(
-    #       self
-    #     , path: str
-    #     ) -> Sequence:
-    #     """
-    #     Load the classifier and the other hyperparameters.
-    #     All the useful parameters of the network are loaded from memory, plus other informations
-    #     such as the number of epochs and the optimizer parameters.
-    #     More info here: https://pytorch.org/tutorials/beginner/saving_loading_models.html
-    #     map-location indicates the location where all tensors should be loaded
-        
-    #     Args:
-    #         path          (str): path of the saved file, must have .pth extension
-
-    #     Returns:
-    #         epochs        (int): number of epochs computed till the saved moment
-    #         loss (torch.Tensor): loss of the network till the saved moment
-    #     """
-
-    #     checkpoint = torch.load(path)
-    #     self.net.load_state_dict(checkpoint['model_state_dict'], map_location=self.device)
-    #     self.net.to(self.device)
-    #     self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'], map_location=self.device)
-    #     self.optimizer.to(self.device)
-    #     loss = checkpoint['loss']
-    #     epoch = checkpoint['epoch']
-
-    #     return epoch, loss
 
 
     def forward(
@@ -314,6 +259,7 @@ class CNN(nn.Module):
         , lr: Optional[float]=0.001
         , epochs: Optional[int]=10
         , momentum: Optional[float]=0.5
+        , model_path: Optional[str]='./../models/'
         ) -> None:
         """
         CNN training procedure.
@@ -325,8 +271,8 @@ class CNN(nn.Module):
             lr                   (float): learning rate
             epochs                 (int): number of training epochs
             momentum             (float): momentum for the SGD optimizer
+            model_path           (float): folder in which the model will be saved
         """
-        
 
         # set network in training mode (affect on dropout module)
         self.net.train()
@@ -362,10 +308,27 @@ class CNN(nn.Module):
 
         first_batch_flag = True                     # flag for first mini-batch
         batch_size = 0                              # user batch-sized
+    
+        
+        # formatting name for saving model and plot
+        timestamp = datetime.datetime.now()
+        now = "{}{}{}-{}{}{}".format(
+                                  timestamp.year
+                                , timestamp.month
+                                , timestamp.day
+                                , timestamp.hour
+                                , timestamp.minute
+                                , timestamp.second)
+        model_name = "{}lr{}-epochs{}-{}-{}".format(
+                    self.name, lr, epochs, optimizer_mode, now)
+        
 
         # start train phase (looping on epochs)
         # ----------------------
         for e in range(0, epochs):
+
+            # printing epoch number
+            print("Epoch {}/{}".format(e + 1,epochs))
 
             epoch_training_accuracy = 0.        # accuracy of current epoch over training set
             epoch_training_loss = 0.            # loss of current epoch over training set
@@ -373,7 +336,7 @@ class CNN(nn.Module):
 
             # looping on batches
             # ----------------------
-            for X, Y in training_set:
+            for X, Y in tqdm(training_set):
                 
                 if first_batch_flag:
                     batch_size = X.shape[0]     # take user batch-size
@@ -412,9 +375,6 @@ class CNN(nn.Module):
                     # accumulating loss of all mini-batches for current epoch (batches normalized)
                     epoch_training_loss += loss.item() * batch_num_training_examples       # loss.item() to access value
 
-                    # printing (mini-batch related) stats on screen
-                    print("  mini-batch:\tloss={0:.4f}, tr_acc={1:.2f}".format(loss.item(), batch_training_accuracy))
-
                     # switching to train mode
                     self.net.train() 
 
@@ -426,24 +386,25 @@ class CNN(nn.Module):
 
             # network evaluation on validation set (end of each epoch)
             validation_accuracy = self.eval_cnn(validation_set)
-            epochs_validation_accuracy_list.append(validation_accuracy)
-
-            epochs_training_accuracy_list.append(epoch_training_accuracy / epoch_num_training_examples)
 
             if validation_accuracy > best_validation_accuracy:
                 best_validation_accuracy = validation_accuracy
                 best_epoch = e + 1
-                # self.save_all(epoch=e, loss=loss, path="./models/{0}.pth".format(self.name))
-                self.save(path="./models/{0}.pth".format(self.name))
+                self.save(path="{}/{}.pth".format(model_path,model_name))
+
+            # appending epoch validation accuracy to list
+            epochs_validation_accuracy_list.append(validation_accuracy)
+
+            # normalizing epoch accuracy and appendinf to list
+            epoch_training_accuracy /= epoch_num_training_examples
+            epochs_training_accuracy_list.append(epoch_training_accuracy)
 
             # epoch loss computation
             epoch_training_loss /= epoch_num_training_examples
 
             # printing (epoch related) stats on screen
-            print(("epoch={0}/{1}:\tloss={2:.4f}, tr_acc={3:.2f}, val_acc={4:.2f}"
-                   + (", BEST!" if best_epoch == e + 1 else ""))
-                  .format(e + 1, epochs, epoch_training_loss,
-                          epoch_training_accuracy / epoch_num_training_examples, validation_accuracy))
+            print(("loss: {:.4f} - acc: {:.4f} - val_acc: {:.4f}" + (" - BEST!" if best_epoch == e + 1 else ""))
+            .format(epoch_training_loss, epoch_training_accuracy, validation_accuracy))
         
         # end of epoch scope
         # ----------------------
@@ -453,7 +414,7 @@ class CNN(nn.Module):
                   epochs=epochs
                 , training_accuracy=epochs_training_accuracy_list
                 , validation_accuracy=epochs_validation_accuracy_list
-                , model_name=self.name
+                , model_name=model_name
                 , batch_size=batch_size)
         
 
@@ -524,11 +485,4 @@ class CNN(nn.Module):
         plt.ylabel('Accuracy %')
         plt.title('Training/Validation accuracy over epochs')
         plt.legend()
-        plt.savefig(
-            "./img/results/{0}-{1}_epochs-{2}_batchsize.png".format(
-                                                                  model_name
-                                                                , epochs
-                                                                , batch_size
-                                                                ) 
-            , dpi=1000
-            )
+        plt.savefig("./../img/results/{}.png".format(model_name), dpi=1000)
