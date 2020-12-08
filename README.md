@@ -1,5 +1,3 @@
-<!--![](img/logo_unisi.jpg) -->
-
 # Recognition of handwritten (long) numbers
 > Neural Network recognizer of long handwritten numbers via the use of a webcam.
 
@@ -7,8 +5,7 @@ The aim of this project is to build a Neural Network capable to recognize long n
 
 ---
 * [How it works](#how-it-works)
-* [Download](#download)
-* [Development Setup](#development-setup)
+* [Download and setup](#download-and-setup)
 * [Usage example](#usage-example)
 * [History](#history)
 * [Directory structure](#directory-structure)
@@ -24,70 +21,64 @@ The aim of this project is to build a Neural Network capable to recognize long n
 
 > **TODO**: here goes the explanation of the entire project 
 
-## Download
+## Download and Setup
 
 You can download the project directory using the following commands in your Linux/MacOS/Windows terminal:
 
-```sh
-git clone https://github.com/filippoguerranti/handwritten_long_digit_recognition.git
-cd handwritten_long_number_recognition
-```
+* `git clone https://github.com/filippoguerranti/handwritten_long_digit_recognition.git`
+* `cd handwritten_long_number_recognition`
 
-## Development setup
+After downloading the folder, you can type:
 
-After downloading the directory, make sure all the dependencies are installed.
+* `pip3 install -r requirements.txt`
 
-To check if everything is correctly set run the following command:
-
-```sh
-python3 requirements_check.py
-```
-
-You should get something like:
-
-```sh
-All the dependecies are correctly installed.
-```
-
-If something is missig, you will be notified by an error message.
+This command will install all the needed dependencies for this project.
+Some issues may arise for the OpenCv library. If it happens, please see the note below for more informations.
 
 > **NOTE**: informations about how to install OpenCV in your platform can be found [here][opencv-installation].
 
 ## Usage example
 
-In order to start the application, do the following
+Some usage example can be found in the `notebook` folder, in the form of Jupyter notebooks.
 
-```sh
-python3 main.py
-```
-
+* `0_introduction.ipynb`: 
 
 ## History
 
+* _2020/12/07_
+  * `cnn` class built 
 * _2020/12/03_
-   * project starts
-   * first tests using openCV
+  * project starts
+  * first tests using openCV
    
    
 ## Directory structure
 
 ```
-handwritten_long_numbers_recognition
 ├── img
 │   ├── logo_unisi.jpg
 │   ├── numbers.jpg
 │   ├── stuff.jpg
 │   └── workflow.png
 ├── LICENSE
+├── notebook1.ipynb
 ├── README.md
 ├── references
 │   ├── 1412.6980.pdf
 │   ├── 1502.01852.pdf
 │   ├── 1506.02025.pdf
+│   ├── 1710.05381.pdf
 │   └── 2001.09136.pdf
 ├── requirements.txt
-└── src
-    └── prova.py
+├── src
+│   └── prova.py
+├── tests
+│   ├── install_opencv.py
+│   ├── MNIST_dataset.py
+│   ├── step-by-step.py
+│   └── __utils__.py
+└── __utils__
+    └── cnn.py
 ```
   
 ## References
