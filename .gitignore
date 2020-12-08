@@ -139,3 +139,9 @@ cython_debug/
 
 # PyCharm stuff
 .idea
+
+# Visual Studio Code
+.vscode
+
+# MNIST data
+data
