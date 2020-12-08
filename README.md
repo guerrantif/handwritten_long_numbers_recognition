@@ -1,10 +1,14 @@
 # Recognition of handwritten (long) numbers
 > Neural Network recognizer of long handwritten numbers via the use of a webcam.
 
-The aim of this project is to build a Neural Network capable to recognize long numbers (composed of several digits) written by hand. 
+The aim of this project is to build a model based on CNN and image segmentation capable to recognize long numbers (composed of several digits) written by hand. 
+
+The main tools used for this projects are:
+* PyTorch
+* OpenCV
 
 ---
-* [How it works](#how-it-works)
+* [Project description](#project-description)
 * [Download and setup](#download-and-setup)
 * [Usage example](#usage-example)
 * [History](#history)
@@ -14,18 +18,33 @@ The aim of this project is to build a Neural Network capable to recognize long n
 
 ---
 
-## How it works
+## Project description
 
 **Workflow**
 ![](img/workflow.png)
+
+As shown in the previous picture the project may be divided into two main sub-problems:
+
+ * CNN building and training phase
+ * Webcam image segmentation
+ 
+Having the trained model and the correct segmentation of the input image, the digits classification task and the handwritten long number recognition one, are trivial problems.
 
 > **TODO**: here goes the explanation of the entire project 
 
 ## Download and Setup
 
-You can download the project directory using the following commands in your Linux/MacOS/Windows terminal:
+First, be sure to have installed in your system at least the following:
 
-* `git clone https://github.com/filippoguerranti/handwritten_long_digit_recognition.git`
+* `python 3.8.5`
+* `pip 20.0.2`
+* `git 2.25.1`
+
+I'm not able to guarantee that other versions will work correctly.
+
+Then, the project directory can be downloaded using the following commands in a Linux/MacOS/Windows terminal:
+
+* `git clone https://github.com/filippoguerranti/handwritten_long_numbers_recognition.git`
 * `cd handwritten_long_number_recognition`
 
 After downloading the folder, you can type:
@@ -39,29 +58,41 @@ Some issues may arise for the OpenCv library. If it happens, please see the note
 
 ## Usage example
 
-Some usage example can be found in the `notebook` folder, in the form of Jupyter notebooks.
-
-* `0_introduction.ipynb`: 
+The `usage_example.ipynb` notebook shows some simple usage cases.
 
 ## History
 
+* _2020/12/08_
+  * Training and testing procedure completed (model1: 99.0% accuracy on test set)
+  * `MnistDataset` class built
 * _2020/12/07_
-  * `cnn` class built 
+  * `CNN` class built 
 * _2020/12/03_
+  * first tests using `openCV`
   * project starts
-  * first tests using openCV
    
    
 ## Directory structure
 
 ```
+.
 ├── img
-│   ├── logo_unisi.jpg
 │   ├── numbers.jpg
-│   ├── stuff.jpg
+│   ├── results
+│   │   └── CNN-model1-10_epochs-2000_batchsize.png
 │   └── workflow.png
+├── __init__.py
+├── input
+│   ├── __init__.py
+│   └── segmentation.py
 ├── LICENSE
-├── notebook1.ipynb
+├── models
+│   └── CNN-model1.pth
+├── network
+│   ├── cnn.py
+│   ├── dataset.py
+│   └── __init__.py
+├── notebook
 ├── README.md
 ├── references
 │   ├── 1412.6980.pdf
@@ -70,15 +101,7 @@ Some usage example can be found in the `notebook` folder, in the form of Jupyter
 │   ├── 1710.05381.pdf
 │   └── 2001.09136.pdf
 ├── requirements.txt
-├── src
-│   └── prova.py
-├── tests
-│   ├── install_opencv.py
-│   ├── MNIST_dataset.py
-│   ├── step-by-step.py
-│   └── __utils__.py
-└── __utils__
-    └── cnn.py
+└── usage_example.ipynb
 ```
   
 ## References
