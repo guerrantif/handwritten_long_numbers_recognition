@@ -1,6 +1,6 @@
 # Network module
 ---
-
+> Implements the Convolutional Neural Network at the base of this project and the dataset class needed to handle the MNIST dataset in a proper way.
 
 This module provides the classes needed for the implementation of the network.
 
