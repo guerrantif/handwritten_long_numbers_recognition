@@ -62,9 +62,11 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 
 ## History
 
+* _2020/12/12
+  * `dataset` class handler built (custom class)
 * _2020/12/08_
   * Training and testing procedure completed (model1: 99.0% accuracy on test set)
-  * `MnistDataset` class built
+  * `MnistDataset` class built from (`torchvision.Datasets`) **Deprecated**
 * _2020/12/07_
   * `CNN` class built 
 * _2020/12/03_
