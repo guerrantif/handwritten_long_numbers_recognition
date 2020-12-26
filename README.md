@@ -64,6 +64,7 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 
 * _2020/12/26_
   * `ImageGraph` class built
+* _2020/12/25_
   * `DisjointSetForest` class built
 * _2020/12/12_
   * `dataset` class handler built (custom class)
