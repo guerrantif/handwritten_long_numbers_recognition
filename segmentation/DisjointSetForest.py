@@ -118,4 +118,4 @@ class DisjointSetForest:
         Returns:
             sorted_parents (list): list of sorted parent nodes
         """
-        return sorted(self.parents, key=lambda parent: self.size_of(parent), reverse=True)
+        return sorted(self.parents(), key=lambda parent: self.size_of(parent), reverse=True)
