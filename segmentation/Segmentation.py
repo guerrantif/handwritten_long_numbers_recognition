@@ -394,11 +394,8 @@ class GraphBasedSegmentation:
 
         print("Drawing boxes...")
         start = time.time()
-        for _, extremes in self.boundaries.items():
-            A = (extremes['min_col'], extremes['min_row'])
-            B = (extremes['max_col'], extremes['min_row'])
-            C = (extremes['max_col'], extremes['max_row'])
-            D = (extremes['min_col'], extremes['max_row'])
+        for _, points in self.regions.items():
+            A, B, C, D = points[0], points[1], points[2], points[3]
             draw.line([A,B,C,D,A], fill='lightgreen', width=3)
         end = time.time()
         print("Boxes drawn in {:.3}s.\n".format(end-start))
