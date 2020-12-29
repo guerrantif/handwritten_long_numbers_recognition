@@ -63,6 +63,7 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 ## History
 
 * _2020/12/28_
+  * Webcam image capture
   * Drawn boxes around digits and digit extraction
 * _2020/12/26_
   * `GraphBasedSegmentation` class built
