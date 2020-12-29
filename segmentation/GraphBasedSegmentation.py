@@ -14,7 +14,7 @@ limitations under the License.
 """
 
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageEnhance
 import DisjointSetForest as DSF
 
 
