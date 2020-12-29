@@ -110,3 +110,12 @@ class DisjointSetForest:
             parents (list): list of parent nodes
         """
         return list(set(self.parent))
+
+
+    def sorted_parents(self):
+        """ Return the parents nodes sorted by size in descreasing order.
+
+        Returns:
+            sorted_parents (list): list of sorted parent nodes
+        """
+        return sorted(self.parents, key=lambda parent: self.size_of(parent), reverse=True)
