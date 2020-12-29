@@ -28,7 +28,6 @@ class DisjointSetForest:
     parent = None       # list providing the parent of the indexed node (list)
     rank = None         # list providing the rank of the indexed node (list)
     size = None         # list providing the size of the child tree of the indexed node (list)
-    num_sets = None     # number of subsets (int)
 
 
     def __init__(self, num_nodes: int):
@@ -40,7 +39,6 @@ class DisjointSetForest:
         self.parent = [i for i in range(num_nodes)]
         self.rank = [0 for i in range(num_nodes)]
         self.size = [1 for i in range(num_nodes)]
-        self.num_sets = num_nodes
 
 
     
@@ -93,4 +91,22 @@ class DisjointSetForest:
             if self.rank[u] == self.rank[v]:
                 self.rank[v] += 1
 
-            self.num_sets -= 1
+
+
+    def num_components(self):
+        """ Return the number of current components.
+        
+        Returns:
+            num_components (int): number of current components
+        """
+        return len(self.parents())
+
+
+
+    def parents(self):
+        """ Return the parent nodes.
+
+        Returns:
+            parents (list): list of parent nodes
+        """
+        return list(set(self.parent))
