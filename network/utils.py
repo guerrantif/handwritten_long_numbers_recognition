@@ -23,14 +23,18 @@ def is_downloadable(url: str) -> bool:
     return False
 
 
-def download(url: str, folder: str, filename: str) -> None:
+def download(
+      url: str
+    , folder: str
+    , filename: str
+    ) -> None:
     """
     Download a .gz file from the provided url and saves it to a folder.
 
     Args:
-        url         (str): url of the source to be downloaded
-        folder      (str): folder in which the file will be saved
-        filename    (str): name to use as filename
+        url (str): url of the source to be downloaded
+        folder (str): folder in which the file will be saved
+        filename (str): name to use as filename
     """
     if is_downloadable(url):
         # compressed filename (filename.gz)
