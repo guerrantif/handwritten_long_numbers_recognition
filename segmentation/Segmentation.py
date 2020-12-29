@@ -14,7 +14,7 @@ limitations under the License.
 """
 
 import numpy as np
-from PIL import Image, ImageFilter, ImageEnhance
+from PIL import Image, ImageFilter, ImageEnhance, ImageDraw
 import DisjointSetForest as DSF
 import time
 
@@ -43,6 +43,9 @@ class GraphBasedSegmentation:
     sorted_graph = None     # sorted graph by non-decreasing order of edges' weight
     components = None       # Disjoint-set forest containing the components of the segmentation
     threshold = None        # threshold for each component: k/|C| (int)
+    boundaries = None       # digits boundary (nested dict)
+    boxed_img = None        # image with boxes around digits (PIL.Image)
+
 
 
     def __init__(self, img: str or np.ndarray):
@@ -62,6 +65,7 @@ class GraphBasedSegmentation:
 
         self.img_width, self.img_height = self.img.size
     
+
 
     @staticmethod
     def _preprocessing(img: Image, contrast: float=1.5, gaussian_blur: float=2.3, width: int=300, height: int=None):
@@ -86,7 +90,7 @@ class GraphBasedSegmentation:
         img = ImageEnhance.Contrast(img).enhance(contrast)
 
         # resize
-        if height == None:
+        if type(height) == type(None):
             percentage = float(width / img.size[0])
             height = int((float(img.size[1]) * float(percentage)))
         img = img.resize((width, height), Image.ANTIALIAS)
@@ -191,6 +195,7 @@ class GraphBasedSegmentation:
         print("Graph built in {:.3}s.\n".format(end-start))
     
 
+
     def _sort(self):
         """ Sort the graph by non-decreasing order of edges' weight.
         
@@ -247,7 +252,7 @@ class GraphBasedSegmentation:
         print("Segmentation done in {:.3}s.\n".format(end-start))
 
         # remove components having size less than min_size
-        if min_size != None:
+        if type(min_size) != type(None):
             print("Removing componentes having size less than {}...".format(min_size))
             start = time.time()
             for edge in self.sorted_graph:
@@ -296,15 +301,67 @@ class GraphBasedSegmentation:
 
         self.segmented_img = np.zeros((self.pre_height, self.pre_width, 3), np.uint8)
 
-        if self.segmented_arr == None:
+        if type(self.segmented_arr) == type(None):
             self.define_regions()
 
         print("Generating image...")
         start = time.time()
         for y in range(self.pre_height):
-            for x in range(self.pre_pre_width):
+            for x in range(self.pre_width):
                 self.segmented_img[y, x] = color[self.segmented_arr[y, x]]
         
         self.segmented_img = Image.fromarray(self.segmented_img)
         end = time.time()
         print("Image generated in {:.3}s.\n".format(end-start))
+
+
+
+    def find_boundaries(self):
+        """ Find the boundary of each region in the segmented image.
+
+        Returns:
+            boundaries (dict): dictionary containing, for each region, its boundaries
+        """
+
+        self.boundaries = {}
+
+        for i in range(self.components.num_components()):
+            self.boundaries[i] = {
+                            "min_row": self.pre_height - 1,
+                            "max_row": 0,
+                            "min_col": self.pre_width - 1,
+                            "max_col": 0
+                            }
+
+        for row in range(self.pre_height):
+            for col in range(self.pre_width):
+                min_row = self.boundaries[self.segmented_arr[row, col]]['min_row']
+                max_row = self.boundaries[self.segmented_arr[row, col]]['max_row']
+                min_col = self.boundaries[self.segmented_arr[row, col]]['min_col']
+                max_col = self.boundaries[self.segmented_arr[row, col]]['max_col']
+                if (row < min_row):
+                    self.boundaries[self.segmented_arr[row, col]]['min_row'] = row
+                if (row > max_row):
+                    self.boundaries[self.segmented_arr[row, col]]['max_row'] = row
+                if (col < min_col):
+                    self.boundaries[self.segmented_arr[row, col]]['min_col'] = col
+                if (col > max_col):
+                    self.boundaries[self.segmented_arr[row, col]]['max_col'] = col
+
+
+
+    def draw_boxes(self):
+        """ Draw boxes around digits based on boundaries.
+
+        Returns:
+            boxed_image (PIL.Image): image with boxes around digits
+        """
+        self.boxed_img = self.segmented_img.copy()
+        draw = ImageDraw.Draw(self.boxed_img)
+
+        for region, points in self.boundaries.items():
+            A = (points['min_col'], points['min_row'])
+            B = (points['max_col'], points['min_row'])
+            C = (points['max_col'], points['max_row'])
+            D = (points['min_col'], points['max_row'])
+            draw.line([A,B,C,D,A], fill='lightgreen', width=3)
