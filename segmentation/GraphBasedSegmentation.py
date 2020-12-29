@@ -72,7 +72,7 @@ class GraphBasedSegmentation:
 
     @staticmethod
     def _preprocessing(img: Image, contrast: float=1.5, gaussian_blur: float=2.3, width: int=300, height: int=None):
-        """ Convert an input RGB image to a grayscale Numpy array and apply a Gaussian filter.
+        """ Convert an input RGB image to a grayscale Numpy array and apply some preprocessing operations.
 
         Args:
             img (PIL.Image): image to be processed
@@ -220,7 +220,7 @@ class GraphBasedSegmentation:
         Returns:
             components (DisjointSetForest): Disjoint-set Forest containing the segmented components
         """
-        self.components = DSF.DisjointSetForest(self.num_nodes)
+        self.components = DisjointSetForest(self.num_nodes)
         threshold = [GraphBasedSegmentation._threshold(k, i) for i in self.components.size]
 
         self.sort()
@@ -255,32 +255,51 @@ class GraphBasedSegmentation:
                         self.components.merge(u, v)
             end = time.time()
             print("Removed components in {:.3}s.\n".format(end-start))
+        
+
+    
+    def define_regions(self):
+        """ Define the segmentation regions once the segmentation process is completed.
+
+        Returns:
+            segmented_arr (np.ndarray): segmented image array
+        """
+        parents = self.components.parents()
+
+        self.segmented_arr = np.zeros((self.height, self.width), np.uint8)
+        
+        print("Defining regions...")
+        start = time.time()
+        for y in range(self.height):
+            for x in range(self.width):
+                self.segmented_arr[y, x] = parents.index(self.components.find(y * self.width + x))
+        
+        end = time.time()
+        print("Regions defined in {:.3}s.\n".format(end-start))
+
 
 
     def generate_image(self):
         """ Generate the segmented image as a numpy array.
 
         Returns:
-            segmented_arr (np.ndarray): segmented image array
             segmented_img (PIL.Image): segmented image
 
         """
         random_color = lambda: (int(np.random.rand() * 255), int(np.random.rand() * 255), int(np.random.rand() * 255))
-
-        # color = [random_color() for i in range(self.width * self.height)]
         color = [random_color() for i in range(self.components.num_components())]
 
-        parents = self.components.parents()
+        self.segmented_img = np.zeros((self.height, self.width, 3), np.uint8)
 
-        self.segmented_arr = np.zeros((self.height, self.width, 3), np.uint8)
-
+        if self.segmented_arr == None:
+            self.define_regions()
+            
         print("Generating image...")
         start = time.time()
         for y in range(self.height):
             for x in range(self.width):
-                color_idx = parents.index(self.components.find(y * self.width + x))
-                self.segmented_arr[y, x] = color[color_idx]
+                self.segmented_img[y, x] = color[self.segmented_arr[y, x]]
         
-        self.segmented_img = Image.fromarray(self.segmented_arr)
+        self.segmented_img = Image.fromarray(self.segmented_img)
         end = time.time()
         print("Image generated in {:.3}s.\n".format(end-start))
