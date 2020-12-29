@@ -62,8 +62,10 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 
 ## History
 
+* _2020/12/28_
+  * Drawn boxes around digits and digit extraction
 * _2020/12/26_
-  * `ImageGraph` class built
+  * `GraphBasedSegmentation` class built
 * _2020/12/25_
   * `DisjointSetForest` class built
 * _2020/12/12_
