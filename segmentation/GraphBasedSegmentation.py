@@ -31,11 +31,13 @@ class GraphBasedSegmentation:
     # Class members
     filepath = None         # image filepath (str)
     img = None              # original image (PIL.Image)
-    processed_arr = None    # preprocessed array (np.ndarray)
+    img_height = None       # original image height (int)
+    img_width = None        # original image width (int)
+    preprocessed_arr = None # preprocessed array (np.ndarray)
     segmented_img = None    # segmented image (PIL.Image)
     segmented_arr = None    # segmented array (np.ndarray)
-    height = None           # image height (int)
-    width = None            # image width (int)
+    pre_height = None       # preprocessed array height (int)
+    pre_width = None        # preprocessed array width (int)
     num_nodes = None        # number of nodes (a.k.a. number of pixels) (int)
     graph = None            # graph of the image (list)
     sorted_graph = None     # sorted graph by non-decreasing order of edges' weight
@@ -43,13 +45,12 @@ class GraphBasedSegmentation:
     threshold = None        # threshold for each component: k/|C| (int)
 
 
-    def __init__(self, img: str or np.ndarray, preprocessing: bool=True, **kwargs):
+    def __init__(self, img: str or np.ndarray):
         """ GraphBasedSegmentation class constructor.
 
         Args:
             img (str or np.ndarray): path to the input image (if preprocessing == True)
                                      or np.ndarray of the input image (already preprocessed)
-            preprocessing (bool): (default=True) to be applied if the image has not been preprocessed yet
         """
         if type(img) == str:
             self.img = Image.open(img)
@@ -59,15 +60,7 @@ class GraphBasedSegmentation:
         else:
             raise ValueError("Wrong image type: must be either str or np.ndarray.")
 
-        if preprocessing:
-            self.processed_arr = GraphBasedSegmentation._preprocessing(self.img, **kwargs)
-        else:
-            self.processed_arr = self.img
-            self.processed_arr = self.processed_arr.convert("L")
-            self.processed_arr = np.array(self.processed_arr)
-
-        self.height, self.width = self.processed_arr.shape
-        self.num_nodes = self.height * self.width
+        self.img_width, self.img_height = self.img.size
     
 
     @staticmethod
@@ -82,7 +75,7 @@ class GraphBasedSegmentation:
             height (int): (default=None) new image height
         
         Returns:
-            img (np.ndarray): Numpy array represented the processed image
+            img (np.ndarray): Numpy array represented the preprocessed image
         """
         img = img.convert("L")
         
@@ -166,7 +159,7 @@ class GraphBasedSegmentation:
 
 
 
-    def build_graph(self):
+    def _build_graph(self):
         """ Build the graph.
 
         Returns:
@@ -181,24 +174,24 @@ class GraphBasedSegmentation:
                 if x < self.width - 1:
                     u_coords = (x, y)
                     v_coords = (x + 1, y)
-                    self.graph.append(GraphBasedSegmentation._create_edge(self.processed_arr, u_coords, v_coords))
+                    self.graph.append(GraphBasedSegmentation._create_edge(self.preprocessed_arr, u_coords, v_coords))
                 if y < self.height - 1:
                     u_coords = (x, y)
                     v_coords = (x, y + 1)
-                    self.graph.append(GraphBasedSegmentation._create_edge(self.processed_arr, u_coords, v_coords))
+                    self.graph.append(GraphBasedSegmentation._create_edge(self.preprocessed_arr, u_coords, v_coords))
                 if x < self.width - 1 and y < self.height - 1:
                     u_coords = (x, y)
                     v_coords = (x + 1, y + 1)
-                    self.graph.append(GraphBasedSegmentation._create_edge(self.processed_arr, u_coords, v_coords))
+                    self.graph.append(GraphBasedSegmentation._create_edge(self.preprocessed_arr, u_coords, v_coords))
                 if x < self.width - 1 and y > 0:
                     u_coords = (x, y)
                     v_coords = (x + 1, y - 1)
-                    self.graph.append(GraphBasedSegmentation._create_edge(self.processed_arr, u_coords, v_coords))
+                    self.graph.append(GraphBasedSegmentation._create_edge(self.preprocessed_arr, u_coords, v_coords))
         end = time.time()
         print("Graph built in {:.3}s.\n".format(end-start))
     
 
-    def sort(self):
+    def _sort(self):
         """ Sort the graph by non-decreasing order of edges' weight.
         
         Returns:
@@ -208,7 +201,7 @@ class GraphBasedSegmentation:
 
     
 
-    def segment(self, k: int=4000, min_size: int=100):
+    def segment(self, k: int=4000, min_size: int=100, preprocessing: bool=True, **kwargs):
         """ Segment the graph according to the graph-based segmentation algorithm
         proposed by Felzenszwalb et. al.
 
@@ -216,13 +209,25 @@ class GraphBasedSegmentation:
             k (int): (default=4000) parameter for the threashold
             min_size (int): (default=100) if specified, the components having size less than min_size are removed
                                           if None, the removal is not applied
+            preprocessing (bool): (default=True) to be applied if the image has not been preprocessed yet
         
         Returns:
             components (DisjointSetForest): Disjoint-set Forest containing the segmented components
         """
+        if preprocessing:
+            self.preprocessed_arr = GraphBasedSegmentation._preprocessing(self.img, **kwargs)
+        else:
+            self.preprocessed_arr = self.img
+            self.preprocessed_arr = self.preprocessed_arr.convert("L")
+            self.preprocessed_arr = np.array(self.preprocessed_arr)
+
+        self.height, self.width = self.preprocessed_arr.shape
+        self.num_nodes = self.height * self.width
+
         self.components = DSF.DisjointSetForest(self.num_nodes)
         threshold = [GraphBasedSegmentation._threshold(k, i) for i in self.components.size]
 
+        self.build_graph()
         self.sort()
 
         print("Segmenting...")
@@ -293,7 +298,7 @@ class GraphBasedSegmentation:
 
         if self.segmented_arr == None:
             self.define_regions()
-            
+
         print("Generating image...")
         start = time.time()
         for y in range(self.height):
