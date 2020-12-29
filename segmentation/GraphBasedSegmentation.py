@@ -221,7 +221,7 @@ class GraphBasedSegmentation:
         Returns:
             components (DisjointSetForest): Disjoint-set Forest containing the segmented components
         """
-        self.components = DisjointSetForest(self.num_nodes)
+        self.components = DSF.DisjointSetForest(self.num_nodes)
         threshold = [GraphBasedSegmentation._threshold(k, i) for i in self.components.size]
 
         self.sort()
