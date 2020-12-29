@@ -15,17 +15,20 @@ limitations under the License.
 
 import numpy as np
 from PIL import Image, ImageFilter
-from DSF import DisjointSetForest
+import DisjointSetForest as DSF
 
 
-class ImageGraph:
-    """ Graph built by an input image.
+class GraphBasedSegmentation:
+    """ Class for the implementation of the graph-based segmentation algorithm.
+    A graph is built starting from an input image.
     Each pixel is a vertex of G = (V, E) where G is the graph, V is the set of
     vertices and E is the set of edges. Each pixel is connected to its neighbors in
     an 8-grid sense.
+    Then the algorithm is applied exploiting the disjoint-set forest structure.
     """
 
     # Class members
+    filepath = None         # image filepath (str)
     img = None              # original image (PIL.Image)
     processed_arr = None    # preprocessed array (np.ndarray)
     segmented_img = None    # segmented image (PIL.Image)
@@ -39,46 +42,59 @@ class ImageGraph:
     threshold = None        # threshold for each component: k/|C| (int)
 
 
-    def __init__(self, img: str or np.ndarray, preprocessing: bool=True):
-        """ ImageGraph class constructor.
+    def __init__(self, img: str or np.ndarray, preprocessing: bool=True, **kwargs):
+        """ GraphBasedSegmentation class constructor.
 
         Args:
             img (str or np.ndarray): path to the input image (if preprocessing == True)
-                                        or np.ndarray of the input image (already preprocessed)
+                                     or np.ndarray of the input image (already preprocessed)
             preprocessing (bool): (default=True) to be applied if the image has not been preprocessed yet
         """
         if type(img) == str:
             self.img = Image.open(img)
+            self.filepath = img
         elif type(img) == np.ndarray:
             self.img = Image.fromarray(img)
         else:
             raise ValueError("Wrong image type: must be either str or np.ndarray.")
 
         if preprocessing:
-            self.processed_arr = ImageGraph._preprocessing(self.img)
+            self.processed_arr = GraphBasedSegmentation._preprocessing(self.img, **kwargs)
         else:
             self.processed_arr = self.img
+            self.processed_arr = self.processed_arr.convert("L")
+            self.processed_arr = np.array(self.processed_arr)
 
         self.height, self.width = self.processed_arr.shape
         self.num_nodes = self.height * self.width
     
 
-
-    @staticmethod
-    def _preprocessing(img: Image, gaussian_blur: bool=True):
+    def _preprocessing(img: Image, contrast: float=1.5, gaussian_blur: float=2.3, width: int=300, height: int=None):
         """ Convert an input RGB image to a grayscale Numpy array and apply a Gaussian filter.
 
         Args:
             img (PIL.Image): image to be processed
-            gaussian_blur (bool): (default=True) whether to apply the Gaussian Blur or not
+            constrast (float): (defualt=1.5) contrast filter
+            gaussian_blur (float): (default=1.5) Gaussian Blur filter
+            width (int): (default=300) new image width
+            height (int): (default=None) new image height
         
         Returns:
             img (np.ndarray): Numpy array represented the processed image
         """
         img = img.convert("L")
         
-        if gaussian_blur: 
-            img = img.filter(ImageFilter.GaussianBlur(0.8))
+        # gaussian blur
+        img = img.filter(ImageFilter.GaussianBlur(gaussian_blur))
+
+        # contrast
+        img = ImageEnhance.Contrast(img).enhance(contrast)
+
+        # resize
+        if height == None:
+            percentage = float(width / img.size[0])
+            height = int((float(img.size[1]) * float(percentage)))
+        img = img.resize((width, height), Image.ANTIALIAS)
         
         return np.array(img)
 
@@ -128,7 +144,7 @@ class ImageGraph:
         id1 = vertex_id(u_coords)
         id2 = vertex_id(v_coords)
 
-        weight = ImageGraph._get_diff(img, u_coords, v_coords)
+        weight = GraphBasedSegmentation._get_diff(img, u_coords, v_coords)
         
         return (id1, id2, weight)
 
@@ -164,19 +180,19 @@ class ImageGraph:
                 if x < self.width - 1:
                     u_coords = (x, y)
                     v_coords = (x + 1, y)
-                    self.graph.append(ImageGraph._create_edge(self.processed_arr, u_coords, v_coords))
+                    self.graph.append(GraphBasedSegmentation._create_edge(self.processed_arr, u_coords, v_coords))
                 if y < self.height - 1:
                     u_coords = (x, y)
                     v_coords = (x, y + 1)
-                    self.graph.append(ImageGraph._create_edge(self.processed_arr, u_coords, v_coords))
+                    self.graph.append(GraphBasedSegmentation._create_edge(self.processed_arr, u_coords, v_coords))
                 if x < self.width - 1 and y < self.height - 1:
                     u_coords = (x, y)
                     v_coords = (x + 1, y + 1)
-                    self.graph.append(ImageGraph._create_edge(self.processed_arr, u_coords, v_coords))
+                    self.graph.append(GraphBasedSegmentation._create_edge(self.processed_arr, u_coords, v_coords))
                 if x < self.width - 1 and y > 0:
                     u_coords = (x, y)
                     v_coords = (x + 1, y - 1)
-                    self.graph.append(ImageGraph._create_edge(self.processed_arr, u_coords, v_coords))
+                    self.graph.append(GraphBasedSegmentation._create_edge(self.processed_arr, u_coords, v_coords))
         end = time.time()
         print("Graph built in {:.3}s.\n".format(end-start))
     
@@ -202,8 +218,8 @@ class ImageGraph:
         Returns:
             components (DisjointSetForest): Disjoint-set Forest containing the segmented components
         """
-        self.components = DisjointSetForest(self.num_nodes)
-        threshold = [ImageGraph._threshold(k, i) for i in self.components.size]
+        self.components = DSF.DisjointSetForest(self.num_nodes)
+        threshold = [GraphBasedSegmentation._threshold(k, i) for i in self.components.size]
 
         self.sort()
 
@@ -219,7 +235,7 @@ class ImageGraph:
                 if w <= threshold[u] and w <= threshold[v]:
                     self.components.merge(u, v)
                     parent = self.components.find(u)
-                    threshold[parent] = w + ImageGraph._threshold(k, self.components.size_of(u))
+                    threshold[parent] = w + GraphBasedSegmentation._threshold(k, self.components.size_of(u))
         end = time.time()
         print("Segmentation done in {:.3}s.\n".format(end-start))
 
@@ -249,7 +265,10 @@ class ImageGraph:
         """
         random_color = lambda: (int(np.random.rand() * 255), int(np.random.rand() * 255), int(np.random.rand() * 255))
 
-        color = [random_color() for i in range(self.width * self.height)]
+        # color = [random_color() for i in range(self.width * self.height)]
+        color = [random_color() for i in range(self.components.num_components())]
+
+        parents = self.components.parents()
 
         self.segmented_arr = np.zeros((self.height, self.width, 3), np.uint8)
 
@@ -257,7 +276,7 @@ class ImageGraph:
         start = time.time()
         for y in range(self.height):
             for x in range(self.width):
-                color_idx = self.components.find(y * self.width + x)
+                color_idx = parents.index(self.components.find(y * self.width + x))
                 self.segmented_arr[y, x] = color[color_idx]
         
         self.segmented_img = Image.fromarray(self.segmented_arr)
