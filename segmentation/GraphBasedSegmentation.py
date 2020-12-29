@@ -16,6 +16,7 @@ limitations under the License.
 import numpy as np
 from PIL import Image, ImageFilter, ImageEnhance
 import DisjointSetForest as DSF
+import time
 
 
 class GraphBasedSegmentation:
@@ -69,6 +70,7 @@ class GraphBasedSegmentation:
         self.num_nodes = self.height * self.width
     
 
+    @staticmethod
     def _preprocessing(img: Image, contrast: float=1.5, gaussian_blur: float=2.3, width: int=300, height: int=None):
         """ Convert an input RGB image to a grayscale Numpy array and apply a Gaussian filter.
 
@@ -207,18 +209,19 @@ class GraphBasedSegmentation:
 
     
 
-    def segment(self, k, min_size: int=None):
+    def segment(self, k: int=4000, min_size: int=100):
         """ Segment the graph according to the graph-based segmentation algorithm
         proposed by Felzenszwalb et. al.
 
         Args:
-            k (int): parameter for the threashold
-            min_size (int): (default=None) if specified, the components having size less than min_size are removed
+            k (int): (default=4000) parameter for the threashold
+            min_size (int): (default=100) if specified, the components having size less than min_size are removed
+                                          if None, the removal is not applied
         
         Returns:
             components (DisjointSetForest): Disjoint-set Forest containing the segmented components
         """
-        self.components = DSF.DisjointSetForest(self.num_nodes)
+        self.components = DisjointSetForest(self.num_nodes)
         threshold = [GraphBasedSegmentation._threshold(k, i) for i in self.components.size]
 
         self.sort()
