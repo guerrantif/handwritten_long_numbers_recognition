@@ -44,7 +44,6 @@ class GraphBasedSegmentation:
     components = None       # Disjoint-set forest containing the components of the segmentation
     threshold = None        # threshold for each component: k/|C| (int)
     boundaries = None       # segmented regions boundary (nested dict)
-    regions = None          # segmented regions (dict of list of tuples)
     boxed_img = None        # image with boxes around digits (PIL.Image)
 
 
@@ -355,25 +354,6 @@ class GraphBasedSegmentation:
 
 
 
-    def _compute_regions(self):
-        """ Return the segmented regions as 4 tuple (vertices of the rectangle).
-
-        Returns:
-            regions (dict of list of tuple): vertices of the rectangles around the digits 
-        """
-        if type(self.boundaries) == type(None):
-            self._find_boundaries()
-
-        self.regions = {}
-        for region, extremes in self.boundaries.items():
-            A = (extremes['min_col'], extremes['min_row'])
-            B = (extremes['max_col'], extremes['min_row'])
-            C = (extremes['max_col'], extremes['max_row'])
-            D = (extremes['min_col'], extremes['max_row'])
-            self.regions[region] = [A,B,C,D]
-
-
-
     def draw_boxes(self):
         """ Draw boxes around digits based on boundaries.
 
@@ -383,19 +363,21 @@ class GraphBasedSegmentation:
         if type(self.boundaries) == type(None):
             self._find_boundaries()
 
-        if type(self.regions) == type(None):
-            self._compute_regions()
-
         if type(self.segmented_img) == type(None):
             self.generate_image()
 
         self.boxed_img = self.segmented_img.copy()
+        self.regions = {}
         draw = ImageDraw.Draw(self.boxed_img)
 
         print("Drawing boxes...")
         start = time.time()
-        for _, points in self.regions.items():
-            A, B, C, D = points[0], points[1], points[2], points[3]
+        for region, extremes in self.boundaries.items():
+            A = (extremes['min_col'], extremes['min_row'])
+            B = (extremes['max_col'], extremes['min_row'])
+            C = (extremes['max_col'], extremes['max_row'])
+            D = (extremes['min_col'], extremes['max_row'])
+            self.regions[region] = [A,B,C,D]
             draw.line([A,B,C,D,A], fill='lightgreen', width=3)
         end = time.time()
         print("Boxes drawn in {:.3}s.\n".format(end-start))
