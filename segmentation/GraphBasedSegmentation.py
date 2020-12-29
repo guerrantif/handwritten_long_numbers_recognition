@@ -227,8 +227,8 @@ class GraphBasedSegmentation:
         self.components = DSF.DisjointSetForest(self.num_nodes)
         threshold = [GraphBasedSegmentation._threshold(k, i) for i in self.components.size]
 
-        self.build_graph()
-        self.sort()
+        self._build_graph()
+        self._sort()
 
         print("Segmenting...")
         start = time.time()
