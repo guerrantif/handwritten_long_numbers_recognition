@@ -282,7 +282,7 @@ class GraphBasedSegmentation:
         start = time.time()
         for y in range(self.pre_height):
             for x in range(self.pre_width):
-                self.segmented_arr[y, x] = parents.index(self.components.find(y * self.pre_width + x))
+                self.segmented_arr[y, x] = parents.index(self.components.parent[y * self.pre_width + x])
         
         end = time.time()
         print("Regions defined in {:.3}s.\n".format(end-start))
@@ -333,6 +333,8 @@ class GraphBasedSegmentation:
                             "max_col": 0
                             }
 
+        print("Searching boundaries...")
+        start = time.time()
         for row in range(self.pre_height):
             for col in range(self.pre_width):
                 min_row = self.boundaries[self.segmented_arr[row, col]]['min_row']
@@ -347,6 +349,8 @@ class GraphBasedSegmentation:
                     self.boundaries[self.segmented_arr[row, col]]['min_col'] = col
                 if (col > max_col):
                     self.boundaries[self.segmented_arr[row, col]]['max_col'] = col
+        end = time.time()
+        print("Boundaries found in {:.3}s.\n".format(end-start))
 
 
 
@@ -356,12 +360,19 @@ class GraphBasedSegmentation:
         Returns:
             boxed_image (PIL.Image): image with boxes around digits
         """
+        if type(self.boundaries) == type(None):
+            self.find_boundaries()
+
         self.boxed_img = self.segmented_img.copy()
         draw = ImageDraw.Draw(self.boxed_img)
 
+        print("Drawing boxes...")
+        start = time.time()
         for region, points in self.boundaries.items():
             A = (points['min_col'], points['min_row'])
             B = (points['max_col'], points['min_row'])
             C = (points['max_col'], points['max_row'])
             D = (points['min_col'], points['max_row'])
             draw.line([A,B,C,D,A], fill='lightgreen', width=3)
+        end = time.time()
+        print("Boxes drawn in {:.3}s.\n".format(end-start))
