@@ -363,6 +363,9 @@ class GraphBasedSegmentation:
         if type(self.boundaries) == type(None):
             self.find_boundaries()
 
+        if type(self.segmented_img) == type(None):
+            self.generate_image()
+            
         self.boxed_img = self.segmented_img.copy()
         draw = ImageDraw.Draw(self.boxed_img)
 
