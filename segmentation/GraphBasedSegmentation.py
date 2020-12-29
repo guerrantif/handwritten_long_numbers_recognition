@@ -114,7 +114,6 @@ class GraphBasedSegmentation:
         Returns:
             diff (numpy.uint8): difference between the input pixels
         """
-        height, width = img.shape
         x1, y1 = u_coords
         x2, y2 = v_coords
         
