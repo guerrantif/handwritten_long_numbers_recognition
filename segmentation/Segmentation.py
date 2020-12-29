@@ -43,7 +43,8 @@ class GraphBasedSegmentation:
     sorted_graph = None     # sorted graph by non-decreasing order of edges' weight
     components = None       # Disjoint-set forest containing the components of the segmentation
     threshold = None        # threshold for each component: k/|C| (int)
-    boundaries = None       # digits boundary (nested dict)
+    boundaries = None       # segmented regions boundary (nested dict)
+    regions = None          # segmented regions (dict of list of tuples)
     boxed_img = None        # image with boxes around digits (PIL.Image)
 
 
@@ -268,7 +269,7 @@ class GraphBasedSegmentation:
         
 
     
-    def define_regions(self):
+    def _create_segmented_arr(self):
         """ Define the segmentation regions once the segmentation process is completed.
 
         Returns:
@@ -302,7 +303,7 @@ class GraphBasedSegmentation:
         self.segmented_img = np.zeros((self.pre_height, self.pre_width, 3), np.uint8)
 
         if type(self.segmented_arr) == type(None):
-            self.define_regions()
+            self._create_segmented_arr()
 
         print("Generating image...")
         start = time.time()
@@ -316,7 +317,7 @@ class GraphBasedSegmentation:
 
 
 
-    def find_boundaries(self):
+    def _find_boundaries(self):
         """ Find the boundary of each region in the segmented image.
 
         Returns:
@@ -354,6 +355,25 @@ class GraphBasedSegmentation:
 
 
 
+    def _compute_regions(self):
+        """ Return the segmented regions as 4 tuple (vertices of the rectangle).
+
+        Returns:
+            regions (dict of list of tuple): vertices of the rectangles around the digits 
+        """
+        if type(self.boundaries) == type(None):
+            self._find_boundaries()
+
+        self.regions = {}
+        for region, extremes in self.boundaries.items():
+            A = (extremes['min_col'], extremes['min_row'])
+            B = (extremes['max_col'], extremes['min_row'])
+            C = (extremes['max_col'], extremes['max_row'])
+            D = (extremes['min_col'], extremes['max_row'])
+            self.regions[region] = [A,B,C,D]
+
+
+
     def draw_boxes(self):
         """ Draw boxes around digits based on boundaries.
 
@@ -361,21 +381,24 @@ class GraphBasedSegmentation:
             boxed_image (PIL.Image): image with boxes around digits
         """
         if type(self.boundaries) == type(None):
-            self.find_boundaries()
+            self._find_boundaries()
+
+        if type(self.regions) == type(None):
+            self._compute_regions()
 
         if type(self.segmented_img) == type(None):
             self.generate_image()
-            
+
         self.boxed_img = self.segmented_img.copy()
         draw = ImageDraw.Draw(self.boxed_img)
 
         print("Drawing boxes...")
         start = time.time()
-        for region, points in self.boundaries.items():
-            A = (points['min_col'], points['min_row'])
-            B = (points['max_col'], points['min_row'])
-            C = (points['max_col'], points['max_row'])
-            D = (points['min_col'], points['max_row'])
+        for _, extremes in self.boundaries.items():
+            A = (extremes['min_col'], extremes['min_row'])
+            B = (extremes['max_col'], extremes['min_row'])
+            C = (extremes['max_col'], extremes['max_row'])
+            D = (extremes['min_col'], extremes['max_row'])
             draw.line([A,B,C,D,A], fill='lightgreen', width=3)
         end = time.time()
         print("Boxes drawn in {:.3}s.\n".format(end-start))
