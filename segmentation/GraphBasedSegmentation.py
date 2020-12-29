@@ -169,21 +169,21 @@ class GraphBasedSegmentation:
 
         print("Building graph...")
         start = time.time()
-        for y in range(self.height):
-            for x in range(self.width):
-                if x < self.width - 1:
+        for y in range(self.pre_height):
+            for x in range(self.pre_width):
+                if x < self.pre_width - 1:
                     u_coords = (x, y)
                     v_coords = (x + 1, y)
                     self.graph.append(GraphBasedSegmentation._create_edge(self.preprocessed_arr, u_coords, v_coords))
-                if y < self.height - 1:
+                if y < self.pre_height - 1:
                     u_coords = (x, y)
                     v_coords = (x, y + 1)
                     self.graph.append(GraphBasedSegmentation._create_edge(self.preprocessed_arr, u_coords, v_coords))
-                if x < self.width - 1 and y < self.height - 1:
+                if x < self.pre_width - 1 and y < self.pre_height - 1:
                     u_coords = (x, y)
                     v_coords = (x + 1, y + 1)
                     self.graph.append(GraphBasedSegmentation._create_edge(self.preprocessed_arr, u_coords, v_coords))
-                if x < self.width - 1 and y > 0:
+                if x < self.pre_width - 1 and y > 0:
                     u_coords = (x, y)
                     v_coords = (x + 1, y - 1)
                     self.graph.append(GraphBasedSegmentation._create_edge(self.preprocessed_arr, u_coords, v_coords))
@@ -206,7 +206,7 @@ class GraphBasedSegmentation:
         proposed by Felzenszwalb et. al.
 
         Args:
-            k (int): (default=4000) parameter for the threashold
+            k (int): (default=4000) parameter for the threshold
             min_size (int): (default=100) if specified, the components having size less than min_size are removed
                                           if None, the removal is not applied
             preprocessing (bool): (default=True) to be applied if the image has not been preprocessed yet
@@ -221,8 +221,8 @@ class GraphBasedSegmentation:
             self.preprocessed_arr = self.preprocessed_arr.convert("L")
             self.preprocessed_arr = np.array(self.preprocessed_arr)
 
-        self.height, self.width = self.preprocessed_arr.shape
-        self.num_nodes = self.height * self.width
+        self.pre_height, self.pre_width = self.preprocessed_arr.shape
+        self.num_nodes = self.pre_height * self.pre_width
 
         self.components = DSF.DisjointSetForest(self.num_nodes)
         threshold = [GraphBasedSegmentation._threshold(k, i) for i in self.components.size]
@@ -271,13 +271,13 @@ class GraphBasedSegmentation:
         """
         parents = self.components.parents()
 
-        self.segmented_arr = np.zeros((self.height, self.width), np.uint8)
+        self.segmented_arr = np.zeros((self.pre_height, self.pre_width), np.uint8)
         
         print("Defining regions...")
         start = time.time()
-        for y in range(self.height):
-            for x in range(self.width):
-                self.segmented_arr[y, x] = parents.index(self.components.find(y * self.width + x))
+        for y in range(self.pre_height):
+            for x in range(self.pre_width):
+                self.segmented_arr[y, x] = parents.index(self.components.find(y * self.pre_width + x))
         
         end = time.time()
         print("Regions defined in {:.3}s.\n".format(end-start))
@@ -294,15 +294,15 @@ class GraphBasedSegmentation:
         random_color = lambda: (int(np.random.rand() * 255), int(np.random.rand() * 255), int(np.random.rand() * 255))
         color = [random_color() for i in range(self.components.num_components())]
 
-        self.segmented_img = np.zeros((self.height, self.width, 3), np.uint8)
+        self.segmented_img = np.zeros((self.pre_height, self.pre_width, 3), np.uint8)
 
         if self.segmented_arr == None:
             self.define_regions()
 
         print("Generating image...")
         start = time.time()
-        for y in range(self.height):
-            for x in range(self.width):
+        for y in range(self.pre_height):
+            for x in range(self.pre_pre_width):
                 self.segmented_img[y, x] = color[self.segmented_arr[y, x]]
         
         self.segmented_img = Image.fromarray(self.segmented_img)
