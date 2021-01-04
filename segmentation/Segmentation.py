@@ -74,11 +74,11 @@ class GraphBasedSegmentation:
         Convert an input RGB image to a grayscale Numpy array and apply some preprocessing operations.
 
         Args:
-            img (PIL.Image): image to be processed
-            constrast (float): (defualt=1.5) contrast filter
-            gaussian_blur (float): (default=1.5) Gaussian Blur filter
-            width (int): (default=300) new image width
-            height (int): (default=None) new image height
+            img         (PIL.Image): image to be processed
+            constrast       (float): (defualt=1.5) contrast filter
+            gaussian_blur   (float): (default=1.5) Gaussian Blur filter
+            width             (int): (default=300) new image width
+            height            (int): (default=None) new image height
         
         Returns:
             img (np.ndarray): Numpy array represented the preprocessed image
@@ -121,8 +121,8 @@ class GraphBasedSegmentation:
         
         Args:
             img (numpy.ndarray): input grayscale image in array format (values from 0 to 255)
-            u_coords (tuple): coordinates of first pixel (x1, y1)
-            v_coords (tuple): coordinates of second pixel (x2, y2)
+            u_coords    (tuple): coordinates of first pixel (x1, y1)
+            v_coords    (tuple): coordinates of second pixel (x2, y2)
 
         Returns:
             diff (numpy.uint8): difference between the input pixels
@@ -178,8 +178,8 @@ class GraphBasedSegmentation:
         Define the threshold for a subset of cardinality given by size.
 
         Args:
-            k (int): scale of observation (large k -> larger components)
-            size (int): cardinality of the component into consideration
+            k       (int): scale of observation (large k -> larger components)
+            size    (int): cardinality of the component into consideration
         
         Returns:
             threshold (int): threshold for a given component
@@ -255,10 +255,10 @@ class GraphBasedSegmentation:
         proposed by Felzenszwalb et. al.
 
         Args:
-            k (int): (default=4000) parameter for the threshold
-            min_size (int): (default=100) if specified, the components having size less than min_size are removed
+            k               (int): (default=4000) parameter for the threshold
+            min_size        (int): (default=100) if specified, the components having size less than min_size are removed
                                           if None, the removal is not applied
-            preprocessing (bool): (default=True) to be applied if the image has not been preprocessed yet
+            preprocessing  (bool): (default=True) to be applied if the image has not been preprocessed yet
         '''
         # preprocessing
         # ---------------------------------
@@ -357,7 +357,8 @@ class GraphBasedSegmentation:
         ''' 
         Generate the segmented image as a numpy array.
         '''
-        # random color creating (3 levels of values between 0 and 255)
+        
+        # random color creation (3 levels of values between 0 and 255)
         # ---------------------------------
         random_color = lambda: (int(np.random.rand() * 255), int(np.random.rand() * 255), int(np.random.rand() * 255))
         color = [random_color() for i in range(self.components.num_components())]
