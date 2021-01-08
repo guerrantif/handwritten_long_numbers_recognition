@@ -16,6 +16,7 @@ limitations under the License.
 
 import utils
 import torch
+import torchvision
 import os
 
 
@@ -176,7 +177,7 @@ class MNIST(torch.utils.data.Dataset):
 
     def set_preprocess(
           self
-        , operations:  
+        , operations: torchvision.transforms or torch.nn.Sequential or torchvision.transforms.Compose
         ) -> None:
         """
         Set a custom preprocess operation to be applied to each sample.
