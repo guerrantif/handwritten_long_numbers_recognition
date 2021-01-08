@@ -1,5 +1,5 @@
 """
-Copyright December 2020 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
+Copyright January 2021 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
