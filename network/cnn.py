@@ -33,7 +33,7 @@ class CNN(nn.Module):
 
     def __init__(
           self
-        , data_augmentation: bool=True,
+        , data_augmentation: bool=True
         , device: str='cpu'
         ) -> None:
         """
