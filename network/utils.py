@@ -172,8 +172,34 @@ def store_file_to_tensor(file_path: str) -> torch.tensor:
         return dataset
 
 
-def parse_command_line_arguments():
-    """Parse command line arguments, checking their values."""
+def parse_command_line_arguments() -> argparse.Namespace:
+    """
+    Parse command line arguments, checking their values.
+    
+    Returns:
+        parsed_arguments (argparse.Namespace): populated Namespace: the arguments passed via 
+                                            command line are converted to objects and assigned 
+                                            as attributes of the namespace
+    """
+
+    def str2bool(in_str: str) -> bool:
+        """
+        Convert a string to boolean.
+
+        Args:
+            in_str (str): string to be converted into boolean
+
+        Returns:
+            out_str (bool): converted string
+        """
+        if isinstance(in_str, bool):
+            return in_str
+        if in_str.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif in_str.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
 
     parser = argparse.ArgumentParser(description='')
 
@@ -181,7 +207,7 @@ def parse_command_line_arguments():
                         help='train the classify or classify input image')
 
     parser.add_argument('--dataset_folder', type=str, default='./../data/',
-                        help='folder where to save the dataset or from where to load it (if mode == train')
+                        help='folder where to save the dataset or from where to load it (if mode == train)')
     
     parser.add_argument('--model_path', type=str, default='./../models/',
                         help='path of the model to load from memory (if mode == classify)')
@@ -206,6 +232,9 @@ def parse_command_line_arguments():
 
     parser.add_argument('--device', default='cpu', type=str,
                         help='device to be used for computations (in {cpu, cuda:0, cuda:1, ...}, default: cpu)')
+
+    parser.add_argument('--preprocess', type=str, default=True,
+                        help='if True the data augmentation preprocessing is applied (default: True)')
 
     parsed_arguments = parser.parse_args()
 
@@ -238,6 +267,11 @@ def parse_command_line_arguments():
     # ------------------------
     if parsed_arguments.mode == 'classify' and (parsed_arguments.model_name is None or parsed_arguments.model_path is None):
         raise ValueError("Model path and name must be provided if mode == 'classify'.")
+    # ------------------------
+
+    # converting preprocess string to boolean
+    # ------------------------
+    parsed_arguments.preprocess = str2bool(parsed_arguments.preprocess)
     # ------------------------
 
 
