@@ -24,18 +24,16 @@ def parse_command_line_arguments():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('mode', choices=['train', 'classify'],
                         help='train the classify or classify image')
-    parser.add_argument('--dataset_path', type=str, default='./../data/',
-                        help='dataset path')
-    parser.add_argument('--image_path', type=str, default='./../img/',
-                        help='image path')
+    parser.add_argument('--dataset_folder', type=str, default='./../data/',
+                        help='dataset folder')
+    # parser.add_argument('--image_path', type=str, default='./../img/',
+    #                     help='image path')
     parser.add_argument('--model_name', type=str, default=None, 
                         help='model to load from memory (if mode == eval)')
     parser.add_argument('--model_path', type=str, default='./../models/',
                         help='image path')
-    parser.add_argument('--splits', type=str, default='0.7-0.3',
-                        help='fraction of data to be used in training and validation set (default: 0.7-0.3)')
-    parser.add_argument('--model', type=str, default='model1', choices=['model1', 'model2'],
-                        help='model of the CNN (default: model1)')
+    parser.add_argument('--splits', type=str, default='0.8-0.2',
+                        help='fraction of data to be used in training and validation set (default: 0.8-0.2)')
     parser.add_argument('--batch_size', type=int, default=64,
                         help='mini-batch size (default: 64)')
     parser.add_argument('--epochs', type=int, default=10,
@@ -51,11 +49,11 @@ def parse_command_line_arguments():
 
     parsed_arguments = parser.parse_args()
 
-    # converting split fraction string to a list of floating point values ('0.7-0.3' => [0.7, 0.3])
+    # converting split fraction string to a list of floating point values ('0.8-0.2' => [0.8, 0.2])
     splits_string = str(parsed_arguments.splits)
     fractions_string = splits_string.split('-')
     if len(fractions_string) != 2:
-        raise ValueError("Invalid split fractions were provided. Required format (example): 0.7-0.3")
+        raise ValueError("Invalid split fractions were provided. Required format (example): 0.8-0.2")
     else:
         splits = []
         frac_sum = 0.
@@ -64,7 +62,7 @@ def parse_command_line_arguments():
                 splits.append(float(fraction))
                 frac_sum += splits[-1]
             except ValueError:
-                raise ValueError("Invalid split fractions were provided. Required format (example): 0.7-0.3")
+                raise ValueError("Invalid split fractions were provided. Required format (example): 0.8-0.2")
         if frac_sum != 1.0:
             raise ValueError("Invalid split fractions were provided. They must sum to 1.")
 
@@ -90,76 +88,106 @@ if __name__ == "__main__":
         print("Training the classifier")
 
         # creating a new classifier
-        _classifier = cnn.CNN(
-                          model=args.model
-                        , device=args.device
-                        )
+        classifier = cnn.CNN(device=args.device)
 
-        # preparing dataset
-        _data_set = dataset.MnistDataset(
-                          path=args.dataset_path
+        # preparing training and validation dataset
+        train_val_set = dataset.MNIST(
+                          folder=args.dataset_folder
+                        , train=True
                         , download=True
-                        , normalize=True
+                        , empty=False
+                        # , normalize=True
                         )
 
-        # print some statistics
-        _data_set.statistics()
+        # preparing test dataset
+        test_set = dataset.MNIST(
+                          folder=args.dataset_folder
+                        , train=False
+                        , download=True
+                        , empty=False
+                        # , normalize=True
+                        )
+
+        # train_val_set = dataset.MNIST(
+        #                   folder=args.dataset_folder
+        #                 , train=True
+        #                 , download=False
+        #                 , empty=True
+        #                 # , normalize=True
+        #                 )
+
+        # test_set = dataset.MNIST(
+        #                   folder=args.dataset_folder
+        #                 , train=False
+        #                 , download=False
+        #                 , empty=True
+        #                 # , normalize=True
+        #                 )
+
+        train_val_set.load("./data/processed/training.pt")
+        test_set.load("./data/processed/test.pt")
 
         # splitting dataset into training and validation set
-        _data_set.create_splits(
-                                                          proportions=args.splits
-                                                        , shuffle=True
-                                                        )
+        train_set, val_set = train_val_set.splits(
+                                              proportions=args.splits
+                                            , shuffle=True
+                                            )
+
+        # print some statistics
+        train_set.statistics()
+        val_set.statistics()
+        test_set.statistics()
 
         # getting data loaders of datasets
-        _training_loader = _data_set.get_loader(
-                              set='training'
-                            , batch_size=args.batch_size
-                            , num_workers=args.workers
-                            )
+        train_loader = train_set.get_loader(
+                                  batch_size=args.batch_size
+                                , num_workers=args.workers
+                                , shuffle=True
+                                )
         
-        _validation_loader = _data_set.get_loader(
-                              set='validation'
-                            , batch_size=args.batch_size
-                            , num_workers=args.workers
-                            )
+        val_loader = val_set.get_loader(
+                                  batch_size=args.batch_size
+                                , num_workers=args.workers
+                                , shuffle=False
+                                )
         
-        _test_loader = _data_set.get_loader(
-                              set='test'
-                            , batch_size=args.batch_size
-                            , num_workers=args.workers
-                            )
+        test_loader = test_set.get_loader(
+                                  batch_size=args.batch_size
+                                , num_workers=args.workers
+                                , shuffle=False
+                                )
 
         # training the classifier
-        _classifier.train_cnn(
-                      training_set=_training_loader
-                    , validation_set=_validation_loader
+        classifier.train_cnn(
+                      training_set=train_loader
+                    , validation_set=val_loader
                     , optimizer_mode=args.optim
                     , lr=args.lr
                     , epochs=args.epochs
+                    #, momentum=
                     , model_path=args.model_path
                     )
         
         # computing the performance of the final model in the prepared data splits
         print("Evaluating the classifier...")
-        _train_acc = _classifier.eval_cnn(_train_set)
-        _val_acc = _classifier.eval_cnn(_val_set)
-        _test_acc = _classifier.eval_cnn(_test_set)
+        train_acc = classifier.eval_cnn(train_loader)
+        val_acc = classifier.eval_cnn(val_loader)
+        test_acc = classifier.eval_cnn(test_loader)
 
-        print("training set:\tacc:{:.2f}".format(_train_acc))
-        print("validation set:\tacc:{:.2f}".format(_val_acc))
-        print("test set:\tacc:{:.2f}".format(_test_acc))
+        print("training set:\tacc:{:.2f}".format(train_acc))
+        print("validation set:\tacc:{:.2f}".format(val_acc))
+        print("test set:\tacc:{:.2f}".format(test_acc))
 
-    elif args.mode == 'eval':
-        print("Evaluating the classifier...")
+    # elif args.mode == 'eval':
+    #     print("Evaluating the classifier...")
 
-        # creating a new classifier
-        _classifier = cnn.CNN(
-                          model=args.model
-                        , device=args.device
-                        )
+    #     # creating a new classifier
+    #     _classifier = cnn.CNN(
+    #                       model=args.model
+    #                     , device=args.device
+    #                     )
 
-        # loading the classifier
-        _classifier.load(args.model_name)
+    #     # loading the classifier
+    #     _classifier.load(args.model_name)
 
         # image preprocessing
