@@ -54,6 +54,7 @@ class MNIST(torch.utils.data.Dataset):
         # ------------------------
         self.data = None
         self.labels = None
+        self.preprocess = None
         # ------------------------
 
 
@@ -141,6 +142,9 @@ class MNIST(torch.utils.data.Dataset):
         """
         img, label = self.data[idx], int(self.labels[idx])
 
+        if self.preprocess is not None:
+            img = self.preprocess(img)
+
         return (img, label)
     
 
@@ -168,6 +172,16 @@ class MNIST(torch.utils.data.Dataset):
             raise FileNotFoundError("Folder not present: {}".format(path))
 
         self.data, self.labels = torch.load(path)
+
+
+    def set_preprocess(
+          self
+        , operations:  
+        ) -> None:
+        """
+        Set a custom preprocess operation to be applied to each sample.
+        """
+        self.preprocess = operations
 
 
     def splits(
