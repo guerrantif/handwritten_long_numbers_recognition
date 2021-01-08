@@ -16,6 +16,7 @@ limitations under the License.
 
 
 import torch
+import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
@@ -32,13 +33,15 @@ class CNN(nn.Module):
 
     def __init__(
           self
+        , data_augmentation: bool=True,
         , device: str='cpu'
         ) -> None:
         """
         CNN class constructor.
 
         Args:
-            device  (str): {'cpu}
+            data_augmentation (bool): (default=True) whether to perform data augmentation
+            device             (str): device to be used {"cpu", "cuda:0", "cuda:1", ...}
         """
 
         super(CNN, self).__init__()
@@ -112,6 +115,18 @@ class CNN(nn.Module):
         # moving network to the correct device memory
         # ----------------------
         self.net.to(self.device)
+        # ----------------------
+
+        # the data augmentation consists in rotating the image of a random angle between -45° to +45°
+        # ----------------------
+        if data_augmentation:
+            self.preprocess = torchvision.transforms.Compose([
+                torchvision.transforms.RandomRotation(45, fill=255),
+                torchvision.transforms.ToTensor()
+            ])
+        
+        else:
+            self.preprocess = None
         # ----------------------
 
 
