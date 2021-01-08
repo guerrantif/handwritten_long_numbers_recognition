@@ -101,8 +101,14 @@ class MNIST(torch.utils.data.Dataset):
             # ------------------------
             for name, _ in urls.items():
                 filepath = os.path.join(self.raw_folder, name)
+                
                 if "images" in name:
                     self.data = utils.store_file_to_tensor(filepath)
+                    # add one dimension to X to give it as input to CNN by forward
+                    self.data = torch.unsqueeze(self.data, 1)                    
+                    # convert from uint8 to float32 due to runtime problem in conv2d forward phase
+                    self.data = self.data.type(torch.FloatTensor)
+
                 elif "labels" in name:
                     self.labels = utils.store_file_to_tensor(filepath)
             self.save()
@@ -272,4 +278,5 @@ class MNIST(torch.utils.data.Dataset):
         print("Classes:       \t{0}".format(set(self.labels.numpy())))
         print("Classes distr.: \t{0}".format(self.labels.bincount() / len(self.labels) * 100))
         print("Data type:     \t{0}".format(type(self.data[0])))
+        print("Data dtype:     \t{0}".format(self.data[0].dtype))
         print("Data shape:    \t{0}\n".format(self.data[0].shape))
