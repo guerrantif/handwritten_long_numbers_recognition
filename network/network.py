@@ -33,7 +33,9 @@ if __name__ == "__main__":
 
         # creating a new classifier
         # ------------------------
-        classifier = cnn.CNN(device=args.device)
+        classifier = cnn.CNN(
+                          data_augmentation=args.preprocess
+                        , device=args.device)
         # ------------------------
 
         # preparing training and validation dataset
@@ -43,8 +45,6 @@ if __name__ == "__main__":
                         , train=True
                         , download=True
                         , empty=False
-                        # , normalize=True
-                        # , transform=...
                         )
         # ------------------------
 
@@ -55,7 +55,6 @@ if __name__ == "__main__":
                         , train=False
                         , download=True
                         , empty=False
-                        # , normalize=True
                         )
         # ------------------------
 
@@ -66,6 +65,12 @@ if __name__ == "__main__":
                                                     , shuffle=True
                                                     )
         # ------------------------
+
+        # setting preprocessing operations if enabled
+        # ------------------------
+        training_set.set_preprocess(CNN.preprocess)
+        # ------------------------
+
 
         # print some statistics
         # ------------------------
