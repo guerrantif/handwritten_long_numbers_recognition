@@ -110,7 +110,6 @@ class MNIST(torch.utils.data.Dataset):
         # ------------------------
             
 
-
     def __len__(self) -> int:
         """
         Return the lenght of the dataset.
@@ -119,7 +118,6 @@ class MNIST(torch.utils.data.Dataset):
             length of the dataset (int)
         """
         return len(self.data) if self.data is not None else 0
-
 
     
     def __getitem__(
@@ -140,7 +138,6 @@ class MNIST(torch.utils.data.Dataset):
         return (img, label)
     
 
-
     def save(self) -> None:
         """
         Save the dataset (tuple of torch.tensors) into a file defined by self.processed_folder and self.save_file.
@@ -151,7 +148,6 @@ class MNIST(torch.utils.data.Dataset):
         # saving the training set into the correct folder
         with open(os.path.join(self.processed_folder, self.save_file), 'wb') as f:
             torch.save((self.data, self.labels), f)
-
 
 
     def load(
@@ -167,7 +163,6 @@ class MNIST(torch.utils.data.Dataset):
 
         self.data, self.labels = torch.load(path)
 
-    
 
     def splits(
           self
@@ -181,11 +176,16 @@ class MNIST(torch.utils.data.Dataset):
             proportions (list): (default=[0.8,0.2]) list of proportions for training set and validation set.
             shuffle (bool): (default=True) whether to shuffle the dataset or not
         """
+        # check not empty dataset
+        # ------------------------
+        if len(self.data) == 0 or len(self.labels) == 0:
+            raise ValueError("Empty dataset: cannot be splitted. Please fill it first!")
+        # ------------------------
 
         # check proportions
         # ------------------------
-        if not (sum(proportions) == 1. and all([p > 0. for p in proportions])): #and len(proportions) == 2:
-            raise ValueError("Invalid proportions: they must (1) be 2 (2) sum up to 1") # (3) be all positives.")
+        if not (sum(proportions) == 1. and all([p > 0. for p in proportions])):
+            raise ValueError("Invalid proportions: they must (1) be 2 (2) sum up to 1")
         # ------------------------
 
         num_splits = len(proportions)
@@ -197,8 +197,6 @@ class MNIST(torch.utils.data.Dataset):
         for i in range(num_splits):
             datasets.append(MNIST(folder=self.folder, empty=True))
         # ------------------------
-        # return datasets
-
 
         if shuffle:
             # create a random permutation of the indices
@@ -232,13 +230,12 @@ class MNIST(torch.utils.data.Dataset):
         return datasets
 
 
-
     def get_loader(
           self
         , batch_size: int=1
-        , shuffle
         , num_workers: int=0
-        ) -> DataLoader:
+        , shuffle: bool=True
+        ) -> torch.utils.data.DataLoader:
         """
         Returns the DataLoader for the given set {training, validation, test}.
 
@@ -249,24 +246,22 @@ class MNIST(torch.utils.data.Dataset):
                                 0 means that the data will be loaded in the main process.
         
         Returns:
-            data_loader (DataLoader): provides an iterable over the given dataset.
+            data_loader (torch.utils.data.DataLoader): provides an iterable over the given dataset.
         """
-
-        if self.training_indices is None and self.validation_indices is None:
-            raise ValueError("Create splits first!")
+        # check not empty dataset
+        # ------------------------
+        if len(self.data) == 0 or len(self.labels) == 0:
+            raise ValueError("Empty dataset: cannot be splitted. Please fill it first!")
+        # ------------------------
         
-        data_loader = DataLoader(
-                                self.test_set
-                            , batch_size=batch_size
-                            , num_workers=num_workers
-                            )
-
-        else:
-            raise ValueError("Invalid set: {'training', 'validation', 'test'}.")
-
+        data_loader = torch.utils.data.DataLoader(
+                                      self
+                                    , batch_size=batch_size
+                                    , shuffle=True
+                                    , num_workers=num_workers
+                                    )
             
         return data_loader
-    
     
     
     def statistics(self) -> None:
