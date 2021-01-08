@@ -43,7 +43,7 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
 
         self.num_outputs = 10       # for MNIST dataset: 10-class classification problem
-        self.name = "CNN-{}".format(model)
+        self.name = "CNN"
 
         # device setup
         if torch.cuda.is_available() and bool(re.findall("cuda:[\d]+$", device)): 
@@ -348,9 +348,9 @@ class CNN(nn.Module):
                 loss = CNN.__loss(logits, Y)
 
                 # computing gradients and updating network weights
-                self.optimizer.zero_grad()       # put all gradients to zero before computing backward phase
-                loss.backward()             # computing gradients (for parameters with requires_grad=True)
-                self.optimizer.step()            # updating parameters according to optimizer
+                self.optimizer.zero_grad()      # put all gradients to zero before computing backward phase
+                loss.backward()                 # computing gradients (for parameters with requires_grad=True)
+                self.optimizer.step()           # updating parameters according to optimizer
 
                 # evaluating performances on mini-batches
                 with torch.no_grad():       # keeping off the autograd engine
@@ -417,10 +417,10 @@ class CNN(nn.Module):
         CNN evaluation procedure.
 
         Args:
-            data_set    (DataLoader): DataLoader of the validation set
+            data_set (DataLoader): DataLoader of the validation set
 
         Returns:
-            accuracy         (float): accuracy of the network on the validation set
+            accuracy    (float): accuracy of the network on the validation set
         """
         
         # checking if network is in 'eval' or 'train' mode
