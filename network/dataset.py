@@ -270,13 +270,21 @@ class MNIST(torch.utils.data.Dataset):
         return data_loader
     
     
+    def classes_distribution(self) -> None:
+        """
+        Return the classes distribution percentage.
+        Used in cross-entropy for taking care of little unbalancments.
+        """
+        return self.labels.bincount() / len(self.labels) * 100
+
+
     def statistics(self) -> None:
         """
         Print some basic statistics of the current dataset.
         """
         print("N. samples:    \t{0}".format(len(self.data)))
         print("Classes:       \t{0}".format(set(self.labels.numpy())))
-        print("Classes distr.: \t{0}".format(self.labels.bincount() / len(self.labels) * 100))
+        print("Classes distr.: \t{0}".format(self.classes_distribution())
         print("Data type:     \t{0}".format(type(self.data[0])))
         print("Data dtype:     \t{0}".format(self.data[0].dtype))
         print("Data shape:    \t{0}\n".format(self.data[0].shape))
