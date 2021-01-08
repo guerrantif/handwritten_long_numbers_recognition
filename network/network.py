@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
         # setting preprocessing operations if enabled
         # ------------------------
-        training_set.set_preprocess(CNN.preprocess)
+        training_set.set_preprocess(classifier.preprocess)
         # ------------------------
 
 
@@ -82,8 +82,8 @@ if __name__ == "__main__":
         # training the classifier
         # ------------------------
         classifier.train_cnn(
-                      training_set=train_loader
-                    , validation_set=val_loader
+                      training_set=training_set
+                    , validation_set=validation_set
                     , batch_size=args.batch_size
                     , lr=args.lr
                     , epochs=args.epochs
@@ -95,12 +95,12 @@ if __name__ == "__main__":
         # computing the performance of the final model in the prepared data splits
         # ------------------------
         print("Evaluating the classifier...")
-        train_acc = classifier.eval_cnn(training_set)
-        val_acc = classifier.eval_cnn(val_loader)
-        test_acc = classifier.eval_cnn(test_loader)
+        training_acc = classifier.eval_cnn(training_set)
+        validation_acc = classifier.eval_cnn(validation_set)
+        test_acc = classifier.eval_cnn(test_set)
 
-        print("training set:\tacc:{:.2f}".format(train_acc))
-        print("validation set:\tacc:{:.2f}".format(val_acc))
+        print("training set:\tacc:{:.2f}".format(training_acc))
+        print("validation set:\tacc:{:.2f}".format(validation_acc))
         print("test set:\tacc:{:.2f}".format(test_acc))
         # ------------------------
 
