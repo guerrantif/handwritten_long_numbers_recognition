@@ -299,7 +299,7 @@ class MNIST(torch.utils.data.Dataset):
         """
         print("N. samples:    \t{0}".format(len(self.data)))
         print("Classes:       \t{0}".format(set(self.labels.numpy())))
-        print("Classes distr.: \t{0}".format(self.classes_distribution())
+        print("Classes distr.: \t{0}".format(self.classes_distribution()))
         print("Data type:     \t{0}".format(type(self.data[0])))
         print("Data dtype:     \t{0}".format(self.data[0].dtype))
         print("Data shape:    \t{0}\n".format(self.data[0].shape))
