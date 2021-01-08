@@ -7,7 +7,7 @@ import struct
 
 def is_downloadable(url: str) -> bool:
     """
-    Does the url contain a downloadable resource for our project.
+    Check if the url contains a downloadable resource.
 
     Args:
         url     (str): url of the source to be downloaded
@@ -32,9 +32,9 @@ def download(
     Download a .gz file from the provided url and saves it to a folder.
 
     Args:
-        url (str): url of the source to be downloaded
-        folder (str): folder in which the file will be saved
-        filename (str): name to use as filename
+        url         (str): url of the source to be downloaded
+        folder      (str): folder in which the file will be saved
+        filename    (str): name to use as filename
     """
     if is_downloadable(url):
         # compressed filename (filename.gz)
