@@ -22,6 +22,7 @@ import os
 
 class MNIST(torch.utils.data.Dataset):
 
+
     def __init__(
           self
         , folder: str
@@ -108,7 +109,8 @@ class MNIST(torch.utils.data.Dataset):
             # ------------------------
         # ------------------------
             
-    
+
+
     def __len__(self) -> int:
         """
         Return the lenght of the dataset.
@@ -117,6 +119,7 @@ class MNIST(torch.utils.data.Dataset):
             length of the dataset (int)
         """
         return len(self.data) if self.data is not None else 0
+
 
     
     def __getitem__(
@@ -150,6 +153,7 @@ class MNIST(torch.utils.data.Dataset):
             torch.save((self.data, self.labels), f)
 
 
+
     def load(
           self
         , path: str
@@ -164,6 +168,7 @@ class MNIST(torch.utils.data.Dataset):
         self.data, self.labels = torch.load(path)
 
     
+
     def splits(
           self
         , proportions: list=[0.8, 0.2]
@@ -225,3 +230,51 @@ class MNIST(torch.utils.data.Dataset):
         # ------------------------
 
         return datasets
+
+
+
+    def get_loader(
+          self
+        , batch_size: int=1
+        , shuffle
+        , num_workers: int=0
+        ) -> DataLoader:
+        """
+        Returns the DataLoader for the given set {training, validation, test}.
+
+        Args:
+            batch_size  (int):  how many samples per batch to load.
+            shuffle    (bool):  set to True to have the data reshuffled at every epoch.
+            num_workers (int):  how many subprocesses to use for data loading. 
+                                0 means that the data will be loaded in the main process.
+        
+        Returns:
+            data_loader (DataLoader): provides an iterable over the given dataset.
+        """
+
+        if self.training_indices is None and self.validation_indices is None:
+            raise ValueError("Create splits first!")
+        
+        data_loader = DataLoader(
+                                self.test_set
+                            , batch_size=batch_size
+                            , num_workers=num_workers
+                            )
+
+        else:
+            raise ValueError("Invalid set: {'training', 'validation', 'test'}.")
+
+            
+        return data_loader
+    
+    
+    
+    def statistics(self) -> None:
+        """
+        Print some basic statistics of the current dataset.
+        """
+        print("N. samples:    \t{0}".format(len(self.data)))
+        print("Classes:       \t{0}".format(set(self.labels.numpy())))
+        print("Classes distr.: \t{0}".format(self.labels.bincount() / len(self.labels) * 100))
+        print("Data type:     \t{0}".format(type(self.data[0])))
+        print("Data shape:    \t{0}\n".format(self.data[0].shape))
