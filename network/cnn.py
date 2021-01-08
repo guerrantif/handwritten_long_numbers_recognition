@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import re   # regular expressions
 from tqdm import tqdm
 import datetime
+import dataset
 
 
 class CNN(nn.Module):
@@ -46,12 +47,15 @@ class CNN(nn.Module):
         self.name = "CNN"
 
         # device setup
+        # ----------------------
         if torch.cuda.is_available() and bool(re.findall("cuda:[\d]+$", device)): 
             self.device = torch.device(device)
         else:
             self.device = torch.device("cpu")
+        # ----------------------
             
         # model of the CNN
+        # ----------------------
         self.net = nn.Sequential(
                 # [batch_size, 1, 28, 28]
                 nn.Conv2d(
@@ -103,9 +107,12 @@ class CNN(nn.Module):
                 )
                 # [batch_size, self.num_outputs]
         )
+        # ----------------------
 
         # moving network to the correct device memory
+        # ----------------------
         self.net.to(self.device)
+        # ----------------------
 
 
     def save(
@@ -182,7 +189,9 @@ class CNN(nn.Module):
         """
 
         # decision -> winning class
+        # ----------------------
         decisions = torch.argmax(outputs, dim=1)
+        # ----------------------
 
         return decisions
 
@@ -191,7 +200,7 @@ class CNN(nn.Module):
     def __loss(
           logits: torch.Tensor
         , labels: torch.Tensor
-        , weights: torch.Tensor=torch.Tensor([10.1300,  8.8994, 10.0705,  9.7863, 10.2705, 11.0681, 10.1386,  9.5770, 10.2547, 10.0857])
+        , weights: torch.Tensor
         ) -> torch.Tensor:
         """
         Compute the loss function of the cnn.
@@ -233,64 +242,57 @@ class CNN(nn.Module):
         """
 
         # taking a decision
+        # ----------------------
         decisions = CNN.__decision(outputs)
+        # ----------------------
 
         # computing the accuracy on main classes
-        right_decisions = torch.eq(decisions, labels)     # element-wise equality
-        accuracy = torch.mean(right_decisions.to(torch.float) * 100.0).item()
+        # ----------------------
+        correct_decisions = torch.eq(decisions, labels)     # element-wise equality
+        accuracy = torch.mean(correct_decisions.to(torch.float) * 100.0).item()
+        # ----------------------
 
         return accuracy
 
 
     def train_cnn(
           self
-        , training_set: torch.utils.data.DataLoader
-        , validation_set: torch.utils.data.DataLoader
-        , optimizer_mode: str="adam"
+        , training_set: dataset.MNIST
+        , validation_set: dataset.MNIST
+        , batch_size: int=64
         , lr: float=0.001
         , epochs: int=10
-        , momentum: float=0.5
+        , num_workers: int=3
         , model_path: str='./../models/'
         ) -> None:
         """
         CNN training procedure.
 
         Args:
-            training_set    (DataLoader): DataLoader of the training set
-            validation_set  (DataLoader): DataLoader of the validation set
-            optimizer_mode         (str): {"adam", "sgd"}, type of optimizer
-            lr                   (float): learning rate
-            epochs                 (int): number of training epochs
-            momentum             (float): momentum for the SGD optimizer
-            model_path           (float): folder in which the model will be saved
+            training_set    (dataset.MNIST): training set
+            validation_set  (dataset.MNIST): validation set
+            batch_size              (float): batch size
+            lr                      (float): learning rate
+            epochs                    (int): number of training epochs
+            num_workers               (int): number of workers
+            model_path              (float): folder in which the trained model will be saved
         """
 
         # set network in training mode (affect on dropout module)
+        # ----------------------
         self.net.train()
+        # ----------------------
 
         # optimizer https://pytorch.org/docs/stable/optim.html
-        if optimizer_mode == "adam":
-            self.optimizer = torch.optim.Adam(
-                                  params=filter(lambda p:   # filter on parameters that require gradient
-                                                    p.requires_grad, 
-                                                self.net.parameters()
-                                                )
+        # ----------------------
+        self.optimizer = torch.optim.Adam(
+                                  params=filter(    # filter on parameters that require gradient
+                                            lambda p: p.requires_grad, 
+                                            self.net.parameters()
+                                            )
                                 , lr=lr
                                 )
-
-        elif optimizer_mode == "sgd":
-            self.optimizer = torch.optim.SGD(
-                                  params=filter(lambda p:   # filter on parameters that require gradient
-                                                    p.requires_grad, 
-                                                self.net.parameters()
-                                                )
-                                , lr=lr
-                                , momentum=momentum
-                                )
-
-        else:
-            raise ValueError("Invalid optimizer {}: \'adam\' or \'sgd\' must be provided")
-
+        # ----------------------
 
         best_validation_accuracy = -1.              # best accuracy on the validation data
         best_epoch = -1                             # epoch in which best accuracy was computed
@@ -302,6 +304,7 @@ class CNN(nn.Module):
     
         
         # formatting name for saving model and plot
+        # ----------------------
         timestamp = datetime.datetime.now()
         now = "{}{}{}-{}{}{}".format(
                                   timestamp.year
@@ -312,6 +315,24 @@ class CNN(nn.Module):
                                 , timestamp.second)
         model_name = "{}lr{}-epochs{}-{}-{}".format(
                     self.name, lr, epochs, optimizer_mode, now)
+        # ----------------------
+
+
+
+        # getting data loaders of datasets
+        # ----------------------
+        train_loader = training_set.get_loader(
+                                  batch_size=batch_size
+                                , num_workers=num_workers
+                                , shuffle=True
+                                )
+        
+        val_loader = validation_set.get_loader(
+                                  batch_size=batch_size
+                                , num_workers=num_workers
+                                , shuffle=False
+                                )
+        # ----------------------
         
 
         # start train phase (looping on epochs)
@@ -327,7 +348,7 @@ class CNN(nn.Module):
 
             # looping on batches
             # ----------------------
-            for X, Y in tqdm(training_set):
+            for X, Y in tqdm(train_loader):
                 
                 if first_batch_flag:
                     batch_size = X.shape[0]     # take user batch-size
@@ -338,36 +359,56 @@ class CNN(nn.Module):
                 epoch_num_training_examples += batch_num_training_examples 
 
                 # moving data to correct device (speed process up)
+                # ----------------------
                 X = X.to(self.device)
                 Y = Y.to(self.device)
+                # ----------------------
 
                 # forwarding network
+                # ----------------------
                 outputs, logits = self.forward(X)
+                # ----------------------
 
                 # computing loss of network
-                loss = CNN.__loss(logits, Y)
+                # ----------------------
+                loss = CNN.__loss(logits, Y, training_set.classes_distribution())
+                # ----------------------
 
                 # computing gradients and updating network weights
+                # ----------------------
                 self.optimizer.zero_grad()      # put all gradients to zero before computing backward phase
                 loss.backward()                 # computing gradients (for parameters with requires_grad=True)
                 self.optimizer.step()           # updating parameters according to optimizer
+                # ----------------------
 
                 # evaluating performances on mini-batches
+                # ----------------------
                 with torch.no_grad():       # keeping off the autograd engine
-
-                    self.net.eval()         # setting network out of training mode (affects dropout layer)
+                    
+                    # setting network out of training mode (affects dropout layer)
+                    # ----------------------
+                    self.net.eval()         
+                    # ----------------------
 
                     # evaluating performance of current mini-batch
+                    # ----------------------
                     batch_training_accuracy = CNN.__performance(outputs, Y)
+                    # ----------------------
 
                     # accumulating accuracy of all mini-batches for current epoch (batches normalized)
+                    # ----------------------
                     epoch_training_accuracy += batch_training_accuracy * batch_num_training_examples
+                    # ----------------------
 
                     # accumulating loss of all mini-batches for current epoch (batches normalized)
+                    # ----------------------
                     epoch_training_loss += loss.item() * batch_num_training_examples       # loss.item() to access value
+                    # ----------------------
 
                     # switching to train mode
+                    # ----------------------
                     self.net.train() 
+                    # ----------------------
 
             # ----------------------   
             # end of mini-batches scope
@@ -376,7 +417,9 @@ class CNN(nn.Module):
             # ----------------------
 
             # network evaluation on validation set (end of each epoch)
+            # ----------------------
             validation_accuracy = self.eval_cnn(validation_set)
+            # ----------------------
 
             if validation_accuracy > best_validation_accuracy:
                 best_validation_accuracy = validation_accuracy
@@ -384,66 +427,95 @@ class CNN(nn.Module):
                 self.save(path="{}/{}.pth".format(model_path,model_name))
 
             # appending epoch validation accuracy to list
+            # ----------------------
             epochs_validation_accuracy_list.append(validation_accuracy)
+            # ----------------------
 
             # normalizing epoch accuracy and appendinf to list
+            # ----------------------
             epoch_training_accuracy /= epoch_num_training_examples
             epochs_training_accuracy_list.append(epoch_training_accuracy)
+            # ----------------------
 
             # epoch loss computation
+            # ----------------------
             epoch_training_loss /= epoch_num_training_examples
+            # ----------------------
 
             # printing (epoch related) stats on screen
+            # ----------------------
             print(("loss: {:.4f} - acc: {:.4f} - val_acc: {:.4f}" + (" - BEST!" if best_epoch == e + 1 else ""))
             .format(epoch_training_loss, epoch_training_accuracy, validation_accuracy))
+            # ----------------------
         
         # end of epoch scope
         # ----------------------
 
         # plotting 
+        # ----------------------
         CNN.__plot(
                   epochs=epochs
                 , training_accuracy=epochs_training_accuracy_list
                 , validation_accuracy=epochs_validation_accuracy_list
                 , model_name=model_name
                 , batch_size=batch_size)
+        # ----------------------
         
 
     def eval_cnn(
           self
-        , data_set: torch.utils.data.DataLoader
+        , dataset: dataset.MNIST
+        , batch_size: int=64
+        , num_workers: int=3
         ) -> float:
         """
         CNN evaluation procedure.
 
         Args:
-            data_set (DataLoader): DataLoader of the validation set
+            dataset (dataset.MNIST): dataset to be evaluated
+            batch_size      (float): batch size
+            num_workers       (int): number of workers
 
         Returns:
-            accuracy    (float): accuracy of the network on the validation set
+            accuracy    (float): accuracy of the network on input dataset
         """
         
         # checking if network is in 'eval' or 'train' mode
+        # ----------------------
         training_mode_originally_on = self.net.training
         if training_mode_originally_on:
             self.net.eval()         # switch to eval mode
+        # ----------------------
 
         batch_outputs = []          # network outputs
         batch_labels = []           # labels for outputs
 
 
         with torch.no_grad():       # keeping off autograd engine
+
+            # getting data loaders of dataset
+            # ----------------------
+            train_loader = training_set.get_loader(
+                                      batch_size=batch_size
+                                    , num_workers=num_workers
+                                    , shuffle=False
+                                    )
+            # ----------------------
             
             # loop over mini-batches
-            for X, Y in data_set:
+            # ----------------------
+            for X, Y in dataset:
                 X = X.to(self.device)
 
                 outputs, _ = self.forward(X)
                 batch_outputs.append(outputs.cpu())     # append operation forced to be computed in cpu
                 batch_labels.append(Y)
+            # ----------------------
             
             # computing network performances on validation set
+            # ----------------------
             accuracy = CNN.__performance(torch.cat(batch_outputs, dim=0), torch.cat(batch_labels, dim=0))
+            # ----------------------
 
         if training_mode_originally_on:
             self.net.train()    # restoring training state
