@@ -20,7 +20,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import re   # regular expressions
-from typing import Any, Callable, Optional, Sequence
 from tqdm import tqdm
 import datetime
 
@@ -28,19 +27,16 @@ import datetime
 class CNN(nn.Module):
     """
     Convolutional Neural Network class for MNIST dataset.
-    It provides several models from which one can choose.
     """
 
     def __init__(
           self
-        , model: Optional[str]='model1'
-        , device: Optional[str]='cpu'
+        , device: str='cpu'
         ) -> None:
         """
         CNN class constructor.
 
         Args:
-            model   (str): {'model1' (default), 'model2'} several models are provided for this example.
             device  (str): {'cpu}
         """
 
@@ -54,64 +50,59 @@ class CNN(nn.Module):
             self.device = torch.device(device)
         else:
             self.device = torch.device("cpu")
-
-
-        if model == "model1":
-
-            self.net = nn.Sequential(
-                    # [batch_size, 1, 28, 28]
-                    nn.Conv2d(
-                          in_channels=1
-                        , out_channels=12
-                        , kernel_size=5
-                        , stride=1
-                        , padding=0
-                    )
-                    # [batch_size, 12, 24, 24]
-                    , nn.ReLU(inplace=True)
-                    # [batch_size, 12, 24, 24]
-                    , nn.MaxPool2d(
-                          kernel_size=2
-                        , stride=2
-                        , padding=0
-                    )
-                    # [batch_size, 12, 12, 12]
-                    , nn.Conv2d(
-                          in_channels=12
-                        , out_channels=24
-                        , kernel_size=5
-                        , stride=1
-                        , padding=0
-                    )
-                    # [batch_size, 24, 8, 8]
-                    , nn.ReLU(inplace=True)
-                    # [batch_size, 24, 8, 8]
-                    , nn.MaxPool2d(
-                          kernel_size=2
-                        , stride=2
-                        , padding=0
-                    )
-                    # [batch_size, 24, 4, 4]
-                    , nn.Flatten()
-                    # [batch_size, 384]
-                    , nn.Linear(
-                          in_features=4*4*24
-                        , out_features=784
-                    )
-                    # [batch_size, 784]
-                    , nn.ReLU(inplace=True)
-                    # [batch_size, 784]
-                    , nn.Dropout()
-                    # [batch_size, 784]
-                    , nn.Linear(
-                          in_features=784
-                        , out_features=10
-                    )
-                    # [batch_size, self.num_outputs]
-            )
-
-        else:
-            raise ValueError('{}: undefined model'.format(model))
+            
+        # model of the CNN
+        self.net = nn.Sequential(
+                # [batch_size, 1, 28, 28]
+                nn.Conv2d(
+                      in_channels=1
+                    , out_channels=12
+                    , kernel_size=5
+                    , stride=1
+                    , padding=0
+                )
+                # [batch_size, 12, 24, 24]
+                , nn.ReLU(inplace=True)
+                # [batch_size, 12, 24, 24]
+                , nn.MaxPool2d(
+                      kernel_size=2
+                    , stride=2
+                    , padding=0
+                )
+                # [batch_size, 12, 12, 12]
+                , nn.Conv2d(
+                      in_channels=12
+                    , out_channels=24
+                    , kernel_size=5
+                    , stride=1
+                    , padding=0
+                )
+                # [batch_size, 24, 8, 8]
+                , nn.ReLU(inplace=True)
+                # [batch_size, 24, 8, 8]
+                , nn.MaxPool2d(
+                      kernel_size=2
+                    , stride=2
+                    , padding=0
+                )
+                # [batch_size, 24, 4, 4]
+                , nn.Flatten()
+                # [batch_size, 384]
+                , nn.Linear(
+                      in_features=4*4*24
+                    , out_features=784
+                )
+                # [batch_size, 784]
+                , nn.ReLU(inplace=True)
+                # [batch_size, 784]
+                , nn.Dropout()
+                # [batch_size, 784]
+                , nn.Linear(
+                      in_features=784
+                    , out_features=10
+                )
+                # [batch_size, self.num_outputs]
+        )
 
         # moving network to the correct device memory
         self.net.to(self.device)
@@ -200,7 +191,7 @@ class CNN(nn.Module):
     def __loss(
           logits: torch.Tensor
         , labels: torch.Tensor
-        , weights: Optional[torch.Tensor]=torch.Tensor([10.1300,  8.8994, 10.0705,  9.7863, 10.2705, 11.0681, 10.1386,  9.5770, 10.2547, 10.0857])
+        , weights: torch.Tensor=torch.Tensor([10.1300,  8.8994, 10.0705,  9.7863, 10.2705, 11.0681, 10.1386,  9.5770, 10.2547, 10.0857])
         ) -> torch.Tensor:
         """
         Compute the loss function of the cnn.
@@ -255,11 +246,11 @@ class CNN(nn.Module):
           self
         , training_set: torch.utils.data.DataLoader
         , validation_set: torch.utils.data.DataLoader
-        , optimizer_mode: Optional[str]="adam"
-        , lr: Optional[float]=0.001
-        , epochs: Optional[int]=10
-        , momentum: Optional[float]=0.5
-        , model_path: Optional[str]='./../models/'
+        , optimizer_mode: str="adam"
+        , lr: float=0.001
+        , epochs: int=10
+        , momentum: float=0.5
+        , model_path: str='./../models/'
         ) -> None:
         """
         CNN training procedure.
@@ -282,7 +273,7 @@ class CNN(nn.Module):
             self.optimizer = torch.optim.Adam(
                                   params=filter(lambda p:   # filter on parameters that require gradient
                                                     p.requires_grad, 
-                                                    self.net.parameters()
+                                                self.net.parameters()
                                                 )
                                 , lr=lr
                                 )
@@ -291,7 +282,7 @@ class CNN(nn.Module):
             self.optimizer = torch.optim.SGD(
                                   params=filter(lambda p:   # filter on parameters that require gradient
                                                     p.requires_grad, 
-                                                    self.net.parameters()
+                                                self.net.parameters()
                                                 )
                                 , lr=lr
                                 , momentum=momentum
