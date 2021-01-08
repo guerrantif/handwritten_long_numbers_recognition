@@ -45,8 +45,11 @@ class MNIST(torch.utils.data.Dataset):
         # ------------------------
         if folder is None:
             raise FileNotFoundError("Please specify the data folder")
-        if not os.path.exists(folder) or os.path.isfile(folder):
+        if os.path.isfile(folder):
             raise FileNotFoundError("Invalid data path: {}".format(folder))
+        if not os.path.exists(folder):
+            os.makedirs(folder)     
+
 
         self.folder = folder
         # ------------------------
