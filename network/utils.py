@@ -4,6 +4,9 @@ import gzip
 import shutil
 import torch.tensor
 import struct
+import argparse
+
+
 
 def is_downloadable(url: str) -> bool:
     """
@@ -150,3 +153,75 @@ def store_file_to_tensor(file_path: str) -> torch.tensor:
 
         
         return dataset
+
+
+def parse_command_line_arguments():
+    """Parse command line arguments, checking their values."""
+
+    parser = argparse.ArgumentParser(description='')
+
+    parser.add_argument('mode', choices=['train', 'classify'],
+                        help='train the classify or classify input image')
+
+    parser.add_argument('--dataset_folder', type=str, default='./../data/',
+                        help='folder where to save the dataset or from where to load it (if mode == train')
+    
+    parser.add_argument('--model_path', type=str, default='./../models/',
+                        help='path of the model to load from memory (if mode == classify)')
+
+    parser.add_argument('--model_name', type=str, default=None, 
+                        help='name of the model to load from memory (if mode == classify)')
+
+    parser.add_argument('--splits', type=str, default='0.8-0.2',
+                        help='fraction of data to be used in training and validation set (default: 0.8-0.2)')
+
+    parser.add_argument('--batch_size', type=int, default=64,
+                        help='mini-batch size (default: 64)')
+
+    parser.add_argument('--epochs', type=int, default=10,
+                        help='number of training epochs (default: 10)')
+
+    parser.add_argument('--lr', type=float, default=0.001,
+                        help='learning rate (default: 0.001)')
+
+    parser.add_argument('--workers', type=int, default=3,
+                        help='number of working units used to load the data (default: 3)')
+
+    parser.add_argument('--device', default='cpu', type=str,
+                        help='device to be used for computations (in {cpu, cuda:0, cuda:1, ...}, default: cpu)')
+
+    parsed_arguments = parser.parse_args()
+
+
+    # converting split fraction string to a list of floating point values ('0.8-0.2' => [0.8, 0.2])
+    # ------------------------
+    splits_string = str(parsed_arguments.splits)
+    fractions_string = splits_string.split('-')
+    if len(fractions_string) != 2:
+        raise ValueError("Invalid split fractions were provided. Required format (example): 0.8-0.2")
+    else:
+        splits = []
+        frac_sum = 0.
+        for fraction in fractions_string:
+            try:
+                splits.append(float(fraction))
+                frac_sum += splits[-1]
+            except ValueError:
+                raise ValueError("Invalid split fractions were provided. Required format (example): 0.8-0.2")
+        if frac_sum != 1.0:
+            raise ValueError("Invalid split fractions were provided. They must sum to 1.")
+    # ------------------------
+
+    # updating the 'splits' argument
+    # ------------------------
+    parsed_arguments.splits = splits
+    # ------------------------
+
+    # checking presence of model folder and name if mode == classify
+    # ------------------------
+    if parsed_arguments.mode == 'classify' and (parsed_arguments.model_name is None or parsed_arguments.model_path is None):
+        raise ValueError("Model path and name must be provided if mode == 'classify'.")
+    # ------------------------
+
+
+    return parsed_arguments
