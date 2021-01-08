@@ -14,195 +14,214 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import numpy as np
+import utils
 import torch
-import torchvision 
-import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
-from torch.utils.data import DataLoader
-from torch.utils.data.sampler import SubsetRandomSampler
-from typing import Any, Callable, Optional, Sequence
+import os
 
 
 
-class MnistDataset():
-    """
-    Dataset class for MNIST dataset.
-    It provides an easy downloader and the possibility to split the dataset.
-    """
+class MNIST(torch.utils.data.Dataset):
 
     def __init__(
           self
-        , path: str='./data/'
-        , download: bool=True
-        , normalize: bool=True
+        , folder: str
+        , train: bool=True
+        , download: bool=False
+        , empty: bool=False
         ) -> None:
         """
-        MnistDataset class constructor.
+        Class constructor.
 
         Args:
-            path        (str): path in which the dataset is present 
-                               or in which it will be downloaded if not present yet
-            download   (bool): if True and if the dataset is not present yet it will be downloaded 
-            normalize  (bool): if True the images will be normalized (both in training set and test set)
+            folder      (str): folder in which contains/will contain the data
+            train      (bool): if True the training dataset is built, otherwise the test dataset
+            download   (bool): if True the dataset will be downloaded (default = True)
+            empty      (bool): if True the tensors will be left empty (default = False)
         """
 
-        if normalize:
-            transform = transforms.Compose([
-                              transforms.ToTensor()
-                            , transforms.Normalize((0.1307,), (0.3081,))   # mean and std of MNIST dataset
-                            ])
-        else:
-            transform = None
+        # user folder check
+        # ------------------------
+        if folder is None:
+            raise FileNotFoundError("Please specify the data folder")
+        if not os.path.exists(folder) or os.path.isfile(folder):
+            raise FileNotFoundError("Invalid data path: {}".format(folder))
 
-        # data_set inizialization (base for training_set and validation_set)
-        self.data_set = torchvision.datasets.MNIST(
-                                  root=path
-                                , train=True
-                                , download=download
-                                , transform=transform
-                                )
-        # test_set initialization
-        self.test_set = torchvision.datasets.MNIST(
-                                  root=path
-                                , train=False
-                                , download=False
-                                , transform=transform
-                                )
+        self.folder = folder
+        # ------------------------
 
-        # setting splitting indices to None
-        self.training_indices, self.validation_indices = None, None 
+        # dataset attributes
+        # ------------------------
+        self.data = None
+        self.labels = None
+        # ------------------------
 
 
-    @staticmethod
-    def __statistics(
-          dataset: torchvision.datasets
-        , train: Optional[bool]=True
-        ) -> None:
+        # splitting dataset
+        # ------------------------
+        if not empty:
+
+            # file in which to save the tensors
+            # ------------------------
+            if train:
+                urls = {
+                    'training-images': 'http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz'
+                    , 'training-labels': 'http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz'
+                }
+                self.save_file = 'training.pt'
+            else:
+                urls = {
+                    'test-images': 'http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz'
+                    , 'test-labels': 'http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz'
+                }
+                self.save_file = 'test.pt'
+            # ------------------------
+
+            # folders in which to save the raw dataset
+            # ------------------------
+            self.raw_folder = os.path.join(self.folder, "data/raw")
+            self.processed_folder = os.path.join(self.folder, "data/processed")
+            # ------------------------
+
+            # dataset download
+            # ------------------------
+            if download:
+                for name, url in urls.items():
+                    utils.download(url, self.raw_folder, name)
+            # ------------------------
+            
+            # dataset folder check
+            # ------------------------
+            else:   # not download
+                if not os.path.exists(self.raw_folder) or os.path.isfile(self.raw_folder):
+                    raise FileNotFoundError("Invalid data path: {}".format(self.raw_folder))
+            # ------------------------
+
+            # data storing
+            # ------------------------
+            for name, _ in urls.items():
+                filepath = os.path.join(self.raw_folder, name)
+                if "images" in name:
+                    self.data = utils.store_file_to_tensor(filepath)
+                elif "labels" in name:
+                    self.labels = utils.store_file_to_tensor(filepath)
+            self.save()
+            # ------------------------
+        # ------------------------
+            
+    
+    def __len__(self) -> int:
         """
-        UTILITY FUNCTION: prints some basic statistics of the MNIST dataset.
-        
-        Args:
-            dataset (torchvision.datasets): training or test set of MNIST dataset
-            train (bool): if True the train set statistics are printed, else the test set ones
+        Return the lenght of the dataset.
+
+        Returns:
+            length of the dataset (int)
         """
+        return len(self.data) if self.data is not None else 0
 
-        if train: print("TRAIN set")
-        else: print("TEST set")
-        print("N. samples:    \t{0}".format(len(dataset)))
-        print("Targets:       \t{0}".format(set(dataset.targets.numpy())))
-        print("Target distr.: \t{0}".format(dataset.targets.bincount()/len(dataset)*100))
-        image, label = next(iter(dataset))
-        print("Data type:     \t{0}".format(type(image)))
-        print("Data shape:    \t{0}\n".format(image.shape))
-
-
-    def statistics(self) -> None:
-        """
-        Prints some basic statistics of the MNIST dataset.
-        """
-
-        MnistDataset.__statistics(self.data_set, True)
-        MnistDataset.__statistics(self.test_set, False)
-
-
-    def show(self)-> None:
-        '''
-        Shows the first 20 images of MNIST training set.
-        '''
-        
-        plt.figure(figsize=(50,50))
-        for i, sample in enumerate(self.data_set, start=1):
-            image, label = sample
-            plt.subplot(10, 10, i)
-            plt.imshow(image.squeeze(), cmap='gray')
-            plt.axis('off')
-            plt.title(self.data_set.classes[label], fontsize=28)
-            if (i >= 20): break
-        plt.show()
-
-
-    def create_splits(
+    
+    def __getitem__(
           self
-        , proportions: list
+        , idx: int
+        ) -> tuple:
+        """
+        Retrieve the item of the dataset at index idx.
+
+        Args:
+            idx (int): index of the item to be retrieved.
+        
+        Returns:
+            tuple: (image, label) 
+        """
+        img, label = self.data[idx], int(self.labels[idx])
+
+        return (img, label)
+    
+
+
+    def save(self) -> None:
+        """
+        Save the dataset (tuple of torch.tensors) into a file defined by self.processed_folder and self.save_file.
+        """
+        if not os.path.exists(self.processed_folder):   
+            os.makedirs(self.processed_folder)  
+
+        # saving the training set into the correct folder
+        with open(os.path.join(self.processed_folder, self.save_file), 'wb') as f:
+            torch.save((self.data, self.labels), f)
+
+
+    def load(
+          self
+        , path: str
+        ) -> None:
+        """
+        Load the file .pt in the path defined by self.processed_folder and self.save_file.
+        """
+
+        if not os.path.exists(path):
+            raise FileNotFoundError("Folder not present: {}".format(path))
+
+        self.data, self.labels = torch.load(path)
+
+    
+    def splits(
+          self
+        , proportions: list=[0.8, 0.2]
         , shuffle: bool=True
         ) -> None:
         """
-        Creates the indices for splitting the dataset into training and validation sets by the given proportions.
+        Split the the dataset according to the given proportions and return two instances of MNIST, training and validation.
 
         Args:
-            proportions (list): list with the fractions of data to store in training set and validation set respectively.
-            shuffle     (bool): whether to shuffle the dataset indices before splitting
+            proportions (list): (default=[0.8,0.2]) list of proportions for training set and validation set.
+            shuffle (bool): (default=True) whether to shuffle the dataset or not
         """
 
         # check proportions
-        if sum(proportions) == 1. and all([p > 0. for p in proportions]) and len(proportions) == 2:
-            pass
-        else:
-            raise ValueError("Invalid proportions: they must (1) be 2 (2) sum up to 1 (3) be all positives.")
+        # ------------------------
+        if not (sum(proportions) == 1. and all([p > 0. for p in proportions])): #and len(proportions) == 2:
+            raise ValueError("Invalid proportions: they must (1) be 2 (2) sum up to 1") # (3) be all positives.")
+        # ------------------------
 
-        
-        # creating data indices for training and validation splits
-        length = len(self.data_set)
-        indices = np.arange(length)
-        split = int(np.floor(proportions[0] * length))
+        num_splits = len(proportions)
+        dataset_size = self.data.shape[0]
+
+        # creating a list of MNIST objects
+        # ------------------------
+        datasets = []
+        for i in range(num_splits):
+            datasets.append(MNIST(folder=self.folder, empty=True))
+        # ------------------------
+        # return datasets
+
 
         if shuffle:
-            np.random.shuffle(indices)  # in-place operation
-        
-        self.training_indices, self.validation_indices = indices[:split], indices[split:]
-
-
-    def get_loader(
-          self
-        , set: str
-        , batch_size: int=1
-        , num_workers: int=0
-        ) -> DataLoader:
-        """
-        Returns the DataLoader for the given set {training, validation, test}.
-
-        Args:
-            set         (str):  {'training', 'validation', 'test'}, the set of which a DataLoader will be returned.
-            batch_size  (int):  how many samples per batch to load.
-            shuffle    (bool):  set to True to have the data reshuffled at every epoch.
-            num_workers (int):  how many subprocesses to use for data loading. 
-                                0 means that the data will be loaded in the main process.
-        
-        Returns:
-            data_loader (DataLoader): provides an iterable over the given dataset.
-        """
-
-        if self.training_indices is None and self.validation_indices is None:
-            raise ValueError("Create splits first!")
-
-        if set == "training":
-            sampler = SubsetRandomSampler(self.training_indices)
-            data_loader = DataLoader(
-                                  self.data_set
-                                , batch_size=batch_size
-                                , sampler=sampler
-                                , num_workers=num_workers
-                                )
-
-        elif set == "validation":
-            sampler = SubsetRandomSampler(self.validation_indices)
-            data_loader = DataLoader(
-                                  self.data_set
-                                , batch_size=batch_size
-                                , sampler=sampler
-                                , num_workers=num_workers
-                                )
-
-        elif set == "test":
-            data_loader = DataLoader(
-                                  self.test_set
-                                , batch_size=batch_size
-                                , num_workers=num_workers
-                                )
-
+            # create a random permutation of the indices
+            # ------------------------
+            permutation = torch.randperm(dataset_size)
+            # ------------------------
         else:
-            raise ValueError("Invalid set: {'training', 'validation', 'test'}.")
+            # leave the indices unchanged
+            # ------------------------
+            permutation = torch.arange(dataset_size)
+            # ------------------------
 
-            
-        return data_loader
+        data = self.data[permutation]
+        labels = self.labels[permutation]
+
+
+        # split data and labels into the datasets according to partitions
+        # ------------------------
+        start = 0
+
+        for i in range(num_splits):
+            num_samples =int(proportions[i] * dataset_size)
+            end = start + num_samples if i < num_splits - 1 else dataset_size
+
+            datasets[i].data = data[start:end]
+            datasets[i].labels = labels[start:end]
+
+            start = end
+        # ------------------------
+
+        return datasets
