@@ -21,9 +21,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import re   # regular expressions
-from tqdm import tqdm
 import datetime
 import dataset
+import os
+from tqdm import tqdm
 
 
 class CNN(nn.Module):
@@ -117,11 +118,12 @@ class CNN(nn.Module):
         self.net.to(self.device)
         # ----------------------
 
-        # the data augmentation consists in rotating the image of a random angle between -45° to +45°
+        # the data augmentation consists in rotating the image of a random angle between -15° to +15°
         # ----------------------
         if data_augmentation:
             self.preprocess = torchvision.transforms.Compose([
-                torchvision.transforms.RandomRotation(45, fill=255),
+                torchvision.transforms.ToPILImage(),
+                torchvision.transforms.RandomRotation(15, fill=0),
                 torchvision.transforms.ToTensor()
             ])
         
@@ -141,8 +143,7 @@ class CNN(nn.Module):
         
         Args:
             path   (str): path of the saved file, must have .pth extension
-        """
-
+        """  
         torch.save(self.net.state_dict(), path)
 
 
@@ -315,7 +316,6 @@ class CNN(nn.Module):
         epochs_training_accuracy_list = list()      # list of epoch accuracies on training set
 
         first_batch_flag = True                     # flag for first mini-batch
-        batch_size = 0                              # user batch-sized
     
         
         # formatting name for saving model and plot
@@ -328,9 +328,17 @@ class CNN(nn.Module):
                                 , timestamp.hour
                                 , timestamp.minute
                                 , timestamp.second)
-        model_name = "{}lr{}-epochs{}-{}-{}".format(
-                    self.name, lr, epochs, optimizer_mode, now)
+        model_name = "{}-lr{}-epochs{}-{}".format(
+                    self.name, lr, epochs, now)
         # ----------------------
+
+        # model folder creation
+        # ----------------------
+        if not os.path.exists(model_path):   
+            os.makedirs(model_path)       
+        # ----------------------
+
+
 
 
 
@@ -439,7 +447,12 @@ class CNN(nn.Module):
             if validation_accuracy > best_validation_accuracy:
                 best_validation_accuracy = validation_accuracy
                 best_epoch = e + 1
-                self.save(path="{}/{}.pth".format(model_path,model_name))
+                
+                # model saving
+                # ----------------------
+                filepath = os.path.join(model_path, model_name)
+                self.save(path="{}.pth".format(filepath))
+                # ----------------------
 
             # appending epoch validation accuracy to list
             # ----------------------
@@ -510,7 +523,7 @@ class CNN(nn.Module):
 
             # getting data loaders of dataset
             # ----------------------
-            train_loader = training_set.get_loader(
+            dataset_loader = dataset.get_loader(
                                       batch_size=batch_size
                                     , num_workers=num_workers
                                     , shuffle=False
@@ -519,7 +532,7 @@ class CNN(nn.Module):
             
             # loop over mini-batches
             # ----------------------
-            for X, Y in dataset:
+            for X, Y in dataset_loader:
                 X = X.to(self.device)
 
                 outputs, _ = self.forward(X)
@@ -563,4 +576,9 @@ class CNN(nn.Module):
         plt.ylabel('Accuracy %')
         plt.title('Training/Validation accuracy over epochs')
         plt.legend()
-        plt.savefig("./../img/results/{}.png".format(model_name), dpi=1000)
+
+        folder = "./../results/"
+        if not os.path.exists(folder):   
+            os.makedirs(folder)       
+        filepath = os.path.join(folder, model_name)
+        plt.savefig("{}.png".format(filepath), dpi=1000)

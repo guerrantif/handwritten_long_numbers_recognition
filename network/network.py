@@ -24,12 +24,13 @@ import dataset
 if __name__ == "__main__":
 
     args = utils.parse_command_line_arguments()
+
+    print('\n')
     for k, v in args.__dict__.items():
         print(k + '=' + str(v))
 
 
     if args.mode == 'train':
-        print("\nTraining the classifier\n\n")
 
         # creating a new classifier
         # ------------------------
@@ -38,6 +39,7 @@ if __name__ == "__main__":
                         , device=args.device)
         # ------------------------
 
+        print("\n\nDATASET PREPARATION\n")
         # preparing training and validation dataset
         # ------------------------
         training_validation_set = dataset.MNIST(
@@ -69,18 +71,23 @@ if __name__ == "__main__":
         # setting preprocessing operations if enabled
         # ------------------------
         training_set.set_preprocess(classifier.preprocess)
+        # validation_set.set_preprocess(classifier.preprocess)
         # ------------------------
 
 
         # print some statistics
         # ------------------------
+        print("\n\nTRAINING SET STATISTICS\n")
         training_set.statistics()
+        print("\n\nVALIDATION SET STATISTICS\n")
         validation_set.statistics()
+        print("\n\nTEST SET STATISTICS\n")
         test_set.statistics()
         # ------------------------
 
         # training the classifier
         # ------------------------
+        print("\n\nTRAINING PHASE\n")
         classifier.train_cnn(
                       training_set=training_set
                     , validation_set=validation_set
@@ -94,7 +101,7 @@ if __name__ == "__main__":
         
         # computing the performance of the final model in the prepared data splits
         # ------------------------
-        print("Evaluating the classifier...")
+        print("\n\nVALIDATION PHASE\n")
         training_acc = classifier.eval_cnn(training_set)
         validation_acc = classifier.eval_cnn(validation_set)
         test_acc = classifier.eval_cnn(test_set)
