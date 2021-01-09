@@ -409,7 +409,7 @@ class GraphBasedSegmentation:
 
         # Disjoint-set forest initialization
         # ---------------------------------
-        self.components = DSF.DisjointSetForest(self.num_nodes)
+        self.components = DisjointSetForest(self.num_nodes)
         # ---------------------------------
 
         # threshold list
