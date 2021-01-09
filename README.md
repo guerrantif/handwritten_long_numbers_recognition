@@ -44,7 +44,7 @@ This phase is developed in the `network` module and has the following structure:
      * returning a `DataLoader` of the current dataset (needed for iterating over it)
      * printing some statistics and classes distribution
      * applying some preprocessing operations (such as random rotations for data augmentation)
-     > **NOTE**: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
+> **NOTE**: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
 2. **CNN model implementation**
    * `network.cnn.CNN()` class: takes care of:
      * building the CNN model (shown in the picture below)
