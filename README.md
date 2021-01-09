@@ -10,7 +10,6 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 * [Download and setup](#download-and-setup)
 * [Usage example](#usage-example)
 * [Future developments](#future-developments)
-* [History](#history)
 * [Directory structure](#directory-structure)
 * [References](#references)
 * [Info](#info)
@@ -22,23 +21,22 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 
 ![workflow][workflow]
 
-As the picture shows, the project may be divided into three main sub-problems:
+As the picture shows, the project may be divided into three main phases:
 
- * [CNN building and training phase](#cnn-building-and-training-phase)
- * [Webcam image segmentation](#webcam-image-segmentation)
- * [Number recognition](#number-recognition)
+ * [**Phase 1**: Training of the model](#phase-1-training-of-the-model)
+ * [**Phase 2**: Input image segmentation and digit extraction](#phase-2-input-image-segmentation-and-digit-extraction)
+ * [**Phase 3**: Long number recognition](#phase-3-long-number-recognition)
  
 Having the trained model and the correct segmentation of the input image, the digits classification task and the handwritten long number recognition one, are trivial problems.
 
 
 
-### CNN building and training phase
+### Phase 1: Training of the model
 
 This phase is developed in the `network` module and has the following structure:
-1. **MNIST dataset download and decoding** (_a fully detailed description of this phase is provided in [this][file-decode-notebook] notebook_)
+1. **MNIST dataset decoding and handling** (_a fully detailed description of the decoding procedure is given [here][file-decode-notebook]_)
    * `network.utils.download()` function: downloads the `.IDX` file from the given URL source and stores it in the folder given as argument.
    * `network.utils.store_file_to_tensor()` function: takes the downloaded file (format `.IDX`) and store its contents into a `torch.tensor` following the provided encoding.
-2. **Dataset class building**
    * `network.dataset.MNIST()` class: takes care of:
      * downloading the dataset
      * storing it into `data` and `labels` tensors
@@ -47,7 +45,7 @@ This phase is developed in the `network` module and has the following structure:
      * printing some statistics and classes distribution
      * applying some preprocessing operations (such as random rotations for data augmentation)
      > *NOTE*: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
-3. **CNN model building and training on the MNIST dataset**
+2. **CNN model implementation**
    * `network.cnn.CNN()` class: takes care of:
      * building the CNN model (shown in the picture below)
      * defining the preprocess operations to be performed on the elements of the dataset while iterating over it
@@ -59,27 +57,31 @@ This phase is developed in the `network` module and has the following structure:
        * `__performance()` function: computes the accuracy as number of correct decisions divided by the total number of samples
      * training the model by mean of the `train_cnn()` method (Adam optimizer is the default one)
      * evaluating the model by mean of the `eval_cnn()` method
+3. **Training (with and without data augmentation)**
+   * TODO
 
 ![cnn-model][cnn-model]
 
-### Webcam image segmentation
+### Phase 2: Input image segmentation and digit extraction
 
 The image segmentation and the webcam capture tasks are implemented in the `input` module.
 The structure of this module is as follows:
-* **Webcam image capture**
+* **Webcam capture**
   * TODO
-* **Graph-based image segmentation** (a detailed explanation of the algorithm is given [here][graph-based-segmentation])
+* **Image segmentation** (a detailed explanation is given [here][graph-based-segmentation])
   * `input.segmentation.GraphBasedSegmentation()` class: implements the graph-based segmentation algorithm proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]).
     * builds a graph from an input image
     * segments the image applying the Felzenszwalb's algorithm to the graph
     * finds the segmented regions' boundaries
     * draws the boxes around the segmented regions
   * `input.segmentation.DisjointSetForest()` class: the data-structure used by the algorithm (not really used outside the other class).
-* **Digits extraction** (a detailed explanation is given [here][digits-extraction])
+* **Digit extraction** (a detailed explanation is given [here][digits-extraction])
+  * TODO
 
 
-### Number recognition
+### Phase 3: Long number recognition
 
+TODO
 
 ## Download and Setup
 
