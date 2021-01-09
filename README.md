@@ -3,11 +3,6 @@
 
 The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from her/his webcam.
 
-In this project there is an extensive use of the following (but not only) Python libraries:
-* PyTorch
-* Pillow
-* OpenCV
-
 ---
 * [Project description](#project-description)
 * [Download and setup](#download-and-setup)
@@ -24,10 +19,10 @@ In this project there is an extensive use of the following (but not only) Python
 
 ![workflow][workflow]
 
-As the [picture](#workflow) shows, the project may be divided into two main sub-problems:
+As the picture shows, the project may be divided into two main sub-problems:
 
- * CNN building and training phase
- * Webcam image segmentation
+ * [CNN building and training phase](#cnn-building-and-training-phase)
+ * [Webcam image segmentation](#webcam-image-segmentation)
  
 Having the trained model and the correct segmentation of the input image, the digits classification task and the handwritten long number recognition one, are trivial problems.
 
@@ -58,10 +53,13 @@ This subproblem is developed in the `network` module and has the following struc
      * training the model by mean of the `train_cnn()` method (Adam optimizer is the default one)
      * evaluating the model by mean of the `eval_cnn()` method
 4. **Obtain the trained model**
+    Once the model is trained it can be used to classify the images given as inputs.
 
 
+### Webcam image segmentation
 
-> **TODO**: here goes the explanation of the entire project 
+The image segmentation 
+
 
 ## Download and Setup
 
