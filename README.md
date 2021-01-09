@@ -19,10 +19,11 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 
 ![workflow][workflow]
 
-As the picture shows, the project may be divided into two main sub-problems:
+As the picture shows, the project may be divided into three main sub-problems:
 
  * [CNN building and training phase](#cnn-building-and-training-phase)
  * [Webcam image segmentation](#webcam-image-segmentation)
+ * [Number recognition](#number-recognition)
  
 Having the trained model and the correct segmentation of the input image, the digits classification task and the handwritten long number recognition one, are trivial problems.
 
@@ -57,7 +58,6 @@ This phase is developed in the `network` module and has the following structure:
 
 ![cnn-model][cnn-model]
 
-
 ### Webcam image segmentation
 
 The image segmentation and the webcam capture tasks are implemented in the `input` module.
@@ -71,7 +71,10 @@ The structure of this module is as follows:
     * finds the segmented regions' boundaries
     * draws the boxes around the segmented regions
   * `input.segmentation.DisjointSetForest()` class: the data-structure used by the algorithm (not really used outside the other class).
-* **Digit extraction**
+* **Digits extraction** (a detailed explanation is given [here][digits-extraction])
+
+
+### Number recognition
 
 
 ## Download and Setup
@@ -158,9 +161,10 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 ## References
 
 * [MNIST dataset][mnist]
-* [NumPy documentation][numpy]
 * [PyTorch documentation][torch]
+* [Pillow documentation][pillow]
 * [OpenCV documentation][opencv]
+* [NumPy documentation][numpy]
 
 
 ## Info
@@ -182,6 +186,7 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_numb
 [cnn-model]: img/cnn-model.png
 [graph-based-segmentation]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/input/graph_based_segmentation.ipynb
 [graph-based-segmentation-paper]: http://people.cs.uchicago.edu/~pff/papers/seg-ijcv.pdf
+[digits-extraction]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/input/digits_extraction.ipynb
 [mnist]: http://yann.lecun.com/exdb/mnist/
 [numpy]: https://numpy.org/doc/stable/
 [pillow]: https://pillow.readthedocs.io/en/stable/
