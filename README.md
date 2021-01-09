@@ -26,13 +26,15 @@ As the picture shows, the project may be divided into two main sub-problems:
  
 Having the trained model and the correct segmentation of the input image, the digits classification task and the handwritten long number recognition one, are trivial problems.
 
+
+
 ### CNN building and training phase
 
-This subproblem is developed in the `network` module and has the following structure:
-1. **Download the MNIST dataset and decode it** (_a fully detailed description of this phase is provided in [this][file_decode_notebook] notebook_)
+This phase is developed in the `network` module and has the following structure:
+1. **MNIST dataset download and decoding** (_a fully detailed description of this phase is provided in [this][file-decode-notebook] notebook_)
    * `network.utils.download()` function: downloads the `.IDX` file from the given URL source and stores it in the folder given as argument.
    * `network.utils.store_file_to_tensor()` function: takes the downloaded file (format `.IDX`) and store its contents into a `torch.tensor` following the provided encoding.
-2. **Build a class to handle the dataset**
+2. **Dataset class building**
    * `network.dataset.MNIST()` class: takes care of:
      * downloading the dataset
      * storing it into `data` and `labels` tensors
@@ -40,7 +42,7 @@ This subproblem is developed in the `network` module and has the following struc
      * returning a `DataLoader` of the current dataset (needed for iterating over it)
      * printing some statistics and classes distribution
      * applying some preprocessing operations (such as random rotations for data augmentation)
-3. **Build the CNN model and train it on the MNIST dataset**
+3. **CNN model building and training on the MNIST dataset**
    * `network.cnn.CNN()` class: takes care of:
      * building the CNN model (shown in the picture below)
      * defining the preprocess operations to be performed on the elements of the dataset while iterating over it
@@ -52,13 +54,22 @@ This subproblem is developed in the `network` module and has the following struc
        * `__performance()` function: computes the accuracy as number of correct decisions divided by the total number of samples
      * training the model by mean of the `train_cnn()` method (Adam optimizer is the default one)
      * evaluating the model by mean of the `eval_cnn()` method
-4. **Obtain the trained model**
-    Once the model is trained it can be used to classify the images given as inputs.
 
 
 ### Webcam image segmentation
 
-The image segmentation 
+The image segmentation and the webcam capture tasks are implemented in the `input` module.
+The structure of this module is as follows:
+* **Webcam image capture**
+  * TODO
+* **Graph-based image segmentation** (a detailed explanation of the algorithm is given [here][graph-based-segmentation])
+  * `input.segmentation.GraphBasedSegmentation()` class: implements the graph-based segmentation algorithm proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]).
+    * builds a graph from an input image
+    * segments the image applying the Felzenszwalb's algorithm to the graph
+    * finds the segmented regions' boundaries
+    * draws the boxes around the segmented regions
+  * `input.segmentation.DisjointSetForest()` class: the data-structure used by the algorithm (not really used outside the other class).
+* **Digit extraction**
 
 
 ## Download and Setup
@@ -165,7 +176,9 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_numb
 
 <!-- Markdown link & img dfn's -->
 [workflow]: img/workflow.png
-[file_decode_notebook]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/network/file_decoding_procedure.ipynb
+[file-decode-notebook]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/network/file_decoding_procedure.ipynb
+[graph-based-segmentation]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/input/graph_based_segmentation.ipynb
+[graph-based-segmentation-paper]: http://people.cs.uchicago.edu/~pff/papers/seg-ijcv.pdf
 [mnist]: http://yann.lecun.com/exdb/mnist/
 [numpy]: https://numpy.org/doc/stable/
 [pillow]: https://pillow.readthedocs.io/en/stable/
