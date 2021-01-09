@@ -34,7 +34,7 @@ Having the trained model and the correct segmentation of the input image, the di
 ### Phase 1: Training of the model
 
 This phase is developed in the `network` module and has the following structure:
-1. **MNIST dataset decoding and handling** (_a fully detailed description of the decoding procedure is given [here][file-decode-notebook]_)
+1. **MNIST dataset decoding and handling** (_a detailed explanation is given [here][file-decode-notebook]_)
    * `network.utils.download()` function: downloads the `.IDX` file from the given URL source and stores it in the folder given as argument.
    * `network.utils.store_file_to_tensor()` function: takes the downloaded file (format `.IDX`) and store its contents into a `torch.tensor` following the provided encoding.
    * `network.dataset.MNIST()` class: takes care of:
@@ -68,14 +68,14 @@ The image segmentation and the webcam capture tasks are implemented in the `inpu
 The structure of this module is as follows:
 * **Webcam capture**
   * TODO
-* **Image segmentation** (a detailed explanation is given [here][graph-based-segmentation])
+* **Image segmentation** (_a detailed explanation is given [here][graph-based-segmentation]_)
   * `input.segmentation.GraphBasedSegmentation()` class: implements the graph-based segmentation algorithm proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]).
     * builds a graph from an input image
     * segments the image applying the Felzenszwalb's algorithm to the graph
     * finds the segmented regions' boundaries
     * draws the boxes around the segmented regions
   * `input.segmentation.DisjointSetForest()` class: the data-structure used by the algorithm (not really used outside the other class).
-* **Digit extraction** (a detailed explanation is given [here][digits-extraction])
+* **Digit extraction** (_a detailed explanation is given [here][digits-extraction]_)
   * TODO
 
 
