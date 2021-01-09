@@ -121,10 +121,9 @@ class CNN(nn.Module):
         # the data augmentation consists in rotating the image of a random angle between -15° to +15°
         # ----------------------
         if data_augmentation:
+            # supposing that input is tensor as provided by dataset class
             self.preprocess = torchvision.transforms.Compose([
-                # torchvision.transforms.ToPILImage(),
                 torchvision.transforms.RandomRotation(30),
-                # torchvision.transforms.ToTensor()
             ])
         
         else:
