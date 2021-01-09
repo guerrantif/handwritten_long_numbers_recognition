@@ -22,9 +22,9 @@ In this project there is an extensive use of the following (but not only) Python
 
 **Workflow**
 
-[workflow]: img/workflow.png "Project workflow"
+![workflow][workflow]
 
-As the picture shows, the project may be divided into two main sub-problems:
+As the [picture](#workflow) shows, the project may be divided into two main sub-problems:
 
  * CNN building and training phase
  * Webcam image segmentation
@@ -34,7 +34,7 @@ Having the trained model and the correct segmentation of the input image, the di
 ### CNN building and training phase
 
 This subproblem is developed in the `network` module and has the following structure:
-1. **Download the MNIST dataset and decode it** (_a fully detailed description of this phase is provided in [this](https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/network/file_decoding_procedure.ipynb) notebook_)
+1. **Download the MNIST dataset and decode it** (_a fully detailed description of this phase is provided in [this][file_decode_notebook] notebook_)
    * `network.utils.download()` function: downloads the `.IDX` file from the given URL source and stores it in the folder given as argument.
    * `network.utils.store_file_to_tensor()` function: takes the downloaded file (format `.IDX`) and store its contents into a `torch.tensor` following the provided encoding.
 2. **Build a class to handle the dataset**
@@ -166,13 +166,15 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_numb
 
 
 <!-- Markdown link & img dfn's -->
-[wiki]: https://github.com/filippoguerranti/handwritten_long_digit_recognition/wiki
+[workflow]: img/workflow.png
+[file_decode_notebook]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/network/file_decoding_procedure.ipynb
 [mnist]: http://yann.lecun.com/exdb/mnist/
 [numpy]: https://numpy.org/doc/stable/
+[pillow]: https://pillow.readthedocs.io/en/stable/
 [torch]: https://pytorch.org/docs/stable/index.html
 [opencv]: https://docs.opencv.org/master/index.html
 [opencv-installation]: https://docs.opencv.org/master/df/d65/tutorial_table_of_content_introduction.html
 [project]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition
 [unisi]: https://www.unisi.it/
 [diism]: https://www.diism.unisi.it/it
-[melacci]: https://www3.diism.unisi.it/~melacci/index.html
+[melacci]: https://www3.diism.unisi.it/~melacci/
