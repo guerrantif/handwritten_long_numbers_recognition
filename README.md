@@ -185,11 +185,14 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
   
 ## References
 
+### Documentation
 * [MNIST dataset][mnist]
 * [PyTorch documentation][torch]
 * [Pillow documentation][pillow]
 * [OpenCV documentation][opencv]
 * [NumPy documentation][numpy]
+
+### Papers
 
 
 ## Info
