@@ -122,9 +122,9 @@ class CNN(nn.Module):
         # ----------------------
         if data_augmentation:
             self.preprocess = torchvision.transforms.Compose([
-                torchvision.transforms.ToPILImage(),
-                torchvision.transforms.RandomRotation(15, fill=0),
-                torchvision.transforms.ToTensor()
+                # torchvision.transforms.ToPILImage(),
+                torchvision.transforms.RandomRotation(30, fill=0),
+                # torchvision.transforms.ToTensor()
             ])
         
         else:
