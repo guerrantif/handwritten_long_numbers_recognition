@@ -1,10 +1,11 @@
 # Recognition of handwritten (long) numbers
 > Neural Network recognizer of long handwritten numbers via the use of a webcam.
 
-The aim of this project is to build a model based on CNN and image segmentation capable to recognize long numbers (composed of several digits) written by hand. 
+The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from her/his webcam.
 
-The main tools used for this projects are:
+In this project there is an extensive use of the following (but not only) Python libraries:
 * PyTorch
+* Pillow
 * OpenCV
 
 ---
@@ -15,20 +16,50 @@ The main tools used for this projects are:
 * [Directory structure](#directory-structure)
 * [References](#references)
 * [Info](#info)
-
 ---
 
 ## Project description
 
 **Workflow**
-![](img/workflow.png)
 
-As shown in the previous picture the project may be divided into two main sub-problems:
+[workflow]: img/workflow.png "Project workflow"
+
+As the picture shows, the project may be divided into two main sub-problems:
 
  * CNN building and training phase
  * Webcam image segmentation
  
 Having the trained model and the correct segmentation of the input image, the digits classification task and the handwritten long number recognition one, are trivial problems.
+
+### CNN building and training phase
+
+This subproblem is developed in the `network` module and has the following structure:
+1. **Download the MNIST dataset and decode it** (_a fully detailed description of this phase is provided in [this](https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/network/file_decoding_procedure.ipynb) notebook_)
+   * `network.utils.download()` function: downloads the `.IDX` file from the given URL source and stores it in the folder given as argument.
+   * `network.utils.store_file_to_tensor()` function: takes the downloaded file (format `.IDX`) and store its contents into a `torch.tensor` following the provided encoding.
+2. **Build a class to handle the dataset**
+   * `network.dataset.MNIST()` class: takes care of:
+     * downloading the dataset
+     * storing it into `data` and `labels` tensors
+     * splitting the dataset into training set and validation set according to some proportions
+     * returning a `DataLoader` of the current dataset (needed for iterating over it)
+     * printing some statistics and classes distribution
+     * applying some preprocessing operations (such as random rotations for data augmentation)
+3. **Build the CNN model and train it on the MNIST dataset**
+   * `network.cnn.CNN()` class: takes care of:
+     * building the CNN model (shown in the picture below)
+     * defining the preprocess operations to be performed on the elements of the dataset while iterating over it
+     * saving and loading the model
+     * implementing the:
+       * `forward()` function: implicitly build the computational-graph
+       * `__decision()` function: chooses the output neuron having maximum value among all the others 
+       * `__loss()` function: applies the Cross Entropy loss to the output (before softmax)
+       * `__performance()` function: computes the accuracy as number of correct decisions divided by the total number of samples
+     * training the model by mean of the `train_cnn()` method (Adam optimizer is the default one)
+     * evaluating the model by mean of the `eval_cnn()` method
+4. **Obtain the trained model**
+
+
 
 > **TODO**: here goes the explanation of the entire project 
 
