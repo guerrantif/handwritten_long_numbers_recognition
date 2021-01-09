@@ -55,6 +55,8 @@ This phase is developed in the `network` module and has the following structure:
      * training the model by mean of the `train_cnn()` method (Adam optimizer is the default one)
      * evaluating the model by mean of the `eval_cnn()` method
 
+![cnn-model][cnn-model]
+
 
 ### Webcam image segmentation
 
@@ -177,6 +179,7 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_numb
 <!-- Markdown link & img dfn's -->
 [workflow]: img/workflow.png
 [file-decode-notebook]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/network/file_decoding_procedure.ipynb
+[cnn-model]: img/cnn-model.png
 [graph-based-segmentation]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/input/graph_based_segmentation.ipynb
 [graph-based-segmentation-paper]: http://people.cs.uchicago.edu/~pff/papers/seg-ijcv.pdf
 [mnist]: http://yann.lecun.com/exdb/mnist/
