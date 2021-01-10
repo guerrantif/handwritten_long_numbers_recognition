@@ -93,6 +93,9 @@ The structure of this module is as follows:
   <p align="center">
   <img src="img/graph-based-segmentation.png" width="500">
   </p>
+  <p align="center">
+  <img src="img/segmentation.png" width="900">
+  </p>
 * **Digit extraction** (_a detailed explanation is given [here][digits-extraction]_)  
   The digit extraction procedure is carried out by the `extract_digits()` method of the `GraphBasedSegmentation()` class.  
   Once the regions' boundaries are found:
@@ -100,6 +103,9 @@ The structure of this module is as follows:
   * the slices are resized according to the MNIST dataset samples dimensions (28x28)
   * the resized slices are modified in order to obtain an image which as close as possible to the one that the network saw in training phase
   * the modified slices are converted into a `torch.tensor` which will be used as input to the network
+  <p align="center">
+  <img src="img/extraction.png" width="900">
+  </p>
 
 
 ### Phase 3: Long number recognition
@@ -121,7 +127,7 @@ Then, the project directory can be downloaded using the following commands in a 
 ```
 git clone https://github.com/filippoguerranti/handwritten_long_numbers_recognition.git
 cd handwritten_long_number_recognition
-pip3 install -r requirements.txt`
+pip3 install -r requirements.txt
 ```
 
 The last command will install all the needed dependencies for this project.
@@ -144,6 +150,8 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 ```
 .
 ├── img
+│   ├── accuracies-data-augmentation-false.png
+│   ├── accuracies-data-augmentation-true.png
 │   ├── cnn-model.png
 │   ├── graph-based-segmentation.png
 │   ├── input
@@ -158,32 +166,34 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 │   │   ├── img-2020129-13744.png
 │   │   ├── img-202114-215659.png
 │   │   └── img-202114-215724.png
+│   ├── training.png
 │   └── workflow.png
 ├── __init__.py
 ├── input
-│   ├── digits_extraction.ipynb
-│   ├── graph_based_segmentation.ipynb
 │   ├── __init__.py
 │   ├── README.md
 │   ├── segmentation.py
 │   └── webcam_capture.py
 ├── LICENSE
 ├── models
-│   ├── CNN-lr0.001-epochs10-202119-201426.pth
-│   └── CNN-lr0.001-epochs10-202119-202145.pth
+│   ├── CNN-batch_size64-lr0.001-epochs10-y2021m1d10h14m42s20.pth
+│   └── CNN-batch_size64-lr0.001-epochs10-y2021m1d10h14m51s3.pth
 ├── network
 │   ├── cnn.py
 │   ├── dataset.py
-│   ├── file_decoding_procedure.ipynb
 │   ├── __init__.py
 │   ├── network.py
 │   ├── README.md
 │   └── utils.py
+├── notebooks
+│   ├── digits_extraction.ipynb
+│   ├── file_decoding_procedure.ipynb
+│   └── graph_based_segmentation.ipynb
 ├── README.md
 ├── requirements.txt
 ├── results
-│   ├── CNN-lr0.001-epochs10-202119-201426.png
-│   └── CNN-lr0.001-epochs10-202119-202145.png
+│   ├── CNN-batch_size64-lr0.001-epochs10-y2021m1d10h14m42s20.png
+│   └── CNN-batch_size64-lr0.001-epochs10-y2021m1d10h14m51s3.png
 └── usage_example.ipynb
 ```
 
@@ -209,10 +219,10 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_numb
 
 
 <!-- Markdown link & img dfn's -->
-[file-decode-notebook]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/network/file_decoding_procedure.ipynb
-[graph-based-segmentation]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/input/graph_based_segmentation.ipynb
+[file-decode-notebook]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/notebooks/file_decoding_procedure.ipynb
+[graph-based-segmentation]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/notebooks/graph_based_segmentation.ipynb
 [graph-based-segmentation-paper]: http://people.cs.uchicago.edu/~pff/papers/seg-ijcv.pdf
-[digits-extraction]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/input/digits_extraction.ipynb
+[digits-extraction]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/notebooks/digits_extraction.ipynb
 [mnist]: http://yann.lecun.com/exdb/mnist/
 [numpy]: https://numpy.org/doc/stable/
 [pillow]: https://pillow.readthedocs.io/en/stable/
