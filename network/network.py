@@ -35,7 +35,7 @@ if __name__ == "__main__":
         # creating a new classifier
         # ------------------------
         classifier = cnn.CNN(
-                          data_augmentation=args.preprocess
+                          data_augmentation=args.data_augmentation
                         , device=args.device)
         # ------------------------
 

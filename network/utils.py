@@ -174,59 +174,80 @@ def parse_command_line_arguments() -> argparse.Namespace:
                                             as attributes of the namespace
     """
 
-    def str2bool(in_str: str) -> bool:
-        """
-        Convert a string to boolean.
+    # def str2bool(in_str: str) -> bool:
+    #     """
+    #     Convert a string to boolean.
 
-        Args:
-            in_str (str): string to be converted into boolean
+    #     Args:
+    #         in_str (str): string to be converted into boolean
 
-        Returns:
-            out_str (bool): converted string
-        """
-        if isinstance(in_str, bool):
-            return in_str
-        if in_str.lower() in ('yes', 'true', 't', 'y', '1'):
-            return True
-        elif in_str.lower() in ('no', 'false', 'f', 'n', '0'):
-            return False
-        else:
-            raise argparse.ArgumentTypeError('Boolean value expected.')
+    #     Returns:
+    #         out_str (bool): converted string
+    #     """
+    #     if isinstance(in_str, bool):
+    #         return in_str
+    #     if in_str.lower() in ('yes', 'true', 't', 'y', '1'):
+    #         return True
+    #     elif in_str.lower() in ('no', 'false', 'f', 'n', '0'):
+    #         return False
+    #     else:
+    #         raise argparse.ArgumentTypeError('Boolean value expected.')
 
     parser = argparse.ArgumentParser(description='')
 
-    parser.add_argument('mode', choices=['train', 'classify'],
-                        help='train the classify or classify input image')
+    parser.add_argument('mode'
+                        , choices=['train', 'classify']
+                        , help='train the classifier or classify input image')
 
-    parser.add_argument('--dataset_folder', type=str, default='./../data/',
-                        help='folder where to save the dataset or from where to load it (if mode == train)')
+    parser.add_argument('-a'
+                        , '--data_augmentation'
+                        , action='store_true'
+                        , help='data augmentation preprocessing is applied')
+
+    parser.add_argument('--dataset_folder'
+                        , type=str
+                        , default='./../data/'
+                        , help='(default=\'./../data/\') folder where to save the dataset or from where to load it (if mode == train)')
     
-    parser.add_argument('--model_path', type=str, default='./../models/',
-                        help='path of the model to load from memory (if mode == classify)')
+    parser.add_argument('--model_path'
+                        , type=str
+                        , default='./../models/'
+                        , help='(default=\'./../models/\') path of the model to load from memory (if mode == classify)')
 
-    parser.add_argument('--model_name', type=str, default=None, 
-                        help='name of the model to load from memory (if mode == classify)')
+    parser.add_argument('--model_name'
+                        , type=str
+                        , default=None
+                        , help='(default=None) name of the model to load from memory (if mode == classify)')
 
-    parser.add_argument('--splits', type=str, default='0.8-0.2',
-                        help='fraction of data to be used in training and validation set (default: 0.8-0.2)')
+    parser.add_argument('--splits'
+                        , type=str
+                        , default='0.8-0.2'
+                        , help='(default: 0.8-0.2) fraction of data to be used in training and validation set')
 
-    parser.add_argument('--batch_size', type=int, default=64,
-                        help='mini-batch size (default: 64)')
+    parser.add_argument('--batch_size'
+                        , type=int
+                        , default=64
+                        , help='(default: 64) mini-batch size')
 
-    parser.add_argument('--epochs', type=int, default=10,
-                        help='number of training epochs (default: 10)')
+    parser.add_argument('--epochs'
+                        , type=int
+                        , default=10
+                        , help='(default: 10) number of training epochs')
 
-    parser.add_argument('--lr', type=float, default=0.001,
-                        help='learning rate (default: 0.001)')
+    parser.add_argument('--lr'
+                        , type=float
+                        , default=0.001
+                        , help='(default: 0.001) learning rate')
 
-    parser.add_argument('--workers', type=int, default=3,
-                        help='number of working units used to load the data (default: 3)')
+    parser.add_argument('--workers'
+                        , type=int
+                        , default=3
+                        , help='(default: 3) number of working units used to load the data')
 
-    parser.add_argument('--device', default='cpu', type=str,
-                        help='device to be used for computations (in {cpu, cuda:0, cuda:1, ...}, default: cpu)')
-
-    parser.add_argument('--preprocess', type=str, default=True,
-                        help='if True the data augmentation preprocessing is applied (default: True)')
+    parser.add_argument('--device'
+                        , default='cpu'
+                        , type=str
+                        , help='(default: \'cpu\') device to be used for computations {cpu, cuda:0, cuda:1, ...}')
 
     parsed_arguments = parser.parse_args()
 
@@ -263,7 +284,7 @@ def parse_command_line_arguments() -> argparse.Namespace:
 
     # converting preprocess string to boolean
     # ------------------------
-    parsed_arguments.preprocess = str2bool(parsed_arguments.preprocess)
+    # parsed_arguments.preprocess = str2bool(parsed_arguments.preprocess)
     # ------------------------
 
 
