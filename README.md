@@ -78,6 +78,9 @@ The structure of this module is as follows:
     * finds the segmented regions' boundaries
     * draws the boxes around the segmented regions
   * `input.segmentation.DisjointSetForest()` class: the data-structure used by the algorithm (not really used outside the other class).
+  <p align="center">
+  <img src="img/graph-based-segmentation.png" width="500">
+  </p>
 * **Digit extraction** (_a detailed explanation is given [here][digits-extraction]_)
   * TODO
 
