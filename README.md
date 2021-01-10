@@ -11,7 +11,7 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 * [Usage example](#usage-example)
 * [Future developments](#future-developments)
 * [Directory structure](#directory-structure)
-* [References](#references)
+* [Documentation](#documentation)
 * [Info](#info)
 ---
 
@@ -19,7 +19,9 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 
 **Workflow**
 
-![workflow][workflow]
+  <p align="center">
+  <img src="img/workflow.png" width="500">
+  </p>
 
 As the picture shows, the project may be divided into three main phases:
 
@@ -27,25 +29,25 @@ As the picture shows, the project may be divided into three main phases:
  * [**Phase 2**: Input image segmentation and digit extraction](#phase-2-input-image-segmentation-and-digit-extraction)
  * [**Phase 3**: Long number recognition](#phase-3-long-number-recognition)
  
-Having the trained model and the correct segmentation of the input image, the digits classification task and the handwritten long number recognition one, are trivial problems.
+In a nutshel: the CNN model is trained on the MNIST dataset (with data augmentation techniques and without them) in order to obtain a trained model. Once the trained model is ready, it can be fed with the input image (taken from the webcam) which has been preprocessed and segmented accordingly. At this point the model can classify all the single digits written on the input image and returns the whole long number.
 
 
 
 ### Phase 1: Training of the model
 
 This phase is developed in the `network` module and has the following structure:
-1. **MNIST dataset decoding and handling** (_a fully detailed description of the decoding procedure is given [here][file-decode-notebook]_)
+* **MNIST dataset decoding and handling** (_a detailed explanation is given [here][file-decode-notebook]_)
    * `network.utils.download()` function: downloads the `.IDX` file from the given URL source and stores it in the folder given as argument.
    * `network.utils.store_file_to_tensor()` function: takes the downloaded file (format `.IDX`) and store its contents into a `torch.tensor` following the provided encoding.
    * `network.dataset.MNIST()` class: takes care of:
      * downloading the dataset
      * storing it into `data` and `labels` tensors
-     * splitting the dataset into training set and validation set according to some proportions
-     * returning a `DataLoader` of the current dataset (needed for iterating over it)
+     * splitting (`split()`) the dataset into training set and validation set according to some proportions
+     * returning a `DataLoader` (`get_loader()`) of the current dataset (needed for iterating over it)
      * printing some statistics and classes distribution
-     * applying some preprocessing operations (such as random rotations for data augmentation)
-     > *NOTE*: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
-2. **CNN model implementation**
+     * applying some preprocessing operations (such as random rotations for data augmentation) (`set_preprocess()`)
+> **NOTE**: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
+* **CNN model implementation**
    * `network.cnn.CNN()` class: takes care of:
      * building the CNN model (shown in the picture below)
      * defining the preprocess operations to be performed on the elements of the dataset while iterating over it
@@ -57,10 +59,11 @@ This phase is developed in the `network` module and has the following structure:
        * `__performance()` function: computes the accuracy as number of correct decisions divided by the total number of samples
      * training the model by mean of the `train_cnn()` method (Adam optimizer is the default one)
      * evaluating the model by mean of the `eval_cnn()` method
-3. **Training (with and without data augmentation)**
+  <p align="center">
+  <img src="img/cnn-model.png" width="300">
+  </p>
+* **Training (with and without data augmentation)**
    * TODO
-
-![cnn-model][cnn-model]
 
 ### Phase 2: Input image segmentation and digit extraction
 
@@ -68,14 +71,17 @@ The image segmentation and the webcam capture tasks are implemented in the `inpu
 The structure of this module is as follows:
 * **Webcam capture**
   * TODO
-* **Image segmentation** (a detailed explanation is given [here][graph-based-segmentation])
+* **Image segmentation** (_a detailed explanation is given [here][graph-based-segmentation]_)
   * `input.segmentation.GraphBasedSegmentation()` class: implements the graph-based segmentation algorithm proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]).
     * builds a graph from an input image
     * segments the image applying the Felzenszwalb's algorithm to the graph
     * finds the segmented regions' boundaries
     * draws the boxes around the segmented regions
   * `input.segmentation.DisjointSetForest()` class: the data-structure used by the algorithm (not really used outside the other class).
-* **Digit extraction** (a detailed explanation is given [here][digits-extraction])
+  <p align="center">
+  <img src="img/graph-based-segmentation.png" width="500">
+  </p>
+* **Digit extraction** (_a detailed explanation is given [here][digits-extraction]_)
   * TODO
 
 
@@ -182,9 +188,8 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 │   └── CNN-lr0.001-epochs10-202119-202145.png
 └── usage_example.ipynb
 ```
-  
-## References
 
+## Documentation
 * [MNIST dataset][mnist]
 * [PyTorch documentation][torch]
 * [Pillow documentation][pillow]
@@ -206,9 +211,7 @@ Link to this project: [https://github.com/filippoguerranti/handwritten_long_numb
 
 
 <!-- Markdown link & img dfn's -->
-[workflow]: img/workflow.png
 [file-decode-notebook]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/network/file_decoding_procedure.ipynb
-[cnn-model]: img/cnn-model.png
 [graph-based-segmentation]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/input/graph_based_segmentation.ipynb
 [graph-based-segmentation-paper]: http://people.cs.uchicago.edu/~pff/papers/seg-ijcv.pdf
 [digits-extraction]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/input/digits_extraction.ipynb
