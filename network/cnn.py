@@ -48,7 +48,6 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
 
         self.num_outputs = 10       # for MNIST dataset: 10-class classification problem
-        self.name = "CNN"
         self.data_augmentation = data_augmentation
 
         # device setup
@@ -310,12 +309,12 @@ class CNN(nn.Module):
                                 )
         # ----------------------
 
-        best_validation_accuracy = -1.              # best accuracy on the validation data
-        best_epoch = -1                             # epoch in which best accuracy was computed
-        epochs_validation_accuracy_list = list()    # list of epoch accuracies on validation set
-        epochs_training_accuracy_list = list()      # list of epoch accuracies on training set
+        best_validation_accuracy = -1.                  # best accuracy on the validation data
+        best_epoch = -1                                 # epoch in which best accuracy was computed
+        self.epochs_validation_accuracy_list = list()   # list of epoch accuracies on validation set
+        self.epochs_training_accuracy_list = list()     # list of epoch accuracies on training set
 
-        first_batch_flag = True                     # flag for first mini-batch
+        first_batch_flag = True                         # flag for first mini-batch
     
         
         # formatting name for saving model and plot
@@ -328,8 +327,8 @@ class CNN(nn.Module):
                                 , timestamp.hour
                                 , timestamp.minute
                                 , timestamp.second)
-        model_name = "{}-batch_size{}-lr{}-epochs{}-{}".format(
-                    self.name, batch_size, lr, epochs, now)
+        self.model_name = "CNN-batch_size{}-lr{}-epochs{}-{}".format(
+                        batch_size, lr, epochs, now)
         # ----------------------
 
         # model folder creation
@@ -450,19 +449,19 @@ class CNN(nn.Module):
                 
                 # model saving
                 # ----------------------
-                filepath = os.path.join(model_path, model_name)
+                filepath = os.path.join(model_path, self.model_name)
                 self.save(path="{}.pth".format(filepath))
                 # ----------------------
 
             # appending epoch validation accuracy to list
             # ----------------------
-            epochs_validation_accuracy_list.append(validation_accuracy)
+            self.epochs_validation_accuracy_list.append(validation_accuracy)
             # ----------------------
 
-            # normalizing epoch accuracy and appendinf to list
+            # normalizing epoch accuracy and appending to list
             # ----------------------
             epoch_training_accuracy /= epoch_num_training_examples
-            epochs_training_accuracy_list.append(epoch_training_accuracy)
+            self.epochs_training_accuracy_list.append(epoch_training_accuracy)
             # ----------------------
 
             # epoch loss computation
@@ -481,11 +480,7 @@ class CNN(nn.Module):
 
         # plotting 
         # ----------------------
-        CNN.__plot(
-                  epochs=epochs
-                , training_accuracy=epochs_training_accuracy_list
-                , validation_accuracy=epochs_validation_accuracy_list
-                , model_name=model_name)
+        self.__plot()
         # ----------------------
         
 
@@ -531,7 +526,7 @@ class CNN(nn.Module):
             
             # loop over mini-batches
             # ----------------------
-            for X, Y in dataset_loader:
+            for X, Y in tqdm(dataset_loader):
                 X = X.to(self.device)
 
                 outputs, _ = self.forward(X)
@@ -550,31 +545,20 @@ class CNN(nn.Module):
         return accuracy
 
 
-    @staticmethod
-    def __plot(
-          epochs: int
-        , training_accuracy: list
-        , validation_accuracy: list
-        , model_name: str
-        ) -> None:
+    def __plot(self) -> None:
         """
         Plots validation and testing accuracy over the epochs.
-
-        Args:
-            epochs               (int): number of runned epochs
-            training_accuracy   (list): list of training accuracy for each epoch
-            validation_accuracy (list): list of validation accuracy for each epoch
-            model_name           (str): name of the used model
         """
         # retrieve batch_size, lr and epochs from model name
-        fields = model_name.split('-')
+        fields = self.model_name.split('-')
         batch_size = int(fields[1][10:])
         lr = float(fields[2][2:])
         epochs = int(fields[3][6:])
 
         x = list(range(1, epochs + 1))
-        plt.plot(x, training_accuracy, label='Training')
-        plt.plot(x, validation_accuracy, label='Validation')
+        plt.plot(x, self.epochs_training_accuracy_list, label='Training')
+        plt.plot(x, self.epochs_validation_accuracy_list, label='Validation')
+        plt.grid(True)
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy %')
         title = 'data_augmentation={}, batch_size={}, lr={}, epochs={}'.format(self.data_augmentation, batch_size, lr, epochs)
@@ -584,5 +568,5 @@ class CNN(nn.Module):
         folder = "./../results/"
         if not os.path.exists(folder):   
             os.makedirs(folder)       
-        filepath = os.path.join(folder, model_name)
+        filepath = os.path.join(folder, self.model_name)
         plt.savefig("{}.png".format(filepath), dpi=1000)

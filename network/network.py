@@ -39,7 +39,7 @@ if __name__ == "__main__":
                         , device=args.device)
         # ------------------------
 
-        print("\n\nDATASET PREPARATION\n")
+        print("\n\nDataset preparation ...\n")
         # preparing training and validation dataset
         # ------------------------
         training_validation_set = dataset.MNIST(
@@ -77,17 +77,17 @@ if __name__ == "__main__":
 
         # print some statistics
         # ------------------------
-        print("\n\nTRAINING SET STATISTICS\n")
+        print("\n\nStatistics: training set\n")
         training_set.statistics()
-        print("\n\nVALIDATION SET STATISTICS\n")
+        print("\n\nStatistics: validation set\n")
         validation_set.statistics()
-        print("\n\nTEST SET STATISTICS\n")
+        print("\n\nStatistics: test set\n")
         test_set.statistics()
         # ------------------------
 
         # training the classifier
         # ------------------------
-        print("\n\nTRAINING PHASE\n")
+        print("\n\nTraining phase...\n")
         classifier.train_cnn(
                       training_set=training_set
                     , validation_set=validation_set
@@ -101,7 +101,7 @@ if __name__ == "__main__":
         
         # computing the performance of the final model in the prepared data splits
         # ------------------------
-        print("\n\nVALIDATION PHASE\n")
+        print("\n\nValidation phase...\n")
         training_acc = classifier.eval_cnn(training_set)
         validation_acc = classifier.eval_cnn(validation_set)
         test_acc = classifier.eval_cnn(test_set)

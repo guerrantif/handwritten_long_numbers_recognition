@@ -72,7 +72,6 @@ def download(
         compressed_file_path = os.path.join(folder, compressed_filename)
         file_path = os.path.join(folder, filename)
 
-        print("Checking presence of {} ...".format(compressed_file_path))
         if not os.path.exists(compressed_file_path): # if no downloads present
 
             print("Downloading {} ...".format(compressed_file_path))
@@ -80,12 +79,8 @@ def download(
             # write the files
             with open(compressed_file_path, 'wb') as f:
                 f.write(r.raw.data)
-        
-        else:   # if the files have already been downloaded
-            print("Already downloaded.")
 
 
-        print("Checking presence of uncompressed file {} ...".format(file_path))
         if not os.path.exists(file_path):   # if uncompressed file is present 
 
             print("Extracting {} ...".format(file_path))
@@ -96,9 +91,6 @@ def download(
                 with open(file_path, 'wb') as f_out:
                     # fill the uncompressed file
                     shutil.copyfileobj(f_in, f_out)
-        
-        else:   # if the files have already been downloaded
-            print("Already extracted.")
 
 
 def store_file_to_tensor(file_path: str) -> torch.tensor:
