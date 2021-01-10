@@ -49,6 +49,7 @@ class CNN(nn.Module):
 
         self.num_outputs = 10       # for MNIST dataset: 10-class classification problem
         self.name = "CNN"
+        self.data_augmentation = data_augmentation
 
         # device setup
         # ----------------------
@@ -120,7 +121,7 @@ class CNN(nn.Module):
 
         # the data augmentation consists in rotating the image of a random angle between -15° to +15°
         # ----------------------
-        if data_augmentation:
+        if self.data_augmentation:
             # supposing that input is tensor as provided by dataset class
             self.preprocess = torchvision.transforms.Compose([
                 torchvision.transforms.RandomRotation(30),
@@ -320,15 +321,15 @@ class CNN(nn.Module):
         # formatting name for saving model and plot
         # ----------------------
         timestamp = datetime.datetime.now()
-        now = "{}{}{}-{}{}{}".format(
+        now = "y{}m{}d{}h{}m{}s{}".format(
                                   timestamp.year
                                 , timestamp.month
                                 , timestamp.day
                                 , timestamp.hour
                                 , timestamp.minute
                                 , timestamp.second)
-        model_name = "{}-lr{}-epochs{}-{}".format(
-                    self.name, lr, epochs, now)
+        model_name = "{}-batch_size{}-lr{}-epochs{}-{}".format(
+                    self.name, batch_size, lr, epochs, now)
         # ----------------------
 
         # model folder creation
@@ -484,8 +485,7 @@ class CNN(nn.Module):
                   epochs=epochs
                 , training_accuracy=epochs_training_accuracy_list
                 , validation_accuracy=epochs_validation_accuracy_list
-                , model_name=model_name
-                , batch_size=batch_size)
+                , model_name=model_name)
         # ----------------------
         
 
@@ -556,7 +556,6 @@ class CNN(nn.Module):
         , training_accuracy: list
         , validation_accuracy: list
         , model_name: str
-        , batch_size: int
         ) -> None:
         """
         Plots validation and testing accuracy over the epochs.
@@ -566,14 +565,20 @@ class CNN(nn.Module):
             training_accuracy   (list): list of training accuracy for each epoch
             validation_accuracy (list): list of validation accuracy for each epoch
             model_name           (str): name of the used model
-            batch_size           (int): number of samples for each batch
         """
+        # retrieve batch_size, lr and epochs from model name
+        fields = model_name.split('-')
+        batch_size = int(fields[1][10:])
+        lr = float(fields[2][2:])
+        epochs = int(fields[3][6:])
+
         x = list(range(1, epochs + 1))
         plt.plot(x, training_accuracy, label='Training')
         plt.plot(x, validation_accuracy, label='Validation')
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy %')
-        plt.title('Training/Validation accuracy over epochs')
+        title = 'data_augmentation={}, batch_size={}, lr={}, epochs={}'.format(self.data_augmentation, batch_size, lr, epochs)
+        plt.title(title)
         plt.legend()
 
         folder = "./../results/"
