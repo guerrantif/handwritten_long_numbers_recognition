@@ -64,8 +64,16 @@ This phase is developed in the `network` module and has the following structure:
   <p align="center">
   <img src="img/cnn-model.png" width="300">
   </p>
-* **Training (with and without data augmentation)**
-   * TODO
+* **Training (with and without data augmentation)**  
+   The training procedure is done both with data augmentation and without it. In this project, when talking about data augmentation we mean random rotation between -15° and + 15° of the samples in the training set.
+  * `$ python3 network/network.py -h`: to see all the possible parameters for the training procedure
+  * `$ python3 network/newtork.py train -a`: to train the network with data augmentation
+  * `$ python3 network/newtork.py train`: to train the network without data augmentation
+  <p align="center">
+  <img src="img/training.png" width="900">
+  </p>
+  
+
 
 ### Phase 2: Input image segmentation and digit extraction
 
