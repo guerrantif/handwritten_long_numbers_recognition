@@ -1,11 +1,13 @@
 # Recognition of handwritten (long) numbers
 > Neural Network recognizer of long handwritten numbers via the use of a webcam.
 
+---
 The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from her/his webcam.
 
 > **STRONG ASSUMPTION**: the input image must have homogeneous white background, and the digits must be written in dark color.
 
 ---
+**Table of contents**
 * [Project description](#project-description)
 * [Download and setup](#download-and-setup)
 * [Usage example](#usage-example)
