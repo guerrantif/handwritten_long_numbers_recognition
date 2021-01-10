@@ -11,7 +11,7 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 * [Usage example](#usage-example)
 * [Future developments](#future-developments)
 * [Directory structure](#directory-structure)
-* [References](#references)
+* [Documentation](#documentation)
 * [Info](#info)
 ---
 
@@ -188,17 +188,13 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 │   └── CNN-lr0.001-epochs10-202119-202145.png
 └── usage_example.ipynb
 ```
-  
-## References
 
-### Documentation
+## Documentation
 * [MNIST dataset][mnist]
 * [PyTorch documentation][torch]
 * [Pillow documentation][pillow]
 * [OpenCV documentation][opencv]
 * [NumPy documentation][numpy]
-
-### Papers
 
 
 ## Info
