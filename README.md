@@ -126,22 +126,9 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 
 ```
 .
-├── data
-│   └── data
-│       ├── processed
-│       │   ├── test.pt
-│       │   └── training.pt
-│       └── raw
-│           ├── test-images
-│           ├── test-images.gz
-│           ├── test-labels
-│           ├── test-labels.gz
-│           ├── training-images
-│           ├── training-images.gz
-│           ├── training-labels
-│           └── training-labels.gz
 ├── img
 │   ├── cnn-model.png
+│   ├── graph-based-segmentation.png
 │   ├── input
 │   │   ├── img-20201229-22648.png
 │   │   ├── img-20201229-22722.png
@@ -176,12 +163,6 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 │   ├── README.md
 │   └── utils.py
 ├── README.md
-├── references
-│   ├── 1412.6980.pdf
-│   ├── 1502.01852.pdf
-│   ├── 1506.02025.pdf
-│   ├── 1710.05381.pdf
-│   └── 2001.09136.pdf
 ├── requirements.txt
 ├── results
 │   ├── CNN-lr0.001-epochs10-202119-201426.png
