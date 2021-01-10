@@ -101,7 +101,7 @@ The structure of this module is as follows:
   Once the regions' boundaries are found:
   * the regions are sliced out from the original image
   * the slices are resized according to the MNIST dataset samples dimensions (28x28)
-  * the resized slices are modified in order to obtain an image which as close as possible to the one that the network saw in training phase
+  * the resized slices are modified in order to obtain an image which is as close as possible to the one that the network saw in training phase
   * the modified slices are converted into a `torch.tensor` which will be used as input to the network
   <p align="center">
   <img src="img/extraction.png" width="900">
