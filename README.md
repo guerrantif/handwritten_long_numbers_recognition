@@ -82,17 +82,24 @@ The structure of this module is as follows:
 * **Webcam capture**
   * TODO
 * **Image segmentation** (_a detailed explanation is given [here][graph-based-segmentation]_)
-  * `input.segmentation.GraphBasedSegmentation()` class: implements the graph-based segmentation algorithm proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]).
-    * builds a graph from an input image
-    * segments the image applying the Felzenszwalb's algorithm to the graph
-    * finds the segmented regions' boundaries
-    * draws the boxes around the segmented regions
+  * `input.segmentation.GraphBasedSegmentation()` class: implements the graph-based segmentation algorithm proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]):
+    * `__build_graph()`: builds a graph from an input image
+    * `segment()`: segments the image applying the Felzenszwalb's algorithm to the graph (it uses some tuning parameters `k` and `min_size`)
+    * `generate_image(): generate the segmented image by giving random colors to the pixels of the various regions
+    * `__find_boundaries()`: finds the segmented regions' boundaries
+    * `draw_boxes()`: draws the boxes around the segmented regions
+    * `extract_digits()`: extract a `torch.tensor` of the segmented digits (see next step)
   * `input.segmentation.DisjointSetForest()` class: the data-structure used by the algorithm (not really used outside the other class).
   <p align="center">
   <img src="img/graph-based-segmentation.png" width="500">
   </p>
-* **Digit extraction** (_a detailed explanation is given [here][digits-extraction]_)
-  * TODO
+* **Digit extraction** (_a detailed explanation is given [here][digits-extraction]_)  
+  The digit extraction procedure is carried out by the `extract_digits()` method of the `GraphBasedSegmentation()` class.  
+  Once the regions' boundaries are found:
+  * the regions are sliced out from the original image
+  * the slices are resized according to the MNIST dataset samples dimensions (28x28)
+  * the resized slices are modified in order to obtain an image which as close as possible to the one that the network saw in training phase
+  * the modified slices are converted into a `torch.tensor` which will be used as input to the network
 
 
 ### Phase 3: Long number recognition
