@@ -22,7 +22,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import re   # regular expressions
 import datetime
-import network.dataset as dataset
+import dataset
 import os
 from tqdm import tqdm
 
@@ -278,7 +278,7 @@ class CNN(nn.Module):
         , lr: float=0.001
         , epochs: int=10
         , num_workers: int=3
-        , model_path: str='./../models/'
+        , model_path: str='./models/'
         ) -> None:
         """
         CNN training procedure.
@@ -321,6 +321,7 @@ class CNN(nn.Module):
         aug = '-a' if self.data_augmentation else ''
         self.model_name = "CNN-batch_size{}-lr{}-epochs{}{}".format(
                         batch_size, lr, epochs, aug)
+        filepath = '{}.pth'.format(os.path.join(model_path, self.model_name))
         # ----------------------
 
         # model folder creation
@@ -438,8 +439,7 @@ class CNN(nn.Module):
                 
                 # saving the best model so far
                 # ----------------------
-                filepath = os.path.join(model_path, self.model_name)
-                self.save(path="{}.pth".format(filepath))
+                self.save(path=filepath)
                 # ----------------------
 
             # appending epoch validation accuracy to list
@@ -554,7 +554,8 @@ class CNN(nn.Module):
         plt.title(title)
         plt.legend()
 
-        folder = "./../results/"
+        basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        folder = os.path.join(basedir, 'folder/')
         if not os.path.exists(folder):   
             os.makedirs(folder)       
         filepath = os.path.join(folder, self.model_name)

@@ -183,8 +183,8 @@ def training_parse_args() -> argparse.Namespace:
 
     parser.add_argument('--dataset_folder'
                         , type=str
-                        , default='./../data/'
-                        , help='(default=\'./../data/\') folder where to save the dataset or from where to load it (if mode == train)')
+                        , default='./data/'
+                        , help='(default=\'./data/\') folder where to save the dataset or from where to load it (if mode == train)')
 
     parser.add_argument('--splits'
                         , type=str

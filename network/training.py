@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import network.utils as utils
-import networ.cnn as cnn
-import networ.dataset as dataset
+import utils
+import cnn
+import dataset
 
 
 
@@ -24,11 +24,6 @@ import networ.dataset as dataset
 if __name__ == "__main__":
 
     args = utils.training_parse_args()
-
-    print('\n')
-    for k, v in args.__dict__.items():
-        print(k + '=' + str(v))
-
 
     # creating a new classifier
     # ------------------------
@@ -82,6 +77,12 @@ if __name__ == "__main__":
     test_set.statistics()
     # ------------------------
 
+    # defining model path (in which models will be saved)
+    # ------------------------
+    basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    model_path = os.path.join(basedir, 'models/')
+
+
     # training the classifier
     # ------------------------
     print("\n\nTraining phase...\n")
@@ -92,7 +93,7 @@ if __name__ == "__main__":
                 , lr=args.lr
                 , epochs=args.epochs
                 , num_workers=args.workers
-                , model_path=args.model_path
+                , model_path=model_path
                 )
     # ------------------------
     
@@ -101,8 +102,8 @@ if __name__ == "__main__":
     print("\n\nValidation phase...\n")
 
     # load the best classifier model
-    classifier.load('CNN-batch_size{}-lr{}-epochs{}{}'
-                    .format(args.batch_size, args.lr, args.epochs, '-a' if args.data_augmentation else ''))
+    classifier.load('{}CNN-batch_size{}-lr{}-epochs{}{}.pth'
+                    .format(model_path, args.batch_size, args.lr, args.epochs, '-a' if args.data_augmentation else ''))
 
     training_acc = classifier.eval_cnn(training_set)
     validation_acc = classifier.eval_cnn(validation_set)

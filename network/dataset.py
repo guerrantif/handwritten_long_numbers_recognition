@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import network.utils as utils
+import utils
 import torch
 import torchvision
 import os
@@ -84,8 +84,8 @@ class MNIST(torch.utils.data.Dataset):
 
             # folders in which to save the raw dataset
             # ------------------------
-            self.raw_folder = os.path.join(self.folder, "data/raw")
-            self.processed_folder = os.path.join(self.folder, "data/processed")
+            self.raw_folder = os.path.join(self.folder, "mnist/raw")
+            self.processed_folder = os.path.join(self.folder, "mnist/processed")
             # ------------------------
 
             # dataset download
