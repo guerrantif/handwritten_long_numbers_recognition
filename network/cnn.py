@@ -1,5 +1,5 @@
 """
-Copyright January 2021 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
+Copyright 2021 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import re   # regular expressions
 import datetime
-import dataset
+import network.dataset as dataset
 import os
 from tqdm import tqdm
 
@@ -316,19 +316,11 @@ class CNN(nn.Module):
 
         first_batch_flag = True                         # flag for first mini-batch
     
-        
-        # formatting name for saving model and plot
+        # model name for saving
         # ----------------------
-        timestamp = datetime.datetime.now()
-        now = "y{}m{}d{}h{}m{}s{}".format(
-                                  timestamp.year
-                                , timestamp.month
-                                , timestamp.day
-                                , timestamp.hour
-                                , timestamp.minute
-                                , timestamp.second)
-        self.model_name = "CNN-batch_size{}-lr{}-epochs{}-{}".format(
-                        batch_size, lr, epochs, now)
+        aug = '-a' if self.data_augmentation else ''
+        self.model_name = "CNN-batch_size{}-lr{}-epochs{}{}".format(
+                        batch_size, lr, epochs, aug)
         # ----------------------
 
         # model folder creation
@@ -336,8 +328,6 @@ class CNN(nn.Module):
         if not os.path.exists(model_path):   
             os.makedirs(model_path)       
         # ----------------------
-
-
 
 
 
@@ -431,7 +421,6 @@ class CNN(nn.Module):
                     # ----------------------
                     self.net.train() 
                     # ----------------------
-
             # ----------------------   
             # end of mini-batches scope
 
@@ -447,7 +436,7 @@ class CNN(nn.Module):
                 best_validation_accuracy = validation_accuracy
                 best_epoch = e + 1
                 
-                # model saving
+                # saving the best model so far
                 # ----------------------
                 filepath = os.path.join(model_path, self.model_name)
                 self.save(path="{}.pth".format(filepath))

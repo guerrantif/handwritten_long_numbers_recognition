@@ -1,5 +1,5 @@
 """
-Copyright January 2021 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
+Copyright 2021 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import utils
-import cnn
-import dataset
+import network.utils as utils
+import networ.cnn as cnn
+import networ.dataset as dataset
 
 
 
@@ -71,7 +71,6 @@ if __name__ == "__main__":
         # setting preprocessing operations if enabled
         # ------------------------
         training_set.set_preprocess(classifier.preprocess)
-        # validation_set.set_preprocess(classifier.preprocess)
         # ------------------------
 
 
@@ -102,6 +101,11 @@ if __name__ == "__main__":
         # computing the performance of the final model in the prepared data splits
         # ------------------------
         print("\n\nValidation phase...\n")
+
+        # load the best classifier model
+        classifier.load('CNN-batch_size{}-lr{}-epochs{}{}'
+                        .format(args.batch_size, args.lr, args.epochs, '-a' if args.data_augmentation else ''))
+
         training_acc = classifier.eval_cnn(training_set)
         validation_acc = classifier.eval_cnn(validation_set)
         test_acc = classifier.eval_cnn(test_set)
@@ -110,20 +114,3 @@ if __name__ == "__main__":
         print("validation set:\tacc:{:.2f}".format(validation_acc))
         print("test set:\tacc:{:.2f}".format(test_acc))
         # ------------------------
-
-
-
-
-    # elif args.mode == 'eval':
-    #     print("Evaluating the classifier...")
-
-    #     # creating a new classifier
-    #     _classifier = cnn.CNN(
-    #                       model=args.model
-    #                     , device=args.device
-    #                     )
-
-    #     # loading the classifier
-    #     _classifier.load(args.model_name)
-
-        # image preprocessing
