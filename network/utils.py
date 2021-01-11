@@ -164,9 +164,9 @@ def store_file_to_tensor(file_path: str) -> torch.tensor:
         return dataset
 
 
-def parse_command_line_arguments() -> argparse.Namespace:
+def training_parse_args() -> argparse.Namespace:
     """
-    Parse command line arguments, checking their values.
+    Parse command line arguments for training phase.
     
     Returns:
         parsed_arguments (argparse.Namespace): populated Namespace: the arguments passed via 
@@ -174,30 +174,7 @@ def parse_command_line_arguments() -> argparse.Namespace:
                                             as attributes of the namespace
     """
 
-    # def str2bool(in_str: str) -> bool:
-    #     """
-    #     Convert a string to boolean.
-
-    #     Args:
-    #         in_str (str): string to be converted into boolean
-
-    #     Returns:
-    #         out_str (bool): converted string
-    #     """
-    #     if isinstance(in_str, bool):
-    #         return in_str
-    #     if in_str.lower() in ('yes', 'true', 't', 'y', '1'):
-    #         return True
-    #     elif in_str.lower() in ('no', 'false', 'f', 'n', '0'):
-    #         return False
-    #     else:
-    #         raise argparse.ArgumentTypeError('Boolean value expected.')
-
     parser = argparse.ArgumentParser(description='')
-
-    parser.add_argument('mode'
-                        , choices=['train', 'classify']
-                        , help='train the classifier or classify input image')
 
     parser.add_argument('-a'
                         , '--data_augmentation'
@@ -208,16 +185,6 @@ def parse_command_line_arguments() -> argparse.Namespace:
                         , type=str
                         , default='./../data/'
                         , help='(default=\'./../data/\') folder where to save the dataset or from where to load it (if mode == train)')
-    
-    parser.add_argument('--model_path'
-                        , type=str
-                        , default='./../models/'
-                        , help='(default=\'./../models/\') path of the model to load from memory (if mode == classify)')
-
-    parser.add_argument('--model_name'
-                        , type=str
-                        , default=None
-                        , help='(default=None) name of the model to load from memory (if mode == classify)')
 
     parser.add_argument('--splits'
                         , type=str
@@ -276,16 +243,106 @@ def parse_command_line_arguments() -> argparse.Namespace:
     parsed_arguments.splits = splits
     # ------------------------
 
-    # checking presence of model folder and name if mode == classify
-    # ------------------------
-    if parsed_arguments.mode == 'classify' and (parsed_arguments.model_name is None or parsed_arguments.model_path is None):
-        raise ValueError("Model path and name must be provided if mode == 'classify'.")
-    # ------------------------
-
-    # converting preprocess string to boolean
-    # ------------------------
-    # parsed_arguments.preprocess = str2bool(parsed_arguments.preprocess)
-    # ------------------------
-
-
     return parsed_arguments
+
+
+# def classify_parse_args() -> argparse.Namespace:
+#     """
+#     Parse command line arguments for classifying phase.
+    
+#     Returns:
+#         parsed_arguments (argparse.Namespace): populated Namespace: the arguments passed via 
+#                                             command line are converted to objects and assigned 
+#                                             as attributes of the namespace
+#     """
+
+#     parser = argparse.ArgumentParser(description='')
+
+#     parser.add_argument('mode'
+#                         , choices=['train', 'classify']
+#                         , help='train the classifier or classify input image')
+
+#     parser.add_argument('-a'
+#                         , '--data_augmentation'
+#                         , action='store_true'
+#                         , help='data augmentation preprocessing is applied')
+
+#     parser.add_argument('--dataset_folder'
+#                         , type=str
+#                         , default='./../data/'
+#                         , help='(default=\'./../data/\') folder where to save the dataset or from where to load it (if mode == train)')
+    
+#     parser.add_argument('--model_path'
+#                         , type=str
+#                         , default='./../models/'
+#                         , help='(default=\'./../models/\') path of the model to load from memory (if mode == classify)')
+
+#     parser.add_argument('--model_name'
+#                         , type=str
+#                         , default=None
+#                         , help='(default=None) name of the model to load from memory (if mode == classify)')
+
+#     parser.add_argument('--splits'
+#                         , type=str
+#                         , default='0.8-0.2'
+#                         , help='(default: 0.8-0.2) fraction of data to be used in training and validation set')
+
+#     parser.add_argument('--batch_size'
+#                         , type=int
+#                         , default=64
+#                         , help='(default: 64) mini-batch size')
+
+#     parser.add_argument('--epochs'
+#                         , type=int
+#                         , default=10
+#                         , help='(default: 10) number of training epochs')
+
+#     parser.add_argument('--lr'
+#                         , type=float
+#                         , default=0.001
+#                         , help='(default: 0.001) learning rate')
+
+#     parser.add_argument('--workers'
+#                         , type=int
+#                         , default=3
+#                         , help='(default: 3) number of working units used to load the data')
+
+#     parser.add_argument('--device'
+#                         , default='cpu'
+#                         , type=str
+#                         , help='(default: \'cpu\') device to be used for computations {cpu, cuda:0, cuda:1, ...}')
+
+#     parsed_arguments = parser.parse_args()
+
+
+#     # converting split fraction string to a list of floating point values ('0.8-0.2' => [0.8, 0.2])
+#     # ------------------------
+#     splits_string = str(parsed_arguments.splits)
+#     fractions_string = splits_string.split('-')
+#     if len(fractions_string) != 2:
+#         raise ValueError("Invalid split fractions were provided. Required format (example): 0.8-0.2")
+#     else:
+#         splits = []
+#         frac_sum = 0.
+#         for fraction in fractions_string:
+#             try:
+#                 splits.append(float(fraction))
+#                 frac_sum += splits[-1]
+#             except ValueError:
+#                 raise ValueError("Invalid split fractions were provided. Required format (example): 0.8-0.2")
+#         if frac_sum != 1.0:
+#             raise ValueError("Invalid split fractions were provided. They must sum to 1.")
+#     # ------------------------
+
+#     # updating the 'splits' argument
+#     # ------------------------
+#     parsed_arguments.splits = splits
+#     # ------------------------
+
+#     # checking presence of model folder and name if mode == classify
+#     # ------------------------
+#     if parsed_arguments.mode == 'classify' and (parsed_arguments.model_name is None or parsed_arguments.model_path is None):
+#         raise ValueError("Model path and name must be provided if mode == 'classify'.")
+#     # ------------------------
+
+#     return parsed_arguments
