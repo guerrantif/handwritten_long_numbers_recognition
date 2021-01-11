@@ -31,7 +31,7 @@ As the picture shows, the project may be divided into three main phases:
  * [**Phase 2**: Input image segmentation and digit extraction](#phase-2-input-image-segmentation-and-digit-extraction)
  * [**Phase 3**: Long number recognition](#phase-3-long-number-recognition)
  
-In a nutshel: the CNN model is trained on the MNIST dataset (with data augmentation techniques and without them) in order to obtain a trained model. Once the trained model is ready, it can be fed with the input image (taken from the webcam) which has been preprocessed and segmented accordingly. At this point the model can classify all the single digits written on the input image and returns the whole long number.
+In a nutshell: the CNN model is trained on the MNIST dataset (with data augmentation techniques and without them) in order to obtain a trained model. Once the trained model is ready, it can be fed with the input image (taken from the webcam) which has been preprocessed and segmented accordingly. At this point the model can classify all the single digits written on the input image and returns the whole long number.
 
 
 
@@ -101,7 +101,7 @@ The structure of this module is as follows:
   Once the regions' boundaries are found:
   * the regions are sliced out from the original image
   * the slices are resized according to the MNIST dataset samples dimensions (28x28)
-  * the resized slices are modified in order to obtain an image which as close as possible to the one that the network saw in training phase
+  * the resized slices are modified in order to obtain an image which is as close as possible to the one that the network saw in training phase
   * the modified slices are converted into a `torch.tensor` which will be used as input to the network
   <p align="center">
   <img src="img/extraction.png" width="900">
@@ -131,11 +131,27 @@ pip3 install -r requirements.txt
 ```
 
 The last command will install all the needed dependencies for this project.
-Some issues may arise for the OpenCv library. If it happens, please see the note below for more informations.
+Some issues may arise for the OpenCV library. If it happens, please see the note below for more informations.
 
 > **NOTE**: informations about how to install OpenCV in your platform can be found [here][opencv-installation].
 
 ## Usage example
+
+Once the repository has been downloaded and all the dependencies have been installed, one can procede following two paths:
+* [**Path 1**: use the already trained model and start the long number recognition procedure (faster)](#path-1)
+* [**Path 2**: train the model in your machine and then go to the long number recognition procedure](#path-2)
+
+### Path 1
+This path makes use of one of the trained models (which can be found in `models` folder). Here there are two `*.pt` files:
+* `CNN-batch_size64-lr0.001-epochs10-a.pth`: this model was trained using the data augmentation procedure
+* `CNN-batch_size64-lr0.001-epochs10.pth`: this model was trained without the data augmentation procedure  
+TODO
+
+
+### Path 2
+TODO
+
+---
 
 The `usage_example.ipynb` notebook shows some simple usage cases.
 
