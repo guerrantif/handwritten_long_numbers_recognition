@@ -54,14 +54,15 @@ def main_args_parser():
     image_from.add_argument('-w', '--webcam'
                             , action='store_true'
                             , help='input image from webcam')
+
     image_from.add_argument('-f', '--folder'
                             , type=str
                             , help='input image from folder'
                             , metavar='PATH_TO_IMAGE')
 
-    parser_train.add_argument('-a', '--augmentation'
-                            , action='store_true'
-                            , help='use model trained WITH data augmentation')
+    parser_classify.add_argument('-a', '--augmentation'
+                                , action='store_true'
+                                , help='use model trained WITH data augmentation')
 
     parser_classify.add_argument('-d', '--device'
                                 , type=str
@@ -79,6 +80,7 @@ def main_args_parser():
     
     parser_train.add_argument('-s', '--splits'
                             , nargs=2
+                            , type=float
                             , help='(default=[0.8,0.2]) proportions for the dataset split into training and validation set'
                             , default=[0.8,0.2]
                             , metavar=('TRAIN', 'VAL'))
