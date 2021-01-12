@@ -47,6 +47,11 @@ def main_args_parser():
                             , help='input image from folder'
                             , metavar='PATH_TO_IMAGE')
 
+    parser_classify.add_argument('-d', '--device'
+                                , type=str
+                                , help='(default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}'
+                                , default='cpu')
+
     # create the parser for the "TRAIN" command
     parser_train = subparsers.add_parser('train'
                                         , help='re-train the model in your machine and save it to reuse in classify phase'
@@ -91,46 +96,63 @@ def main_args_parser():
     return args
 
 
+
+def classify(webcam, image_path, device):
+
+    # image capture
+    # ------------------------
+    if webcam:
+        image = utils.webcam_capture()
+    # ------------------------
+    
+    if image_path is not None:
+        image = image_path
+
+    # creating a new classifier
+    # ------------------------
+    classifier = cnn.CNN(device)
+    # ------------------------
+
+    # load pre-trained model
+    # ------------------------
+    classifier.load('models/CNN-batch_size150-lr0.001-epochs40-a.pth')
+    # ------------------------
+
+    # graph-based segmentation and digits extraction
+    # ------------------------
+    segmented = seg.GraphBasedSegmentation(image)
+    segmented.segment(
+                      k=4500
+                    , min_size=100
+                    , preprocessing=True
+                    , gaussian_blur=2.3)
+
+    segmented.generate_image()
+    segmented.draw_boxes()
+    segmented.extract_digits()
+    # ------------------------
+
+    fig = plt.figure(figsize=(30,15))
+    for i in range(len(segmented.digits)):
+        image = segmented.digits[i][0]
+        sp = fig.add_subplot(3, len(segmented.digits), i+1)
+        plt.axis('off')
+        plt.imshow(image, cmap='gray')
+    plt.savefig('prva.png')
+
+    output = classifier.classify(segmented.digits)
+    print(output)
+
+
+
 def main():
     args = main_args_parser()
-    print(args)
+
+    if args.mode == "classify":
+        classify(args.webcam, args.folder, args.device)
 
 
 
 
 if __name__ == "__main__":
     main()
-
-    # image = utils.webcam_capture()
-
-    # # image = parsed_arguments.image_path
-
-    # # creating a new classifier
-    # # ------------------------
-    # classifier = cnn.CNN(device='cpu')
-    # # ------------------------
-
-    # classifier.load('models/CNN-batch_size150-lr0.001-epochs40-a.pth')
-
-    # segmented = seg.GraphBasedSegmentation(image)
-    # segmented.segment(
-    #                 k=4500
-    #                 , min_size=100
-    #                 , preprocessing=True
-    #                 , gaussian_blur=2.3)
-
-    # segmented.generate_image()
-    # segmented.draw_boxes()
-    # segmented.extract_digits()
-
-    # fig = plt.figure(figsize=(30,15))
-    # for i in range(len(segmented.digits)):
-    #     image = segmented.digits[i][0]
-    #     sp = fig.add_subplot(3, len(segmented.digits), i+1)
-    #     plt.axis('off')
-    #     plt.imshow(image, cmap='gray')
-    # plt.savefig('prva.png')
-
-    # output = classifier.classify(segmented.digits)
-    # print(output)
-
