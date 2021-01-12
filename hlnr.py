@@ -25,6 +25,18 @@ import argparse
 
 
 
+def save_digits(digits, path):
+
+    fig = plt.figure(figsize=(30,15))
+    for i in range(len(digits)):
+        image = digits[i][0]
+        sp = fig.add_subplot(3, len(digits), i+1)
+        plt.axis('off')
+        plt.imshow(image, cmap='gray')
+    plt.savefig(path)
+
+
+
 def main_args_parser():
     # create the top-level parser
     parser = argparse.ArgumentParser(description='Handwritten long number recognition')
@@ -100,7 +112,7 @@ def main_args_parser():
 
 
 
-def classify(webcam, image_path, device):
+def classify(webcam, image_path, augmentation, device):
 
     # image capture
     # ------------------------
@@ -118,7 +130,7 @@ def classify(webcam, image_path, device):
 
     # load pre-trained model
     # ------------------------
-    if args.augmentation:
+    if augmentation:
         classifier.load('models/CNN-batch_size150-lr0.001-epochs40-a.pth')
     else:
         classifier.load('models/CNN-batch_size150-lr0.001-epochs40.pth')
@@ -136,15 +148,9 @@ def classify(webcam, image_path, device):
     segmented.generate_image()
     segmented.draw_boxes()
     segmented.extract_digits()
-    # ------------------------
 
-    fig = plt.figure(figsize=(30,15))
-    for i in range(len(segmented.digits)):
-        image = segmented.digits[i][0]
-        sp = fig.add_subplot(3, len(segmented.digits), i+1)
-        plt.axis('off')
-        plt.imshow(image, cmap='gray')
-    plt.savefig('img/digits.png')
+    save_digits(segmented.digits, 'img/digits.png')
+    # ------------------------
 
     output = classifier.classify(segmented.digits)
     print(output)
