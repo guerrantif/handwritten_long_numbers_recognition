@@ -118,7 +118,7 @@ class CNN(nn.Module):
         self.net.to(self.device)
         # ----------------------
 
-        # the data augmentation consists in rotating the image of a random angle between -15° to +15°
+        # the data augmentation consists in rotating the image of a random angle between -30° to +30°
         # ----------------------
         if self.data_augmentation:
             # supposing that input is tensor as provided by dataset class
