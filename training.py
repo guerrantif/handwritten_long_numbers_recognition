@@ -14,14 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from lib.utils import training_parse_args
-from lib.cnn import CNN
-from lib.dataset import MNIST
+from modules.utils import training_parse_args
+from modules.cnn import CNN
+from modules.dataset import MNIST
 import os
 
 
-
-# entry point
 if __name__ == "__main__":
 
     args = training_parse_args()
