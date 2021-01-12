@@ -22,7 +22,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import re   # regular expressions
 import datetime
-import dataset
+from .dataset import MNIST
 import os
 from tqdm import tqdm
 
@@ -124,6 +124,7 @@ class CNN(nn.Module):
             # supposing that input is tensor as provided by dataset class
             self.preprocess = torchvision.transforms.Compose([
                 torchvision.transforms.RandomRotation(30),
+                torchvision.transforms.RandomResizedCrop(28, scale=(0.7,1.1)),
             ])
         
         else:
@@ -272,8 +273,8 @@ class CNN(nn.Module):
 
     def train_cnn(
           self
-        , training_set: dataset.MNIST
-        , validation_set: dataset.MNIST
+        , training_set: MNIST
+        , validation_set: MNIST
         , batch_size: int=64
         , lr: float=0.001
         , epochs: int=10
@@ -430,7 +431,10 @@ class CNN(nn.Module):
 
             # network evaluation on validation set (end of each epoch)
             # ----------------------
-            validation_accuracy = self.eval_cnn(validation_set)
+            validation_accuracy = self.eval_cnn(
+                                          dataset=validation_set
+                                        , batch_size=batch_size
+                                        , num_workers=num_workers)
             # ----------------------
 
             if validation_accuracy > best_validation_accuracy:
@@ -475,7 +479,7 @@ class CNN(nn.Module):
 
     def eval_cnn(
           self
-        , dataset: dataset.MNIST
+        , dataset: MNIST
         , batch_size: int=64
         , num_workers: int=3
         ) -> float:
@@ -534,6 +538,44 @@ class CNN(nn.Module):
         return accuracy
 
 
+    def classify(
+          self
+        , input: torch.tensor
+        ) -> torch.tensor:
+        """
+        CNN classification procedure.
+
+        Args:
+            input   (torch.tensor): tensor containing images to be classified
+
+        Returns:
+            output  (torch.tensor): tensor containing the classification decision
+        """
+        
+        # checking if network is in 'eval' or 'train' mode
+        # ----------------------
+        training_mode_originally_on = self.net.training
+        if training_mode_originally_on:
+            self.net.eval()         # switch to eval mode
+        # ----------------------
+
+        batch_outputs = []          # network outputs
+
+        with torch.no_grad():       # keeping off autograd engine
+            
+            # loop over mini-batches
+            # ----------------------
+            input.to(self.device)
+            outputs, _ = self.forward(input)
+            batch_outputs.append(outputs.cpu())     # append operation forced to be computed in cpu
+            # ----------------------
+
+        if training_mode_originally_on:
+            self.net.train()    # restoring training state
+        
+        return CNN.__decision(torch.FloatTensor(outputs))
+
+
     def __plot(self) -> None:
         """
         Plots validation and testing accuracy over the epochs.
@@ -555,7 +597,7 @@ class CNN(nn.Module):
         plt.legend()
 
         basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        folder = os.path.join(basedir, 'folder/')
+        folder = os.path.join(basedir, 'results/')
         if not os.path.exists(folder):   
             os.makedirs(folder)       
         filepath = os.path.join(folder, self.model_name)

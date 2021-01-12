@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import utils
+from .utils import *
 import torch
 import torchvision
 import os
@@ -28,7 +28,7 @@ class MNIST(torch.utils.data.Dataset):
           self
         , folder: str
         , train: bool=True
-        , download: bool=False
+        , download_dataset: bool=False
         , empty: bool=False
         ) -> None:
         """
@@ -37,7 +37,7 @@ class MNIST(torch.utils.data.Dataset):
         Args:
             folder      (str): folder in which contains/will contain the data
             train      (bool): if True the training dataset is built, otherwise the test dataset
-            download   (bool): if True the dataset will be downloaded (default = True)
+            download_dataset   (bool): if True the dataset will be downloaded (default = True)
             empty      (bool): if True the tensors will be left empty (default = False)
         """
 
@@ -90,9 +90,9 @@ class MNIST(torch.utils.data.Dataset):
 
             # dataset download
             # ------------------------
-            if download:
+            if download_dataset:
                 for name, url in urls.items():
-                    utils.download(url, self.raw_folder, name)
+                    download(url, self.raw_folder, name)
             # ------------------------
             
             # dataset folder check
@@ -112,14 +112,14 @@ class MNIST(torch.utils.data.Dataset):
                     filepath = os.path.join(self.raw_folder, name)
                     
                     if "images" in name:
-                        self.data = utils.store_file_to_tensor(filepath)
+                        self.data = store_file_to_tensor(filepath)
                         # add one dimension to X to give it as input to CNN by forward
                         self.data = torch.unsqueeze(self.data, 1)                    
                         # convert from uint8 to float32 due to runtime problem in conv2d forward phase
                         self.data = self.data.type(torch.FloatTensor)
 
                     elif "labels" in name:
-                        self.labels = utils.store_file_to_tensor(filepath)
+                        self.labels = store_file_to_tensor(filepath)
                 self.save()
             # ------------------------
         # ------------------------

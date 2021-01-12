@@ -1,5 +1,5 @@
 '''
-Copyright January 2021 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
+Copyright 2021 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -623,7 +623,7 @@ class GraphBasedSegmentation:
             # ---------------------------------
             threshold = lambda el, t: np.uint8(el) if el < t else np.uint8(255)
             threshold_func = np.vectorize(threshold)
-            digit = threshold_func(digit, 50)
+            digit = threshold_func(digit, 70)
             # ---------------------------------
 
             # resize image
