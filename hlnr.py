@@ -47,6 +47,10 @@ def main_args_parser():
                             , help='input image from folder'
                             , metavar='PATH_TO_IMAGE')
 
+    parser_train.add_argument('-a', '--augmentation'
+                            , action='store_true'
+                            , help='use model trained WITH data augmentation')
+
     parser_classify.add_argument('-d', '--device'
                                 , type=str
                                 , help='(default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}'
@@ -92,8 +96,7 @@ def main_args_parser():
                             , help='(default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}'
                             , default='cpu')
     
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 
@@ -115,7 +118,10 @@ def classify(webcam, image_path, device):
 
     # load pre-trained model
     # ------------------------
-    classifier.load('models/CNN-batch_size150-lr0.001-epochs40-a.pth')
+    if args.augmentation:
+        classifier.load('models/CNN-batch_size150-lr0.001-epochs40-a.pth')
+    else:
+        classifier.load('models/CNN-batch_size150-lr0.001-epochs40.pth')
     # ------------------------
 
     # graph-based segmentation and digits extraction
@@ -138,10 +144,113 @@ def classify(webcam, image_path, device):
         sp = fig.add_subplot(3, len(segmented.digits), i+1)
         plt.axis('off')
         plt.imshow(image, cmap='gray')
-    plt.savefig('prva.png')
+    plt.savefig('img/digits.png')
 
     output = classifier.classify(segmented.digits)
     print(output)
+
+
+
+def train(augmentation, splits, batch_size, epochs, lr, num_workers, device):
+
+    # creating a new classifier
+    # ------------------------
+    classifier = cnn.CNN(
+                      data_augmentation=augmentation
+                    , device=device)
+    # ------------------------
+
+    print("\n\nDataset preparation ...\n")
+
+    basedir = os.path.dirname(os.path.abspath(__file__))
+    dataset_folder = os.path.join(basedir, 'data/')
+    print("Dataset folder: {}".format(dataset_folder))
+
+    # preparing training and validation dataset
+    # ------------------------
+    training_validation_set = dataset.MNIST(
+                      folder=dataset_folder
+                    , train=True
+                    , download_dataset=True
+                    , empty=False
+                    )
+    # ------------------------
+
+    # preparing test dataset
+    # ------------------------
+    test_set = dataset.MNIST(
+                  folder=dataset_folder
+                , train=False
+                , download_dataset=True
+                , empty=False
+                )
+    # ------------------------
+
+    # splitting dataset into training and validation set
+    # ------------------------
+    training_set, validation_set = training_validation_set.splits(
+                                                  proportions=splits
+                                                , shuffle=True
+                                                )
+    # ------------------------
+  
+    # setting preprocessing operations if enabled
+    # ------------------------
+    training_set.set_preprocess(classifier.preprocess)
+    # ------------------------
+
+
+    # print some statistics
+    # ------------------------
+    print("\n\nStatistics: training set\n")
+    training_set.statistics()
+    print("\n\nStatistics: validation set\n")
+    validation_set.statistics()
+    print("\n\nStatistics: test set\n")
+    test_set.statistics()
+    # ------------------------
+
+    # defining model path (in which models will be saved)
+    # ------------------------
+    model_path = os.path.join(basedir, 'models/')
+    # ------------------------
+
+
+    # training the classifier
+    # ------------------------
+    print("\n\nTraining phase...\n")
+    classifier.train_cnn(
+                  training_set=training_set
+                , validation_set=validation_set
+                , batch_size=batch_size
+                , lr=lr
+                , epochs=epochs
+                , num_workers=num_workers
+                , model_path=model_path
+                )
+    # ------------------------
+    
+    # computing the performance of the final model in the prepared data splits
+    # ------------------------
+    print("\n\nValidation phase...\n")
+
+    # load the best classifier model
+    model_name = '{}CNN-batch_size{}-lr{}-epochs{}{}.pth'.format\
+                    (model_path, batch_size, lr, epochs, '-a' if augmentation else '')
+    classifier.load(model_name)
+
+    training_acc = classifier.eval_cnn(training_set)
+    validation_acc = classifier.eval_cnn(validation_set)
+    test_acc = classifier.eval_cnn(test_set)
+
+    print("\n\Accuracies\n")
+
+    print("training set:\t{:.2f}".format(training_acc))
+    print("validation set:\t{:.2f}".format(validation_acc))
+    print("test set:\t{:.2f}".format(test_acc))
+    # ------------------------
+
+    print("\n\nModel path: {}\n", os.path.join(model_path, model_name))
 
 
 
@@ -150,6 +259,12 @@ def main():
 
     if args.mode == "classify":
         classify(args.webcam, args.folder, args.device)
+
+    elif args.mode == "train":
+        train(args.augmentation, args.splits, args.batch_size, args.epochs, args.learning_rate, args.num_workers, args.device)
+
+    else:
+        raise ValueError("Execution mode must be either (classify) or (train)")
 
 
 
