@@ -37,17 +37,26 @@ In a nutshell: the CNN model is trained on the MNIST dataset (with data augmenta
 
 ### Phase 1: Training of the model
 
-This phase is developed in the `network` module and has the following structure:
-* **MNIST dataset decoding and handling** (_a detailed explanation is given [here][file-decode-notebook]_)
-   * `network.utils.download()` function: downloads the `.IDX` file from the given URL source and stores it in the folder given as argument.
-   * `network.utils.store_file_to_tensor()` function: takes the downloaded file (format `.IDX`) and store its contents into a `torch.tensor` following the provided encoding.
-   * `network.dataset.MNIST()` class: takes care of:
-     * downloading the dataset
-     * storing it into `data` and `labels` tensors
-     * splitting (`split()`) the dataset into training set and validation set according to some proportions
-     * returning a `DataLoader` (`get_loader()`) of the current dataset (needed for iterating over it)
-     * printing some statistics and classes distribution
-     * applying some preprocessing operations (such as random rotations for data augmentation) (`set_preprocess()`)
+This phase takes care of several task:
+
+* **MNIST dataset decoding and management** (_a detailed explanation is given [here][file-decode-notebook]_)  
+   The MNIST dataset comes from the original [source][mnist] in the `.IDX` format which has a particular encoding (well explained in the official site and in the [notebook][file-decode-notebook]). Its decoding and management is handled by the [`modules.dataset`][modules-dataset] module and, in particular by the `MNIST()` class.
+   
+   * `modules.dataset.MNIST()` class, built as follows:
+     * `__init__()`: class constructor
+        * downloads the training dataset (`train==True`) or the test dataset (`train==False`) if specified (`download_dataset==True`) and if it is not already downloaded by exploiting the `modules.dataset.download()` function
+        * leaves the dataset empty if specified (`empty==True`) or stores the data and the labels in the corresponding `torch.tensor` by exploiting the `modules.dataset.store_to_tensor()` function
+     * `set_preprocess()`: sets a custom preprocess operation to be applied to each data sample
+     * `splits()`: splits the dataset according to the provided proportions and returns training and validation sets  
+        If `shuffle==True` the dataset is randomly shuffled before being split
+     * `get_loader()`: returns the `torch.utils.data.DataLoader` for the current dataset
+        * it provides an iterable over the dataset 
+        * it iterates over a number of samples given by `batch_size`
+        * it exploits a number of workers (`num_workers`) to load the samples
+        * if `shuffle==True`, data is randomly shuffled at every iteration
+     * `classes_distribution()`: returns the distribution of the classes of the current dataset
+     * `statistics()`: prints some statistics of the current dataset
+     
 > **NOTE**: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
 * **CNN model implementation**
    * `network.cnn.CNN()` class: takes care of:
@@ -234,17 +243,24 @@ Distributed under the Apache-2.0 License. _See ``LICENSE`` for more information.
 Link to this project: [https://github.com/filippoguerranti/handwritten_long_numbers_recognition][project]
 
 
-<!-- Markdown link & img dfn's -->
+<!-- Links to notebooks, modules, documentation and other stuff -->
 [file-decode-notebook]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/notebooks/file_decoding_procedure.ipynb
 [graph-based-segmentation]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/notebooks/graph_based_segmentation.ipynb
 [graph-based-segmentation-paper]: http://people.cs.uchicago.edu/~pff/papers/seg-ijcv.pdf
 [digits-extraction]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/notebooks/digits_extraction.ipynb
+
+[modules-dataset]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/modules/dataset.py
+[modules-cnn]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/modules/cnn.py
+[modules-utils]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/modules/utils.py
+[modules-segmentation]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition/blob/main/modules/segmentation.py
+
 [mnist]: http://yann.lecun.com/exdb/mnist/
 [numpy]: https://numpy.org/doc/stable/
 [pillow]: https://pillow.readthedocs.io/en/stable/
 [torch]: https://pytorch.org/docs/stable/index.html
 [opencv]: https://docs.opencv.org/master/index.html
 [opencv-installation]: https://docs.opencv.org/master/df/d65/tutorial_table_of_content_introduction.html
+
 [project]: https://github.com/filippoguerranti/handwritten_long_numbers_recognition
 [unisi]: https://www.unisi.it/
 [diism]: https://www.diism.unisi.it/it
