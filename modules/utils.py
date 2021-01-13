@@ -20,6 +20,12 @@ import numpy as np
 from .cnn import *
 from .dataset import *
 from .segmentation import *
+import tkinter as tk
+from PIL import Image, ImageTk
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from datetime import datetime
+
 
 
 def webcam_capture() -> np.ndarray:
@@ -28,8 +34,10 @@ def webcam_capture() -> np.ndarray:
     cam = cv2.VideoCapture(0)
 
     # creates a window
-    cv2.namedWindow("Long number recognition")
+    cv2.namedWindow("SPACE: snapshot | ESC: exit")
 
+    # initializing output
+    image = None
 
     while True:
 
@@ -41,7 +49,7 @@ def webcam_capture() -> np.ndarray:
             break
 
         # show the countinously captured frame
-        cv2.imshow("Long number recognition", frame)
+        cv2.imshow("SPACE: snapshot | ESC: exit", frame)
 
         # waits for a pressed key
         k = cv2.waitKey(delay=1)
@@ -62,18 +70,69 @@ def webcam_capture() -> np.ndarray:
     # destroy the opened windows
     cv2.destroyAllWindows()
 
+    # Saving the image 
+    if image is not None:
+        now = datetime.now()
+        image_name = "img-{}.png".format(now.strftime("%d%m%Y-%H%M%S"))
+        image_dir = "img/webcam/"
+        if not os.path.exists(image_dir):
+            os.makedirs(image_dir)
+        image_path = os.path.join(image_dir, image_name)
+        cv2.imwrite(image_path, image) 
+
     return image
 
 
 
-def save_digits(digits, path):
+def save_image_steps(image, segmented, path):
 
-    fig = plt.figure(figsize=(30,15))
-    for i in range(len(digits)):
-        image = digits[i][0]
-        sp = fig.add_subplot(3, len(digits), i+1)
-        plt.axis('off')
-        plt.imshow(image, cmap='gray')
+    fig = plt.figure(figsize=(10, 15))
+    outer = gridspec.GridSpec(3, 1, wspace=0.2, hspace=0.2)
+
+    # original image
+    # ------------------------
+    ax = plt.Subplot(fig, outer[0])
+    ax.imshow(image)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    fig.add_subplot(ax)
+    # ------------------------
+
+    # segmented image
+    # ------------------------
+    inner = gridspec.GridSpecFromSubplotSpec(1, 2, 
+                    subplot_spec=outer[1], wspace=0.1, hspace=0.1)
+    ax = plt.Subplot(fig, inner[0])
+    ax.imshow(segmented.segmented_img)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    fig.add_subplot(ax)
+    # ------------------------
+
+    # boxed image
+    # ------------------------
+    ax = plt.Subplot(fig, inner[1])
+    ax.imshow(segmented.boxed_img)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    fig.add_subplot(ax)
+    # ------------------------
+
+    # extracted digits image
+    # ------------------------
+    num_digits = len(segmented.digits)
+    inner = gridspec.GridSpecFromSubplotSpec(1, num_digits, 
+                    subplot_spec=outer[2], wspace=0.1, hspace=0.1)
+
+    for i in range(num_digits):
+        ax = plt.Subplot(fig, inner[i])
+        ax.imshow(segmented.digits[i][0], cmap='gray')
+        ax.set_xticks([])
+        ax.set_yticks([])
+        fig.add_subplot(ax)
+    # ------------------------
+
+    print('Result image saved in {}'.format(path))
     plt.savefig(path)
 
 
@@ -161,10 +220,15 @@ def classify(webcam, image_path, augmentation, device):
     # ------------------------
     if webcam:
         image = webcam_capture()
+        if image is None:
+            raise RuntimeError("Unable to take webcam image. When window appears press SPACE to take a snapshot.")
     # ------------------------
     
     if image_path is not None:
-        image = image_path
+        if os.path.exists(image_path) and os.path.isfile(image_path):
+            image = image_path
+        else:
+            raise ValueError("Wrong image path.")
 
     # creating a new classifier
     # ------------------------
@@ -192,7 +256,7 @@ def classify(webcam, image_path, augmentation, device):
     segmented.draw_boxes()
     segmented.extract_digits()
 
-    save_digits(segmented.digits, 'img/digits.png')
+    save_image_steps(image, segmented, 'img/steps.png')
     # ------------------------
 
     output = classifier.classify(segmented.digits)
