@@ -103,7 +103,7 @@ This entire procedure is handled by the [`modules.cnn`][modules-cnn] module and,
      
 #### Training  
 
-The training procedure is performed both with data augmentation and without it. 
+The training procedure is performed both with data augmentation and without it, by the `modules.utils.train()` function inside the [`modules.utils`][modules-utils] module.
   
 > **NOTE 1**: in this project the data augmentation technique consists of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.
 > **NOTE 2**: higher degrees of rotation may lead to unwanted behaviours (MNIST is not rotation-invariant: 6 -> 9)
@@ -132,6 +132,11 @@ The training procedure is performed both with data augmentation and without it.
   ```
   * `$ python3 hlnr.py train -a`: trains the network **with** data augmentation (keeps the default values for the other parameters)
   * `$ python3 hlnr.py train`: trains the network **without** data augmentation (keeps the default values for the other parameters)
+ 
+The script works as follows:
+* initializes the `CNN` classifier
+* prepares the `MNIST` dataset into training, validation and test sets
+* trains the classifier by means of the `train_cnn()` function of the `CNN()` class
   
 Here are reported some results for the training phase both with data augmentation and without data augmentation, considering the following values:
 * `splits=[0.7,0.3]`, `learning_rate=0.001`, `epochs=50`, `batch_size=64`, `num_workers=5`, `device=cpu`
@@ -150,7 +155,14 @@ This phase takes care of several task:
 
 
 #### Webcam capture
-  * TODO
+
+This task is performed by the `modules.utils.webcam_capture()` function inside [`modules.utils`][modules-utils] module.
+It exploits the **OpenCV** library in the following way:
+* opens the webcam (`cv2.VideoCapture(0)`)
+* shows the captured frames in a while loop until:
+  * `SPACE` button is pressed: take a snapshot
+  * `ESC` button is pressed: close webcam and exit
+* once the snapshot is taken, it is directly send to the CNN model in order to be classified
   
   
 #### Image segmentation
@@ -163,7 +175,7 @@ In this project, the image segmentation task, is computed by exploiting the **Gr
 <img src="img/graph-based-segmentation.png" width="500">
 </p>
 
-This procedure is handled by the `modules.segmentation` module and, in particular by the `module.segmentation.GraphBasedSegmentation()` class, built as follows:
+This procedure is handled by the [`modules.segmentation`][module-segmentation] module and, in particular by the `module.segmentation.GraphBasedSegmentation()` class, built as follows:
 * `__init__()`: class contructor
   * takes an input image (`PIL.Image` or `numpy.ndarray`)
   * sets `width` and `height`
