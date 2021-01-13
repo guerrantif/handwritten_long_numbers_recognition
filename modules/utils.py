@@ -134,7 +134,7 @@ def save_image_steps(image, segmented, path):
         fig.add_subplot(ax)
     # ------------------------
 
-    print('Result image saved in {}'.format(path))
+    print('\nResult image saved in {}\n'.format(path))
     plt.savefig(path)
 
 
@@ -261,7 +261,8 @@ def classify(webcam, image_path, augmentation, device):
     # ------------------------
 
     output = classifier.classify(segmented.digits)
-    print(output)
+    output = ''.join(str(digit.item()) for digit in output)
+    print('\n\nThe recognize number is: {}\n\n'.format(output))
 
 
 
