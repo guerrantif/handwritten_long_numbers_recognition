@@ -42,7 +42,9 @@ This phase takes care of several task:
 * [CNN model implementation](#cnn-model-implementation)
 * [Training](#training)
 
-#### **MNIST dataset decoding and management**  
+
+#### MNIST dataset decoding and management  
+
 (_a detailed explanation is given [here][file-decode-notebook]_)  
 
 The MNIST dataset comes from the original [source][mnist] in the `.IDX` format which has a particular encoding (well explained in the official site and in the [notebook][file-decode-notebook]).  
@@ -62,11 +64,14 @@ Its decoding and management is handled by the [`modules.dataset`][modules-datase
  * `statistics()`: prints some statistics of the current dataset
 
 
-#### **CNN model implementation**  
+#### CNN model implementation  
+
 For the purpose of this project, the network used for the digit recognition task is a Convolutional Neural Network (CNN). The architecture of the model is the one shown below.
+
   <p align="center">
   <img src="img/cnn-model.png" width="300">
   </p>  
+
 The input image (which has a shape of 1x28x28) is fed into the first convolutional layer (having 12 output channels, 5x5 kernel and stride equal to 1), it is then passed through a ReLU function and a max pooling layer (having a 2x2 kernel and a stride equal to 2). This procedure is repeated (the only difference is the number of output channel of the new convolutional layer, which are 24), thus obtaining a 24x4x4 image. A flatten layer is applied, then a linear layer and another ReLu. In order to make the training phase more robust, the dropout technique is used, and another linear layer is applied at the end letting us obtain 10 output neurons of which we take the one having maximum value (softmax is applied).
   
 This entire procedure is handled by the [`modules.cnn`][modules-cnn] module and, in particular, by the `modules.cnn.CNN()` class, built as follows:
@@ -74,8 +79,8 @@ This entire procedure is handled by the [`modules.cnn`][modules-cnn] module and,
   * builds the CNN model (the one shown in the figure above)
   * moves the model to the selected device (`cpu`, `cuda:0`, ...)
   * defines the preprocess operation (`data_augmentation==True`) to be performed on the samples of the dataset while iterating over it or leaves the image  
-> **NOTE**: in this project the preprocess operation is a data augmentation technique consisting of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.
-         
+> **NOTE 1**: in this project the data augmentation technique consists of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.  
+> **NOTE 2**: higher degrees of rotation may lead to unwanted behaviours (MNIST is not rotation-invariant: 6 -> 9)  
  * `save()` and `load()`: saves and loads, respectively, the classifier's `state_dict` which maps each layer (having learnable parameters) to its parameters tensor
  * `forward()`: computes the output of the network (implicitly builds the computational graph)
    * computes the non-normalized output (logits) of the network
@@ -96,50 +101,113 @@ This entire procedure is handled by the [`modules.cnn`][modules-cnn] module and,
  * `__plot()`: plots the validation and training accuracies over the epochs (used by `train_cnn()` method)
      
      
-#### **Training**  
-   The training procedure is done both with data augmentation and without it. In this project, when talking about data augmentation we mean random rotation between -15° and + 15° of the samples in the training set.
-  * `$ python3 network/network.py -h`: to see all the possible parameters for the training procedure
-  * `$ python3 network/newtork.py train -a`: to train the network with data augmentation
-  * `$ python3 network/newtork.py train`: to train the network without data augmentation
+#### Training  
+
+The training procedure is performed both with data augmentation and without it. 
+  
+> **NOTE 1**: in this project the data augmentation technique consists of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.
+> **NOTE 2**: higher degrees of rotation may lead to unwanted behaviours (MNIST is not rotation-invariant: 6 -> 9)
+
+  * `$ python3 hlnr.py train -h`: shows the help of the `train` execution mode 
+  ```
+  usage: hlnr.py train [-h] [-a] [-s TRAIN VAL] [-b BATCH_SIZE] [-e EPOCHS] [-l LEARNING_RATE] [-w NUM_WORKERS] [-d DEVICE]
+
+  TRAIN mode: re-train the model in your machine and save it to reuse in classify phase
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -a, --augmentation    set data-augmentation procedure ON (RandomRotation and RandomResizedCrop)
+    -s TRAIN VAL, --splits TRAIN VAL
+                          (default=[0.8,0.2]) proportions for the dataset split into training and validation set
+    -b BATCH_SIZE, --batch_size BATCH_SIZE
+                          (default=64) mini-batch size
+    -e EPOCHS, --epochs EPOCHS
+                          (default=10) number of training epochs
+    -l LEARNING_RATE, --learning_rate LEARNING_RATE
+                          (default=10) learning rate
+    -w NUM_WORKERS, --num_workers NUM_WORKERS
+                          (default=3) number of workers
+    -d DEVICE, --device DEVICE
+                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
+  ```
+  * `$ python3 hlnr.py train -a`: trains the network **with** data augmentation (keeps the default values for the other parameters)
+  * `$ python3 hlnr.py train`: trains the network **without** data augmentation (keeps the default values for the other parameters)
+  
+Here are reported some results for the training phase both with data augmentation and without data augmentation, considering the following values:
+* `splits=[0.7,0.3]`, `learning_rate=0.001`, `epochs=50`, `batch_size=64`, `num_workers=5`, `device=cpu`
+
   <p align="center">
   <img src="img/training.png" width="900">
   </p>
-     
-> **NOTE**: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
-  
 
 
 ### Phase 2: Input image segmentation and digit extraction
 
-The image segmentation and the webcam capture tasks are implemented in the `input` module.
-The structure of this module is as follows:
-* **Webcam capture**
+This phase takes care of several task:
+* [Webcam image capture](#webcam-capture)
+* [Image segmentation](#image-segmentation)
+* [Digits extraction](#digits-extraction)
+
+
+#### Webcam capture
   * TODO
-* **Image segmentation** (_a detailed explanation is given [here][graph-based-segmentation]_)
-  * `input.segmentation.GraphBasedSegmentation()` class: implements the graph-based segmentation algorithm proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]):
-    * `__build_graph()`: builds a graph from an input image
-    * `segment()`: segments the image applying the Felzenszwalb's algorithm to the graph (it uses some tuning parameters `k` and `min_size`)
-    * `generate_image(): generate the segmented image by giving random colors to the pixels of the various regions
-    * `__find_boundaries()`: finds the segmented regions' boundaries
-    * `draw_boxes()`: draws the boxes around the segmented regions
-    * `extract_digits()`: extract a `torch.tensor` of the segmented digits (see next step)
-  * `input.segmentation.DisjointSetForest()` class: the data-structure used by the algorithm (not really used outside the other class).
-  <p align="center">
-  <img src="img/graph-based-segmentation.png" width="500">
-  </p>
-  <p align="center">
-  <img src="img/segmentation.png" width="900">
-  </p>
-* **Digit extraction** (_a detailed explanation is given [here][digits-extraction]_)  
-  The digit extraction procedure is carried out by the `extract_digits()` method of the `GraphBasedSegmentation()` class.  
-  Once the regions' boundaries are found:
-  * the regions are sliced out from the original image
-  * the slices are resized according to the MNIST dataset samples dimensions (28x28)
-  * the resized slices are modified in order to obtain an image which is as close as possible to the one that the network saw in training phase
-  * the modified slices are converted into a `torch.tensor` which will be used as input to the network
-  <p align="center">
-  <img src="img/extraction.png" width="900">
-  </p>
+  
+  
+#### Image segmentation
+
+(_a detailed explanation is given [here][graph-based-segmentation]_)
+
+In this project, the image segmentation task, is computed by exploiting the **Graph-based image segmentation algortihm** proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]). In the aforementioned paper and notebook, more details are provided about the algorithm functioning.
+
+<p align="center">
+<img src="img/graph-based-segmentation.png" width="500">
+</p>
+
+This procedure is handled by the `modules.segmentation` module and, in particular by the `module.segmentation.GraphBasedSegmentation()` class, built as follows:
+* `__init__()`: class contructor
+  * takes an input image (`PIL.Image` or `numpy.ndarray`)
+  * sets `width` and `height`
+* `__preprocessing()`: applies preprocessing operations to the input image
+  * converts it to grayscale
+  * applies a [gaussian blur filter](https://pillow.readthedocs.io/en/stable/reference/ImageFilter.html#PIL.ImageFilter.GaussianBlur) (default radius is 2.3)
+  * applies a [constrast enhancement](https://pillow.readthedocs.io/en/3.0.x/reference/ImageEnhance.html#PIL.ImageEnhance.Contrast) (default factor is 1.5)
+  * resizes the image in order to speed the process up (less node in the graph)
+* `__get_diff()`: returns the difference (in terms of intensity) between two pixels of an image
+* `__create_edge()`: creates the graph edge between two pixels of the image (the associated weight is given by `__get_diff()`)
+* `__threshold()`: defines the threshold for a subset of a given cardinality, which will be used in `segment()` to decide whether to merge two subsets
+* `__build_graph()`: builds the graph connecting the pixels (`__create_edge()`) according to their eight neighbors
+* `__sort()`: sorts the edges of the graphs (a.k.a. connection between pixels of the image) according to the connection weights, in non-decreasing order which is what is required by the algorithm
+* `segment()`: segment the graph based on the algorithm using some tuning parameters (`k` and `min_size`)
+  * applies the preprocessing operations (if `preprocessing==True`) to the image
+  * initializes the disjoint-set forest data structure (see below, `DisjointSetForest()` class)
+  * builds the graph (`__build_graph()`) and sorts it (`__sort()`)
+  * applies the algorithm by iterating over all the sorted weights and merging the correspondent nodes if they belongs to different components and if the _difference between components_ is greater than the _minimum internal difference_ (`__threshold()` is used here, along with the tuning parameter `k`)
+  * remove components having size less than `min_size` by merging them with one of the neighbor components
+* `__create_segmented_arr()`: creates the array having same shape `(height,width)` in which each element represents the component the corresponding pixel belogs to
+* `generate_image()`: generates the segmented image by giving random colors to the pixels of the various regions (a.k.a. components)
+* `__find_boundaries()`: finds the boundaries of the segmented regions by looping over the image array and setting the `min_col`, `min_row`, `max_col` and `max_row` for each region
+* `draw_boxes()`: draws the boxes around the segmented regions exploiting the found boundaries
+* `extract_digits()`: extract a `torch.tensor` of the segmented digits (see next step)
+
+The `GraphBasedSegmentation()` class is based on the `modules.segmentation.DisjointSetForest()` class, which represents the data-structure used by the algorithm (this class is only used within the `GraphBasedSegmentation()` class).
+
+<p align="center">
+<img src="img/segmentation.png" width="900">
+</p>
+
+#### Digit extraction 
+
+(_a detailed explanation is given [here][digits-extraction]_)  
+
+The digit extraction procedure is carried out by the `extract_digits()` method of the `GraphBasedSegmentation()` class.  
+Once the regions' boundaries are found:
+* the regions are sliced out from the original image
+* the slices are resized according to the MNIST dataset samples dimensions (28x28)
+* the resized slices are modified in order to obtain an image which is as close as possible to the one that the network saw in training phase
+* the modified slices are converted into a `torch.tensor` which will be used as input to the network
+<p align="center">
+<img src="img/extraction.png" width="900">
+</p>
 
 
 ### Phase 3: Long number recognition
@@ -199,41 +267,36 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 
 ```
 .
+├── hlnr.py
 ├── img
-│   ├── accuracies-data-augmentation-false.png
-│   ├── accuracies-data-augmentation-true.png
+│   ├── accuracies-a.png
+│   ├── accuracies.png
 │   ├── cnn-model.png
+│   ├── extraction.png
 │   ├── graph-based-segmentation.png
-│   ├── input
+│   ├── segmentation.png
+│   ├── steps.png
+│   ├── training.png
+│   ├── webcam
 │   │   ├── img-20201229-22648.png
 │   │   ├── img-20201229-22722.png
 │   │   ├── img-20201229-22753.png
-│   │   ├── img-2020128-213510.png
-│   │   ├── img-2020129-0574.png
-│   │   ├── img-2020129-12029.png
-│   │   ├── img-2020129-13428.png
-│   │   ├── img-2020129-1345.png
-│   │   ├── img-2020129-13744.png
-│   │   ├── img-202114-215659.png
-│   │   └── img-202114-215724.png
-│   ├── training.png
+│   │   ├── img-20210104-215659.png
+│   │   └── img-20210104-215724.png
 │   └── workflow.png
 ├── __init__.py
-├── input
-│   ├── __init__.py
-│   ├── README.md
-│   ├── segmentation.py
-│   └── webcam_capture.py
 ├── LICENSE
 ├── models
-│   ├── CNN-batch_size64-lr0.001-epochs10-y2021m1d10h14m42s20.pth
-│   └── CNN-batch_size64-lr0.001-epochs10-y2021m1d10h14m51s3.pth
-├── network
+│   ├── CNN-batch_size128-lr0.001-epochs60.pth
+│   ├── CNN-batch_size150-lr0.001-epochs40-a.pth
+│   ├── CNN-batch_size150-lr0.001-epochs40.pth
+│   ├── CNN-batch_size64-lr0.001-epochs50-a.pth
+│   └── CNN-batch_size64-lr0.001-epochs50.pth
+├── modules
 │   ├── cnn.py
 │   ├── dataset.py
 │   ├── __init__.py
-│   ├── network.py
-│   ├── README.md
+│   ├── segmentation.py
 │   └── utils.py
 ├── notebooks
 │   ├── digits_extraction.ipynb
@@ -241,10 +304,11 @@ The `usage_example.ipynb` notebook shows some simple usage cases.
 │   └── graph_based_segmentation.ipynb
 ├── README.md
 ├── requirements.txt
-├── results
-│   ├── CNN-batch_size64-lr0.001-epochs10-y2021m1d10h14m42s20.png
-│   └── CNN-batch_size64-lr0.001-epochs10-y2021m1d10h14m51s3.png
-└── usage_example.ipynb
+└── results
+    ├── CNN-batch_size150-lr0.001-epochs40-a.png
+    ├── CNN-batch_size150-lr0.001-epochs40.png
+    ├── CNN-batch_size64-lr0.001-epochs50-a.png
+    └── CNN-batch_size64-lr0.001-epochs50.png
 ```
 
 ## Documentation
