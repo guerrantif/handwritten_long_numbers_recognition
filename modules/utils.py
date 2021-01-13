@@ -240,13 +240,6 @@ def main_args_parser():
     
     args = parser.parse_args()
 
-    # check presence of either webcam or folder in case of classify
-    # ------------------------
-    # if args.mode == "classify" and (args.webcam == False and args.folder is None):
-    #     raise ValueError("Either one between --webcam and --folder must be specified")
-    # ------------------------
-
-
     return args
 
 
