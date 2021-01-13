@@ -21,10 +21,13 @@ def main():
     args = utils.main_args_parser()
 
     if args.mode == "classify":
-        utils.classify(args.webcam, args.folder, args.augmentation, args.device)
+        utils.classify(args.folder, args.augmentation, args.model, args.device)
 
     elif args.mode == "train":
         utils.train(args.augmentation, args.splits, args.batch_size, args.epochs, args.learning_rate, args.num_workers, args.device)
+
+    elif args.mode == "eval":
+        utils.eval(args.model, args.device)
 
     else:
         raise ValueError("Execution mode must be either (classify) or (train)")
@@ -34,3 +37,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# models/CNN-batch_size64-lr0.001-epochs50-a.pth
+# models/CNN-batch_size64-lr0.001-epochs50.pth
+# models/CNN-batch_size128-lr0.001-epochs60-a.pth
+# models/CNN-batch_size128-lr0.001-epochs60.pth
+# models/CNN-batch_size150-lr0.001-epochs40-a.pth
+# models/CNN-batch_size150-lr0.001-epochs40.pth

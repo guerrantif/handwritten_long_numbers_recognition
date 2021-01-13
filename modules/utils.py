@@ -144,34 +144,42 @@ def main_args_parser():
     parser = argparse.ArgumentParser(description='Handwritten long number recognition')
 
     subparsers = parser.add_subparsers(dest='mode'
-                                    , help='<required> program execution mode: classify with the pre-trained model or re-train the model'
+                                    , help='<required> program execution mode: classify with a pre-trained model or re-train the model'
                                     , required=True)
 
     # create the parser for the "CLASSIFY" command 
+    # ------------------------
     parser_classify = subparsers.add_parser('classify'
                                             , help='classify an input image using the pre-trained model'
-                                            , description='CLASSIFY mode: classify an input image using the pre-trained model')
+                                            , description='CLASSIFY mode: classify an input image using a pre-trained model')
 
     image_from = parser_classify.add_mutually_exclusive_group()
-    image_from.add_argument('-w', '--webcam'
-                            , action='store_true'
-                            , help='input image from webcam')
 
     image_from.add_argument('-f', '--folder'
                             , type=str
-                            , help='input image from folder'
-                            , metavar='PATH_TO_IMAGE')
+                            , help='input image from folder, if not specified from webcam'
+                            , metavar='PATH_TO_IMAGE'
+                            , default=None)
 
-    parser_classify.add_argument('-a', '--augmentation'
-                                , action='store_true'
-                                , help='use model trained WITH data augmentation')
+    which_model = parser_classify.add_mutually_exclusive_group()
+
+    which_model.add_argument('-a', '--augmentation'
+                            , action='store_true'
+                            , help='use model trained WITH data augmentation')
+
+    which_model.add_argument('-m', '--model'
+                            , type=str
+                            , help='user custom model from path'
+                            , metavar='PATH_TO_MODEL')
 
     parser_classify.add_argument('-d', '--device'
                                 , type=str
                                 , help='(default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}'
                                 , default='cpu')
+    # ------------------------
 
     # create the parser for the "TRAIN" command
+    # ------------------------
     parser_train = subparsers.add_parser('train'
                                         , help='re-train the model in your machine and save it to reuse in classify phase'
                                         , description='TRAIN mode: re-train the model in your machine and save it to reuse in classify phase')
@@ -183,8 +191,8 @@ def main_args_parser():
     parser_train.add_argument('-s', '--splits'
                             , nargs=2
                             , type=float
-                            , help='(default=[0.8,0.2]) proportions for the dataset split into training and validation set'
-                            , default=[0.8,0.2]
+                            , help='(default=[0.7,0.3]) proportions for the dataset split into training and validation set'
+                            , default=[0.7,0.3]
                             , metavar=('TRAIN', 'VAL'))
     
     parser_train.add_argument('-b', '--batch_size'
@@ -211,38 +219,73 @@ def main_args_parser():
                             , type=str
                             , help='(default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}'
                             , default='cpu')
-    
-    return parser.parse_args()
-
-
-
-def classify(webcam, image_path, augmentation, device):
-
-    # image capture
-    # ------------------------
-    if webcam:
-        image = webcam_capture()
-        if image is None:
-            raise RuntimeError("Unable to take webcam image. When window appears press SPACE to take a snapshot.")
     # ------------------------
     
+    # create the parser for the "EVAL" command
+    # ------------------------
+    parser_eval = subparsers.add_parser('eval'
+                                        , help='evaluate the model accuracy on the test set of MNIST'
+                                        , description='EVAL mode: evaluate the model accuracy on the test set of MNIST')
+
+    parser_eval.add_argument('model'
+                            , type=str
+                            , help='<required> path to the model to be evaluated'
+                            , metavar='PATH_TO_MODEL')
+
+    parser_eval.add_argument('-d', '--device'
+                            , type=str
+                            , help='(default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}'
+                            , default='cpu')
+    # ------------------------
+    
+    args = parser.parse_args()
+
+    # check presence of either webcam or folder in case of classify
+    # ------------------------
+    # if args.mode == "classify" and (args.webcam == False and args.folder is None):
+    #     raise ValueError("Either one between --webcam and --folder must be specified")
+    # ------------------------
+
+
+    return args
+
+
+
+def classify(image_path, augmentation, model, device):
+    
+    # load an image from user folder
+    # ------------------------
     if image_path is not None:
         if os.path.exists(image_path) and os.path.isfile(image_path):
             image = image_path
         else:
             raise ValueError("Wrong image path.")
+    # ------------------------
+    # take a webcam image
+    # ------------------------
+    else:
+        image = webcam_capture()
+        if image is None:
+            raise RuntimeError("Unable to take webcam image. When window appears press SPACE to take a snapshot.")
+    # ------------------------
 
-    # creating a new classifier
+    # create a new classifier
     # ------------------------
     classifier = CNN(device)
     # ------------------------
 
-    # load pre-trained model
+    # load user model
     # ------------------------
-    if augmentation:
-        classifier.load('models/CNN-batch_size150-lr0.001-epochs40-a.pth')
+    if model is not None:
+        classifier.load(model)
     else:
-        classifier.load('models/CNN-batch_size150-lr0.001-epochs40.pth')
+        # load pre-trained model
+        # ------------------------
+        if augmentation:
+            classifier.load('models/CNN-batch_size150-lr0.001-epochs40-a.pth')
+        else:
+            classifier.load('models/CNN-batch_size150-lr0.001-epochs40.pth')
+        # ------------------------
     # ------------------------
 
     # graph-based segmentation and digits extraction
@@ -366,3 +409,40 @@ def train(augmentation, splits, batch_size, epochs, lr, num_workers, device):
     # ------------------------
 
     print("\n\nModel path: {}\n".format(model_name))
+
+
+
+def eval(model_name, device):
+
+    # creating a new classifier
+    # ------------------------
+    classifier = CNN(device=device)
+    # ------------------------
+
+    print("\n\nDataset preparation ...\n")
+
+    basedir = os.path.dirname(sys._getframe(1).f_globals['__file__'])
+    dataset_folder = os.path.join(basedir, 'data/')
+    print("Dataset folder: {}".format(dataset_folder))
+
+    # preparing test dataset
+    # ------------------------
+    test_set = MNIST(
+                  folder=dataset_folder
+                , train=False
+                , download_dataset=True
+                , empty=False
+                )
+    # ------------------------
+
+    # computing the performance of the model
+    # ------------------------
+    print("\n\nEvaluation phase...\n")
+
+    # load the classifier model
+    classifier.load(model_name)
+
+    test_acc = classifier.eval_cnn(test_set)
+
+    print("\ntest set accuracy:\t{:.2f}\n\n".format(test_acc))
+    # ------------------------

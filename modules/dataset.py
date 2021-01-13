@@ -340,14 +340,14 @@ class MNIST(torch.utils.data.Dataset):
 
     def splits(
           self
-        , proportions: list=[0.8, 0.2]
+        , proportions: list=[0.7, 0.3]
         , shuffle: bool=True
         ) -> None:
         """
         Split the the dataset according to the given proportions and return two instances of MNIST, training and validation.
 
         Args:
-            proportions (list): (default=[0.8,0.2]) list of proportions for training set and validation set.
+            proportions (list): (default=[0.7,0.3]) list of proportions for training set and validation set.
             shuffle (bool): (default=True) whether to shuffle the dataset or not
         """
         # check not empty dataset
