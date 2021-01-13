@@ -73,7 +73,7 @@ def webcam_capture() -> np.ndarray:
     # Saving the image 
     if image is not None:
         now = datetime.now()
-        image_name = "img-{}.png".format(now.strftime("%d%m%Y-%H%M%S"))
+        image_name = "img-{}.png".format(now.strftime("%Y%m%d-%H%M%S"))
         image_dir = "img/webcam/"
         if not os.path.exists(image_dir):
             os.makedirs(image_dir)
