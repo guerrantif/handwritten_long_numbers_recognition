@@ -292,12 +292,11 @@ def train(augmentation, splits, batch_size, epochs, lr, num_workers, device):
     validation_acc = classifier.eval_cnn(validation_set)
     test_acc = classifier.eval_cnn(test_set)
 
-    print("\n\Accuracies\n")
+    print("\n\nAccuracies\n")
 
     print("training set:\t{:.2f}".format(training_acc))
     print("validation set:\t{:.2f}".format(validation_acc))
     print("test set:\t{:.2f}".format(test_acc))
     # ------------------------
 
-    print("\n\nModel path: {}\n", os.path.join(model_path, model_name))
-
+    print("\n\nModel path: {}\n".format(model_name))
