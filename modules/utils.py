@@ -91,6 +91,8 @@ def save_image_steps(image, segmented, path):
 
     # original image
     # ------------------------
+    if isinstance(image, str):
+        image = plt.imread(image)
     ax = plt.Subplot(fig, outer[0])
     ax.imshow(image)
     ax.set_xticks([])
@@ -249,8 +251,7 @@ def classify(webcam, image_path, augmentation, device):
     segmented.segment(
                       k=4500
                     , min_size=100
-                    , preprocessing=True
-                    , gaussian_blur=2.3)
+                    , preprocessing=True)
 
     segmented.generate_image()
     segmented.draw_boxes()

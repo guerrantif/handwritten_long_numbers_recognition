@@ -431,7 +431,7 @@ class MNIST(torch.utils.data.Dataset):
         data_loader = torch.utils.data.DataLoader(
                                       self
                                     , batch_size=batch_size
-                                    , shuffle=True
+                                    , shuffle=shuffle
                                     , num_workers=num_workers
                                     )
             

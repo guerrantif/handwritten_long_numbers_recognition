@@ -206,8 +206,8 @@ class GraphBasedSegmentation:
 
         Args:
             img         (PIL.Image): image to be processed
-            constrast       (float): (defualt=1.5) contrast filter
-            gaussian_blur   (float): (default=1.5) Gaussian Blur filter
+            constrast       (float): (default=1.5) contrast filter
+            gaussian_blur   (float): (default=2.3) Gaussian Blur filter
             width             (int): (default=300) new image width
             height            (int): (default=None) new image height
         

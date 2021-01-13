@@ -107,7 +107,7 @@ class CNN(nn.Module):
                 # [batch_size, 784]
                 , nn.Linear(
                       in_features=784
-                    , out_features=10
+                    , out_features=self.num_outputs
                 )
                 # [batch_size, self.num_outputs]
         )
@@ -124,7 +124,7 @@ class CNN(nn.Module):
             # supposing that input is tensor as provided by dataset class
             self.preprocess = torchvision.transforms.Compose([
                 torchvision.transforms.RandomRotation(30),
-                torchvision.transforms.RandomResizedCrop(28, scale=(0.7,1.1)),
+                torchvision.transforms.RandomResizedCrop(28, scale=(0.9,1.1)),
             ])
         
         else:
@@ -578,7 +578,7 @@ class CNN(nn.Module):
 
     def __plot(self) -> None:
         """
-        Plots validation and testing accuracy over the epochs.
+        Plots validation and training accuracy over the epochs.
         """
         # retrieve batch_size, lr and epochs from model name
         fields = self.model_name.split('-')
