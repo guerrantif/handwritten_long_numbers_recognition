@@ -1,13 +1,14 @@
-# Recognition of handwritten (long) numbers
-> Neural Network recognizer of long handwritten numbers via the use of a webcam.
+# Handwritten (long) numbers recognition
+> Build a Neural Network capable of recognize long handwritten numbers via the use of a webcam.
 
 ---
 The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from her/his webcam.
 
-> **STRONG ASSUMPTION**: the input image must have homogeneous white background, and the digits must be written in dark color.
+> **STRONG ASSUMPTION**: the input image must have homogeneous white background, and the digits must be written in dark color (or at least there must be a good constrast between the background and the foreground).
 
 ---
 **Table of contents**
+
 * [Project description](#project-description)
 * [Download and setup](#download-and-setup)
 * [Usage example](#usage-example)
@@ -15,6 +16,7 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 * [Directory structure](#directory-structure)
 * [Documentation](#documentation)
 * [Info](#info)
+
 ---
 
 ## Project description
@@ -37,17 +39,17 @@ In a nutshell: the CNN model is trained on the MNIST dataset (with data augmenta
 
 ### Phase 1: Training of the model
 
-This phase takes care of several task:
+This phase takes care of several tasks:
 * [MNIST dataset decoding and management](#mnist-dataset-decoding-and-management)
 * [CNN model implementation](#cnn-model-implementation)
-* [Training](#training)
+* [Training of the model](#training-of-the-model)
 
 
 #### MNIST dataset decoding and management  
 
 (_a detailed explanation is given [here][file-decode-notebook]_)  
 
-The MNIST dataset comes from the original [source][mnist] in the `.IDX` format which has a particular encoding (well explained in the official site and in the [notebook][file-decode-notebook]).  
+The MNIST dataset comes from the original [source][mnist] in the `.IDX` format which has a particular encoding (well explained in the official website and in the notebook).  
 Its decoding and management is handled by the [`modules.dataset`][modules-dataset] module and, in particular by the `modules.dataset.MNIST()` class, built as follows:
  * `__init__()`: class constructor
     * downloads the training dataset (`train==True`) or the test dataset (`train==False`) if specified (`download_dataset==True`) and if it is not already downloaded by exploiting the `modules.dataset.download()` function
@@ -101,12 +103,15 @@ This entire procedure is handled by the [`modules.cnn`][modules-cnn] module and,
  * `__plot()`: plots the validation and training accuracies over the epochs (used by `train_cnn()` method)
      
      
-#### Training  
+#### Training of the model  
 
 The training procedure is performed both with data augmentation and without it, by the `modules.utils.train()` function inside the [`modules.utils`][modules-utils] module.
   
 > **NOTE 1**: in this project the data augmentation technique consists of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.
+
 > **NOTE 2**: higher degrees of rotation may lead to unwanted behaviours (MNIST is not rotation-invariant: 6 -> 9)
+
+To start the training procedure, one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `train` mode of the `hlrn.py` script:
 
   * `$ python3 hlnr.py train -h`: shows the help of the `train` execution mode 
   ```
@@ -148,7 +153,7 @@ Here are reported some results for the training phase both with data augmentatio
 
 ### Phase 2: Input image segmentation and digit extraction
 
-This phase takes care of several task:
+This phase takes care of several tasks:
 * [Webcam image capture](#webcam-capture)
 * [Image segmentation](#image-segmentation)
 * [Digits extraction](#digits-extraction)
@@ -175,7 +180,7 @@ In this project, the image segmentation task, is computed by exploiting the **Gr
 <img src="img/graph-based-segmentation.png" width="500">
 </p>
 
-This procedure is handled by the [`modules.segmentation`][module-segmentation] module and, in particular by the `module.segmentation.GraphBasedSegmentation()` class, built as follows:
+This procedure is handled by the [`modules.segmentation`][modules-segmentation] module and, in particular by the `module.segmentation.GraphBasedSegmentation()` class, built as follows:
 * `__init__()`: class contructor
   * takes an input image (`PIL.Image` or `numpy.ndarray`)
   * sets `width` and `height`
@@ -207,7 +212,7 @@ The `GraphBasedSegmentation()` class is based on the `modules.segmentation.Disjo
 <img src="img/segmentation.png" width="900">
 </p>
 
-#### Digit extraction 
+#### Digits extraction 
 
 (_a detailed explanation is given [here][digits-extraction]_)  
 
@@ -224,7 +229,59 @@ Once the regions' boundaries are found:
 
 ### Phase 3: Long number recognition
 
-TODO
+This phase, is simpler than the others, and can be split into three steps:
+* [Input of the network: extracted digits](#input-of-the-network-extracted-digits)
+* [Output of the network: long number](#output-of-the-network-long-number)
+* [Results](#results)
+
+To start the classification procedure (the one in which the number written in the input image is recognized), one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `classify` mode of the `hlrn.py` script:
+
+  * `$ python3 hlnr.py classify -h`: shows the help of the `classify` execution mode 
+  ```
+  usage: hlnr.py classify [-h] [-w | -f PATH_TO_IMAGE] [-a] [-d DEVICE]
+
+  CLASSIFY mode: classify an input image using the pre-trained model
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -w, --webcam          input image from webcam
+    -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
+                          input image from folder
+    -a, --augmentation    use model trained WITH data augmentation
+    -d DEVICE, --device DEVICE
+                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
+  ```
+  * `$ python3 hlnr.py classify -wa`: performs the recognition of the input image taken by the **webcam** (`w`) and exploiting the pre-trained model **with** data augmentation (`a`) 
+  * `$ python3 hlnr.py classify -w`: performs the recognition of the input image taken by the **webcam** (`w`) and exploiting the pre-trained model **without** data augmentation
+  * `$ python3 hlnr.py classify -fa`: performs the recognition of the input image taken from the user defined **folder** (`f`) the webcam and exploiting the pre-trained model **with** data augmentation (`a`) 
+  * `$ python3 hlnr.py classify -f`: performs the recognition of the input image taken from the user defined **folder** (`f`) and exploiting the pre-trained model **without** data augmentation
+
+
+#### Input of the network: extracted digits
+
+This task is mainly handled by the `modules.utils.classify()` function inside the [`modules.utils`][modules-utils] module.
+It works as follows:
+* starts the webcam image capture procedure (if `webcam==True`) or takes an input image from a folder defined by the user (if `image_path is not None`)
+* initializes the `CNN` classifier
+* loads the pre-trained model **with** data augmentation (if `augmentation==True`) or the one **without** data augmentation (if `augmentation==False`)
+* segments the image via the `segment()` method of the `GraphBasedSegmentation()` class
+* extracts the digits via the `extract_digits()` method of the `GraphBasedSegmentation()` class
+
+
+#### Output of the network: long number
+
+As for the previous step, this task is handled by the `modules.utils.classify()` function.
+
+After the digits have been extracted, they are shown as a batch to the network.  
+The last step is the following:
+* classify each single digit exploiting the `classify()` method of the `CNN()` class
+
+The result of this procedure is a `torch.tensor` which stores the recognize number
+```
+The recognize number is: 345678
+```
+
+
 
 ## Download and Setup
 
