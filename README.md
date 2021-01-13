@@ -38,42 +38,65 @@ In a nutshell: the CNN model is trained on the MNIST dataset (with data augmenta
 ### Phase 1: Training of the model
 
 This phase takes care of several task:
+* [MNIST dataset decoding and management](#mnist-dataset-decoding-and-management)
+* [CNN model implementation](#cnn-model-implementation)
+* [Training](#training)
 
-* **MNIST dataset decoding and management** (_a detailed explanation is given [here][file-decode-notebook]_)  
-   The MNIST dataset comes from the original [source][mnist] in the `.IDX` format which has a particular encoding (well explained in the official site and in the [notebook][file-decode-notebook]). Its decoding and management is handled by the [`modules.dataset`][modules-dataset] module and, in particular by the `MNIST()` class.
-   
-   * `modules.dataset.MNIST()` class, built as follows:
-     * `__init__()`: class constructor
-        * downloads the training dataset (`train==True`) or the test dataset (`train==False`) if specified (`download_dataset==True`) and if it is not already downloaded by exploiting the `modules.dataset.download()` function
-        * leaves the dataset empty if specified (`empty==True`) or stores the data and the labels in the corresponding `torch.tensor` by exploiting the `modules.dataset.store_to_tensor()` function
-     * `set_preprocess()`: sets a custom preprocess operation to be applied to each data sample
-     * `splits()`: splits the dataset according to the provided proportions and returns training and validation sets  
-        If `shuffle==True` the dataset is randomly shuffled before being split
-     * `get_loader()`: returns the `torch.utils.data.DataLoader` for the current dataset
-        * it provides an iterable over the dataset 
-        * it iterates over a number of samples given by `batch_size`
-        * it exploits a number of workers (`num_workers`) to load the samples
-        * if `shuffle==True`, data is randomly shuffled at every iteration
-     * `classes_distribution()`: returns the distribution of the classes of the current dataset
-     * `statistics()`: prints some statistics of the current dataset
-     
-> **NOTE**: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
-* **CNN model implementation**
-   * `network.cnn.CNN()` class: takes care of:
-     * building the CNN model (shown in the picture below)
-     * defining the preprocess operations to be performed on the elements of the dataset while iterating over it
-     * saving and loading the model
-     * implementing the:
-       * `forward()` function: implicitly build the computational-graph
-       * `__decision()` function: chooses the output neuron having maximum value among all the others 
-       * `__loss()` function: applies the Cross Entropy loss to the output (before softmax)
-       * `__performance()` function: computes the accuracy as number of correct decisions divided by the total number of samples
-     * training the model by mean of the `train_cnn()` method (Adam optimizer is the default one)
-     * evaluating the model by mean of the `eval_cnn()` method
+#### **MNIST dataset decoding and management**  
+(_a detailed explanation is given [here][file-decode-notebook]_)  
+
+The MNIST dataset comes from the original [source][mnist] in the `.IDX` format which has a particular encoding (well explained in the official site and in the [notebook][file-decode-notebook]).  
+Its decoding and management is handled by the [`modules.dataset`][modules-dataset] module and, in particular by the `modules.dataset.MNIST()` class, built as follows:
+ * `__init__()`: class constructor
+    * downloads the training dataset (`train==True`) or the test dataset (`train==False`) if specified (`download_dataset==True`) and if it is not already downloaded by exploiting the `modules.dataset.download()` function
+    * leaves the dataset empty if specified (`empty==True`) or stores the data and the labels in the corresponding `torch.tensor` by exploiting the `modules.dataset.store_to_tensor()` function
+ * `set_preprocess()`: sets a custom preprocess operation to be applied to each data sample
+ * `splits()`: splits the dataset according to the provided proportions and returns training and validation sets  
+    * if `shuffle==True` the dataset is randomly shuffled before being split
+ * `get_loader()`: returns the `torch.utils.data.DataLoader` for the current dataset
+    * provides an iterable over the dataset 
+    * iterates over a number of samples given by `batch_size`
+    * exploits a number of workers (`num_workers`) to load the samples
+    * if `shuffle==True`, data is randomly shuffled at every iteration
+ * `classes_distribution()`: returns the distribution of the classes of the current dataset
+ * `statistics()`: prints some statistics of the current dataset
+
+
+#### **CNN model implementation**  
+For the purpose of this project, the network used for the digit recognition task is a Convolutional Neural Network (CNN). The architecture of the model is the one shown below.
   <p align="center">
   <img src="img/cnn-model.png" width="300">
-  </p>
-* **Training (with and without data augmentation)**  
+  </p>  
+The input image (which has a shape of 1x28x28) is fed into the first convolutional layer (having 12 output channels, 5x5 kernel and stride equal to 1), it is then passed through a ReLU function and a max pooling layer (having a 2x2 kernel and a stride equal to 2). This procedure is repeated (the only difference is the number of output channel of the new convolutional layer, which are 24), thus obtaining a 24x4x4 image. A flatten layer is applied, then a linear layer and another ReLu. In order to make the training phase more robust, the dropout technique is used, and another linear layer is applied at the end letting us obtain 10 output neurons of which we take the one having maximum value (softmax is applied).
+  
+This entire procedure is handled by the [`modules.cnn`][modules-cnn] module and, in particular, by the `modules.cnn.CNN()` class, built as follows:
+* `__init__()`: class constructor
+  * builds the CNN model (the one shown in the figure above)
+  * moves the model to the selected device (`cpu`, `cuda:0`, ...)
+  * defines the preprocess operation (`data_augmentation==True`) to be performed on the samples of the dataset while iterating over it or leaves the image  
+> **NOTE**: in this project the preprocess operation is a data augmentation technique consisting of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.
+         
+ * `save()` and `load()`: saves and loads, respectively, the classifier's `state_dict` which maps each layer (having learnable parameters) to its parameters tensor
+ * `forward()`: computes the output of the network (implicitly builds the computational graph)
+   * computes the non-normalized output (logits) of the network
+   * applies the `softmax` function to the logits, obtaining the normalized (between 0 and 1) output
+ * `__decision()`: chooses the output neuron having maximum value among all the others (applies `argmax`)
+ * `__loss()` function: applies the `torch.nn.functional.cross_entropy` loss to the output (before `softmax`)
+   * a `weights` tensor is also provided to the function in order to weight the slight unbalance between classes
+ * `__performance()`: computes the accuracy (correct decisions over all made decisions)
+ * `train_cnn()`: training procedure
+   * exploits the `get_loader()` function to get the `DataLoader`s of training and validation set with the provided `batch_size`
+   * iterates over the `epochs` and applies the `forward()` procedure to each mini-batch
+   * computes the loss and backpropagates it using the `backward()` method, which stores the gradients for each model parameter (after zeroed them with `zero_grad()`)
+   * uses Adam optimizer's `step()` method to update all the (learnable) parameters
+   * evaluates the performances on the current mini-batch (by first switching off the `autograd` engine) and accumulates the accuracies and the losses
+   * save the best model found so far
+ * `eval_cnn()`: evaluates the accuracy over the provided `dataset` by forwarding it (batch by batch) through the model and accumulating the accuracies on each mini-batch
+ * `classify()`: forwards an input sample (or batch of samples) through the model and makes a decision
+ * `__plot()`: plots the validation and training accuracies over the epochs (used by `train_cnn()` method)
+     
+     
+#### **Training**  
    The training procedure is done both with data augmentation and without it. In this project, when talking about data augmentation we mean random rotation between -15° and + 15° of the samples in the training set.
   * `$ python3 network/network.py -h`: to see all the possible parameters for the training procedure
   * `$ python3 network/newtork.py train -a`: to train the network with data augmentation
@@ -81,6 +104,8 @@ This phase takes care of several task:
   <p align="center">
   <img src="img/training.png" width="900">
   </p>
+     
+> **NOTE**: the random rotations are of small angles since MNIST is not rotation-invariant (6 -> 9)
   
 
 
