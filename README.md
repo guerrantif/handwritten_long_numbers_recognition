@@ -238,7 +238,7 @@ To start the classification procedure (the one in which the number written in th
 
   * `$ python3 hlnr.py classify -h`: shows the help of the `classify` execution mode 
   ```
-  usage: hlnr.py classify [-h] [-w | -f PATH_TO_IMAGE] [-a] [-d DEVICE]
+  usage: hlnr.py classify [-h] [-w | -f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
 
   CLASSIFY mode: classify an input image using the pre-trained model
 
@@ -248,6 +248,8 @@ To start the classification procedure (the one in which the number written in th
     -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
                           input image from folder
     -a, --augmentation    use model trained WITH data augmentation
+    -m PATH_TO_MODEL, --model PATH_TO_MODEL
+                          use custom model from path
     -d DEVICE, --device DEVICE
                           (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
   ```
