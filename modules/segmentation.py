@@ -170,9 +170,9 @@ class DisjointSetForest:
 
         If a node is not parent of itself, it is not in this list.
 
-           e       f     
-         /  \    /  \   
-        a   b   c   d 
+               e       f     
+             /  \    /  \   
+            a   b   c   d 
 
         parents = [e, f]
 
@@ -188,9 +188,9 @@ class DisjointSetForest:
     def sorted_parents(self) -> list:
         """ Returns the parents nodes in decreasing order of child size.
 
-           f       g     
-         /  \    / |  \   
-        a   b   c  d  e 
+               f       g     
+             /  \    / |  \   
+            a   b   c  d  e 
 
         sorted_parents = [g, f]
 
