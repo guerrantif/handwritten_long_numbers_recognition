@@ -81,8 +81,11 @@ This entire procedure is handled by the [`modules.cnn`][modules-cnn] module and,
   * builds the CNN model (the one shown in the figure above)
   * moves the model to the selected device (`cpu`, `cuda:0`, ...)
   * defines the preprocess operation (`data_augmentation==True`) to be performed on the samples of the dataset while iterating over it or leaves the image  
+  
 > **NOTE 1**: in this project the data augmentation technique consists of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.  
+
 > **NOTE 2**: higher degrees of rotation may lead to unwanted behaviours (MNIST is not rotation-invariant: 6 -> 9)  
+
  * `save()` and `load()`: saves and loads, respectively, the classifier's `state_dict` which maps each layer (having learnable parameters) to its parameters tensor
  * `forward()`: computes the output of the network (implicitly builds the computational graph)
    * computes the non-normalized output (logits) of the network
@@ -240,6 +243,8 @@ The recognize number is: 345678
 
 For the training procedure, several models have been tried. In the following table the accuracies for each model are reported:
 
+<center>
+
 | model                   | test acc. | validation acc. | training acc. |
 |-------------------------|-----------|-----------------|---------------|
 | CNN-128b-60e-0.001l-a   |   99.03   |      99.11      |     99.05     |
@@ -249,6 +254,7 @@ For the training procedure, several models have been tried. In the following tab
 | CNN-128b-60e-0.00001l-a |   98.60   |      98.56      |     97.80     |
 | CNN-128b-60e-0.00001l   |   98.57   |      98.36      |     99.63     |
 
+</center>
 
 <p align="center">
 <img src="img/models-performances.png" width="600">
