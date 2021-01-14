@@ -182,7 +182,7 @@ This procedure is handled by the [`modules.segmentation`][modules-segmentation] 
 * `__create_segmented_arr()`: creates the array having same shape `(height,width)` in which each element represents the component the corresponding pixel belogs to
 * `generate_image()`: generates the segmented image by giving random colors to the pixels of the various regions (a.k.a. components)
 * `__find_boundaries()`: finds the boundaries of the segmented regions by looping over the image array and setting the `min_col`, `min_row`, `max_col` and `max_row` for each region
-* `draw_boxes()`: draws the boxes around the segmented regions exploiting the found boundaries
+* `digits_boxes_and_areas()`: draws the boxes around the segmented regions exploiting the found boundaries and computes the areas of each region
 * `extract_digits()`: extract a `torch.tensor` of the segmented digits (see next step)
 
 The `GraphBasedSegmentation()` class is based on the `modules.segmentation.DisjointSetForest()` class, which represents the data-structure used by the algorithm (this class is only used within the `GraphBasedSegmentation()` class).
@@ -522,12 +522,13 @@ One possible usage is the following:
 
 ## Future developments
 
-* Enhance `modules.segmentation.MNIST().draw_boxes()` method to draw rotated boxes around digits which are written in diagonal (to increase the performances in rotated digits)
+* Enhance `modules.segmentation.GraphBasedSegmentation().digits_boxes_and_areas()` method to draw rotated boxes around digits which are written in diagonal (to increase the performances in rotated digits) 
 * Train a more robust network in order to better classify 1s, 7s and 9s
 * Accelerate segmentation procedure
 * Implement a simple GUI
 * Implement a second model architecture
 * Accelerate the `modules.dataset.store_file_to_tensor()` function
+* Accelerate the `modules.segmentation.GraphBasedSegmentation().__find_boundaries()` method
 
    
 ## Directory structure
