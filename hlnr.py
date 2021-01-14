@@ -37,11 +37,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# models/CNN-batch_size64-lr0.001-epochs50-a.pth
-# models/CNN-batch_size64-lr0.001-epochs50.pth
-# models/CNN-batch_size128-lr0.001-epochs60-a.pth
-# models/CNN-batch_size128-lr0.001-epochs60.pth
-# models/CNN-batch_size150-lr0.001-epochs40-a.pth
-# models/CNN-batch_size150-lr0.001-epochs40.pth
