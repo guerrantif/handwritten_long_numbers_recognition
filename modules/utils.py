@@ -105,10 +105,10 @@ def save_image_steps(image_path, segmented):
     # extracted digits image
     # ------------------------
     digits_path = '{}-digits.png'.format(image_path[:-4])
-    fig = plt.figure(figsize=(30,15))
+    fig = plt.figure(figsize=(3*len(segmented.digits),3))
     for i in range(len(segmented.digits)):
         image = segmented.digits[i][0]
-        sp = fig.add_subplot(3, len(segmented.digits), i+1)
+        sp = fig.add_subplot(1, len(segmented.digits), i+1)
         plt.axis('off')
         plt.imshow(image, cmap='gray')
     plt.savefig(digits_path)
