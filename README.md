@@ -2,7 +2,7 @@
 > Build a Neural Network capable of recognize long handwritten numbers via the use of a webcam.
 
 ---
-The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from her/his webcam.
+The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from the webcam.
 
 > **STRONG ASSUMPTION**: the input image must have homogeneous white background, and the digits must be written in dark color (or at least there must be a good constrast between the background and the foreground).
 
@@ -235,7 +235,7 @@ The last step is the following:
 
 The result of this procedure is a `torch.tensor` which stores the recognize number
 ```
-The recognize number is: 345678
+The recognized number is: 345678
 ```
 
 
@@ -276,7 +276,7 @@ The recognized number is: 237845
 ```
 > The `CNN-128b-60e-0.0001l` model, in this case, returns the recognized number: `237868`, which is obviously incorrect.
 
-However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) the number nine is usually mis-classified with the number seven or number 3.
+However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) the number 9 is usually misclassified as 7 or as 3.
 
 <p align="center">
 <img src="img/webcam/img-20210114-125102.png" width="200">
@@ -291,7 +291,7 @@ However, the network seems to have some problems recognizing digits such as 1, 7
 The recognized number is: 7387
 ```
 
-The number 1, similarly, is mis-classified with the number 2 and number 7. This is probably due to the fact that the MNIST dataset is mainly based on ones which are written as _vertical lines_ and which do not have any other traits. In fact, the second 1 of the previous image is similar to the last 7 since they are both composed of two lines.
+The number 1, similarly, is misclassified as 2 or as 7. This is probably due to the fact that the MNIST dataset is mainly based on 1s which are written as _vertical lines_ and which do not have any other traits. In fact, the second 1 of the previous image is similar to the last 7 since they are both composed of two lines.
 
 <p align="center">
 <img src="img/webcam/img-20210114-125513.png" width="200">
@@ -306,9 +306,9 @@ The number 1, similarly, is mis-classified with the number 2 and number 7. This 
 The recognized number is: 2777
 ```
 
-> For the latter two cases (in which the number are written orizontally), the network trained without data augmentation perform bad as well.
+> For the latters two cases (in which the numbers are written orizontally), the network trained without data augmentation perform bad as well.
 
-Despite the segmentation and the digits extraction procedure appears to work well, the network still have problems to classify in the proper manner all the numbers.
+Despite the segmentation and the digits extraction procedure appears to work well, the network still has troubles to correctly classify each number.
 
 In conclusion, the orientation of the digits is well recognized thanks to the data augmentation techniques, while the network could be better trained on the digits in which it perform worse (1, 9 and 7).
 
