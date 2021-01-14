@@ -1,13 +1,14 @@
-# Recognition of handwritten (long) numbers
-> Neural Network recognizer of long handwritten numbers via the use of a webcam.
+# Handwritten (long) numbers recognition
+> Build a Neural Network capable of recognize long handwritten numbers via the use of a webcam.
 
 ---
 The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from her/his webcam.
 
-> **STRONG ASSUMPTION**: the input image must have homogeneous white background, and the digits must be written in dark color.
+> **STRONG ASSUMPTION**: the input image must have homogeneous white background, and the digits must be written in dark color (or at least there must be a good constrast between the background and the foreground).
 
 ---
 **Table of contents**
+
 * [Project description](#project-description)
 * [Download and setup](#download-and-setup)
 * [Usage example](#usage-example)
@@ -15,6 +16,7 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 * [Directory structure](#directory-structure)
 * [Documentation](#documentation)
 * [Info](#info)
+
 ---
 
 ## Project description
@@ -37,17 +39,17 @@ In a nutshell: the CNN model is trained on the MNIST dataset (with data augmenta
 
 ### Phase 1: Training of the model
 
-This phase takes care of several task:
+This phase takes care of several tasks:
 * [MNIST dataset decoding and management](#mnist-dataset-decoding-and-management)
 * [CNN model implementation](#cnn-model-implementation)
-* [Training](#training)
+* [Training of the model](#training-of-the-model)
 
 
 #### MNIST dataset decoding and management  
 
 (_a detailed explanation is given [here][file-decode-notebook]_)  
 
-The MNIST dataset comes from the original [source][mnist] in the `.IDX` format which has a particular encoding (well explained in the official site and in the [notebook][file-decode-notebook]).  
+The MNIST dataset comes from the original [source][mnist] in the `.IDX` format which has a particular encoding (well explained in the official website and in the notebook).  
 Its decoding and management is handled by the [`modules.dataset`][modules-dataset] module and, in particular by the `modules.dataset.MNIST()` class, built as follows:
  * `__init__()`: class constructor
     * downloads the training dataset (`train==True`) or the test dataset (`train==False`) if specified (`download_dataset==True`) and if it is not already downloaded by exploiting the `modules.dataset.download()` function
@@ -101,54 +103,33 @@ This entire procedure is handled by the [`modules.cnn`][modules-cnn] module and,
  * `__plot()`: plots the validation and training accuracies over the epochs (used by `train_cnn()` method)
      
      
-#### Training  
+#### Training of the model  
 
 The training procedure is performed both with data augmentation and without it, by the `modules.utils.train()` function inside the [`modules.utils`][modules-utils] module.
   
 > **NOTE 1**: in this project the data augmentation technique consists of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.
+
 > **NOTE 2**: higher degrees of rotation may lead to unwanted behaviours (MNIST is not rotation-invariant: 6 -> 9)
-
-  * `$ python3 hlnr.py train -h`: shows the help of the `train` execution mode 
-  ```
-  usage: hlnr.py train [-h] [-a] [-s TRAIN VAL] [-b BATCH_SIZE] [-e EPOCHS] [-l LEARNING_RATE] [-w NUM_WORKERS] [-d DEVICE]
-
-  TRAIN mode: re-train the model in your machine and save it to reuse in classify phase
-
-  optional arguments:
-    -h, --help            show this help message and exit
-    -a, --augmentation    set data-augmentation procedure ON (RandomRotation and RandomResizedCrop)
-    -s TRAIN VAL, --splits TRAIN VAL
-                          (default=[0.8,0.2]) proportions for the dataset split into training and validation set
-    -b BATCH_SIZE, --batch_size BATCH_SIZE
-                          (default=64) mini-batch size
-    -e EPOCHS, --epochs EPOCHS
-                          (default=10) number of training epochs
-    -l LEARNING_RATE, --learning_rate LEARNING_RATE
-                          (default=10) learning rate
-    -w NUM_WORKERS, --num_workers NUM_WORKERS
-                          (default=3) number of workers
-    -d DEVICE, --device DEVICE
-                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
-  ```
-  * `$ python3 hlnr.py train -a`: trains the network **with** data augmentation (keeps the default values for the other parameters)
-  * `$ python3 hlnr.py train`: trains the network **without** data augmentation (keeps the default values for the other parameters)
+  
+(_more details about the usage of the script are provided in [usage example](#usage-example)_)
  
 The script works as follows:
 * initializes the `CNN` classifier
 * prepares the `MNIST` dataset into training, validation and test sets
 * trains the classifier by means of the `train_cnn()` function of the `CNN()` class
   
-Here are reported some results for the training phase both with data augmentation and without data augmentation, considering the following values:
-* `splits=[0.7,0.3]`, `learning_rate=0.001`, `epochs=50`, `batch_size=64`, `num_workers=5`, `device=cpu`
-
-  <p align="center">
-  <img src="img/training.png" width="900">
-  </p>
+For the training phase, several parameters can be choosen such as:
+* the splits proportions
+* the learning rate
+* the number of epochs
+* the mini-batch size
+* the number of workers
+* the device used
 
 
 ### Phase 2: Input image segmentation and digit extraction
 
-This phase takes care of several task:
+This phase takes care of several tasks:
 * [Webcam image capture](#webcam-capture)
 * [Image segmentation](#image-segmentation)
 * [Digits extraction](#digits-extraction)
@@ -160,8 +141,8 @@ This task is performed by the `modules.utils.webcam_capture()` function inside [
 It exploits the **OpenCV** library in the following way:
 * opens the webcam (`cv2.VideoCapture(0)`)
 * shows the captured frames in a while loop until:
-  * `SPACE` button is pressed: take a snapshot
-  * `ESC` button is pressed: close webcam and exit
+  * `SPACE` key is pressed: take a snapshot
+  * `ESC` key is pressed: close webcam and exit
 * once the snapshot is taken, it is directly send to the CNN model in order to be classified
   
   
@@ -175,7 +156,7 @@ In this project, the image segmentation task, is computed by exploiting the **Gr
 <img src="img/graph-based-segmentation.png" width="500">
 </p>
 
-This procedure is handled by the [`modules.segmentation`][module-segmentation] module and, in particular by the `module.segmentation.GraphBasedSegmentation()` class, built as follows:
+This procedure is handled by the [`modules.segmentation`][modules-segmentation] module and, in particular by the `module.segmentation.GraphBasedSegmentation()` class, built as follows:
 * `__init__()`: class contructor
   * takes an input image (`PIL.Image` or `numpy.ndarray`)
   * sets `width` and `height`
@@ -207,7 +188,7 @@ The `GraphBasedSegmentation()` class is based on the `modules.segmentation.Disjo
 <img src="img/segmentation.png" width="900">
 </p>
 
-#### Digit extraction 
+#### Digits extraction 
 
 (_a detailed explanation is given [here][digits-extraction]_)  
 
@@ -224,7 +205,56 @@ Once the regions' boundaries are found:
 
 ### Phase 3: Long number recognition
 
-TODO
+This phase, is simpler than the others, and can be split into three steps:
+* [Input of the network: extracted digits](#input-of-the-network-extracted-digits)
+* [Output of the network: long number](#output-of-the-network-long-number)
+* [Results](#results)
+
+
+#### Input of the network: extracted digits
+
+This task is mainly handled by the `modules.utils.classify()` function inside the [`modules.utils`][modules-utils] module.
+It works as follows:
+* starts the webcam image capture procedure (if `webcam==True`) or takes an input image from a folder defined by the user (if `image_path is not None`)
+* initializes the `CNN` classifier
+* loads the pre-trained model **with** data augmentation (if `augmentation==True`) or the one **without** data augmentation (if `augmentation==False`)
+* segments the image via the `segment()` method of the `GraphBasedSegmentation()` class
+* extracts the digits via the `extract_digits()` method of the `GraphBasedSegmentation()` class
+
+
+#### Output of the network: long number
+
+As for the previous step, this task is handled by the `modules.utils.classify()` function.
+
+After the digits have been extracted, they are shown as a batch to the network.  
+The last step is the following:
+* classify each single digit exploiting the `classify()` method of the `CNN()` class
+
+The result of this procedure is a `torch.tensor` which stores the recognize number
+```
+The recognize number is: 345678
+```
+
+
+#### Results
+
+For the training procedure, several models have been tried. In the following table the accuracies for each model are reported:
+
+| model                   | test acc. | validation acc. | training acc. |
+|-------------------------|-----------|-----------------|---------------|
+| CNN-128b-60e-0.001l-a   |   99.03   |      99.11      |     99.05     |
+| CNN-128b-60e-0.001l     |   98.80   |      98.82      |     99.94     |
+| CNN-128b-60e-0.0001l-a  |   99.49   |      99.23      |     99.29     |
+| CNN-128b-60e-0.0001l    |   99.18   |      98.99      |     100.00    |
+| CNN-128b-60e-0.00001l-a |           |                 |               |
+| CNN-128b-60e-0.00001l   |   98.57   |      98.36      |     99.63     |
+
+As we can see, the models trained with data augmentation techniques show a better behaviour on the test set compared to the ones trained without data augmentation. The latters fit the training set in a better way and that is reasonable since the training phase is less hard with respect to the training phase with augmentation. The choice of the learning rate seems to be in favour of 0.0001, although the model with learning rate of 0.00001 may have performed better if the number of epochs had been greater.
+
+So, using the `CNN-128b-60e-0.0001l-a` model, the task of recognizing the handwritten digits given an input image (either from webcam or from folder) perform well when the digits are well defined with respect to the background and well separated from each other.
+
+In the example shown below, we can see that when they are partially overlapped, the segmentation task (and in particular the phase in which the boxes are drawn around the digits) may not worked as expected. This is also the case of images in which the background is not homogeneous.
+
 
 ## Download and Setup
 
@@ -249,17 +279,89 @@ Some issues may arise for the OpenCV library. If it happens, please see the note
 
 > **NOTE**: informations about how to install OpenCV in your platform can be found [here][opencv-installation].
 
+
 ## Usage example
 
-Once the repository has been downloaded and all the dependencies have been installed, one can procede following two paths:
-* [**Path 1**: use the already trained model and start the long number recognition procedure (faster)](#path-1)
-* [**Path 2**: train the model in your machine and then go to the long number recognition procedure](#path-2)
+Once the repository has been downloaded and all the dependencies have been installed, one can procede with the paths listed here:
+* [**Path 1**: use the already trained model and start the long number recognition procedure](#path-1)
+* [**Path 2**: train the model in your machine in order to use this new model as a classifier](#path-2)
+* [**Path 3**: evaluate the performance of a model on the test set of MNIST](#path-3)
+
+The three path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: `$ python3 hlrn.py -h`
+```
+usage: hlnr.py [-h] {classify,train,eval} ...
+
+Handwritten long number recognition
+
+positional arguments:
+  {classify,train,eval}
+                        <required> program execution mode: classify with a pre-trained model
+                        or re-train the model
+    classify            classify an input image using the pre-trained model
+    train               re-train the model in your machine and save it to reuse in classify phase
+    eval                evaluate the model accuracy on the test set of MNIST
+
+optional arguments:
+  -h, --help            show this help message and exit
+```
 
 ### Path 1
-This path makes use of one of the trained models (which can be found in `models` folder). Here there are two `*.pt` files:
-* `CNN-batch_size64-lr0.001-epochs10-a.pth`: this model was trained using the data augmentation procedure
-* `CNN-batch_size64-lr0.001-epochs10.pth`: this model was trained without the data augmentation procedure  
-TODO
+
+This path allows the recognition of the handwritten digits which come from either:
+* an image captured by the user webcam
+* an image stored in a user-defined folder
+
+Additionaly, one can decide whether to:
+* use a supplied pre-trained model (which can be found in `models` folder) 
+* use a model trained by the user (following [path 1](#path-1))
+
+In both cases the models are stored as `.pth` files having the following notation:
+* `CNN-__b-__e-__l-a.pth` (if trained **with** data augmentation)
+* `CNN-__b-__e-__l.pth` (if trained **without** data augmentation).
+
+The underscores `__` are replaced with numbers according to:
+* `b`: batch size, `e`: number of epoch, `l`: learning rate
+
+_Example_:  
+`CNN-128b-60e-0.0001l-a.pth` represents the model trained with 128 samples per batch, in 60 epochs, with a learning rate of 0.0001 and data augmentation.
+
+The default models will be:
+* `CNN-128b-60e-0.0001l-a` (if the user specifies to use the model trained **with** data augmentation)
+* `CNN-128b-60e-0.0001l` (if the user specifies to use the model trained **without** data augmentation)
+
+Alternatively, one can use its own trained model (which, by default, will be saved in the `models` folder accordingly with the previous notation).
+
+In order to do so, the following command can be typed into a terminal to show the usage of the `classify` execution mode:
+  * `$ python3 hlnr.py classify -h`
+  
+  ```
+  usage: hlnr.py classify [-h] [-f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
+
+  CLASSIFY mode: classify an input image using a pre-trained model
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
+                          input image from folder, if not specified from webcam
+    -a, --augmentation    use model trained WITH data augmentation
+    -m PATH_TO_MODEL, --model PATH_TO_MODEL
+                          user custom model from path
+    -d DEVICE, --device DEVICE
+                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
+  ``` 
+  
+  * `$ python3 hlnr.py classify`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **without** data augmentation
+  
+  * `$ python3 hlnr.py classify -a`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **with** data augmentation (`-a`)
+  
+  * `$ python3 hlnr.py classify -m PATH_TO_MODEL`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+  
+  * `$ python3 hlnr.py classify -f PATH_TO_IMAGE`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **without** data augmentation
+  
+  * `$ python3 hlnr.py classify -f PATH_TO_IMAGE -a`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **with** data augmentation (`-a`) 
+  
+  * `$ python3 hlnr.py classify -f PATH_TO_MODEL -m PATH_TO_MODEL`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+  
 
 
 ### Path 2
@@ -267,7 +369,35 @@ TODO
 
 ---
 
-The `usage_example.ipynb` notebook shows some simple usage cases.
+ 
+
+To start the training procedure, one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `train` mode of the `hlrn.py` script:
+
+  * `$ python3 hlnr.py train -h`: shows the help of the `train` execution mode
+  * `$ python3 hlnr.py train -a`: trains the network **with** data augmentation (`-a`) (keeps the default values for the other parameters)
+  * `$ python3 hlnr.py train`: trains the network **without** data augmentation (keeps the default values for the other parameters)
+  ```
+  usage: hlnr.py train [-h] [-a] [-s TRAIN VAL] [-b BATCH_SIZE] [-e EPOCHS] [-l LEARNING_RATE] [-w NUM_WORKERS]
+                       [-d DEVICE]
+
+  TRAIN mode: re-train the model in your machine and save it to reuse in classify phase
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -a, --augmentation    set data-augmentation procedure ON (RandomRotation and RandomResizedCrop)
+    -s TRAIN VAL, --splits TRAIN VAL
+                          (default=[0.7,0.3]) proportions for the dataset split into training and validation set
+    -b BATCH_SIZE, --batch_size BATCH_SIZE
+                          (default=64) mini-batch size
+    -e EPOCHS, --epochs EPOCHS
+                          (default=10) number of training epochs
+    -l LEARNING_RATE, --learning_rate LEARNING_RATE
+                          (default=10) learning rate
+    -w NUM_WORKERS, --num_workers NUM_WORKERS
+                          (default=3) number of workers
+    -d DEVICE, --device DEVICE
+                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
+  ```
 
 
 ## Future developments
