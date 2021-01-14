@@ -118,12 +118,13 @@ The script works as follows:
 * prepares the `MNIST` dataset into training, validation and test sets
 * trains the classifier by means of the `train_cnn()` function of the `CNN()` class
   
-Here are reported some results for the training phase both with data augmentation and without data augmentation, considering the following values:
-* `splits=[0.7,0.3]`, `learning_rate=0.001`, `epochs=50`, `batch_size=64`, `num_workers=5`, `device=cpu`
-
-  <p align="center">
-  <img src="img/training.png" width="900">
-  </p>
+For the training phase, several parameters can be choosen such as:
+* the splits proportions
+* the learning rate
+* the number of epochs
+* the mini-batch size
+* the number of workers
+* the device used
 
 
 ### Phase 2: Input image segmentation and digit extraction
@@ -237,7 +238,22 @@ The recognize number is: 345678
 
 #### Results
 
+For the training procedure, several models have been tried. In the following table the accuracies for each model are reported:
 
+| model                   | test acc. | validation acc. | training acc. |
+|-------------------------|-----------|-----------------|---------------|
+| CNN-128b-60e-0.001l-a   |   99.03   |      99.11      |     99.05     |
+| CNN-128b-60e-0.001l     |   98.80   |      98.82      |     99.94     |
+| CNN-128b-60e-0.0001l-a  |   99.49   |      99.23      |     99.29     |
+| CNN-128b-60e-0.0001l    |   99.18   |      98.99      |     100.00    |
+| CNN-128b-60e-0.00001l-a |           |                 |               |
+| CNN-128b-60e-0.00001l   |   98.57   |      98.36      |     99.63     |
+
+As we can see, the models trained with data augmentation techniques show a better behaviour on the test set compared to the ones trained without data augmentation. The latters fit the training set in a better way and that is reasonable since the training phase is less hard with respect to the training phase with augmentation. The choice of the learning rate seems to be in favour of 0.0001, although the model with learning rate of 0.00001 may have performed better if the number of epochs had been greater.
+
+So, using the `CNN-128b-60e-0.0001l-a` model, the task of recognizing the handwritten digits given an input image (either from webcam or from folder) perform well when the digits are well defined with respect to the background and well separated from each other.
+
+In the example shown below, we can see that when they are partially overlapped, the segmentation task (and in particular the phase in which the boxes are drawn around the digits) may not worked as expected. This is also the case of images in which the background is not homogeneous.
 
 
 ## Download and Setup
@@ -266,11 +282,12 @@ Some issues may arise for the OpenCV library. If it happens, please see the note
 
 ## Usage example
 
-Once the repository has been downloaded and all the dependencies have been installed, one can procede following two paths:
+Once the repository has been downloaded and all the dependencies have been installed, one can procede with the paths listed here:
 * [**Path 1**: use the already trained model and start the long number recognition procedure](#path-1)
 * [**Path 2**: train the model in your machine in order to use this new model as a classifier](#path-2)
+* [**Path 3**: evaluate the performance of a model on the test set of MNIST](#path-3)
 
-The two path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: `$ python3 hlrn.py -h`
+The three path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: `$ python3 hlrn.py -h`
 ```
 usage: hlnr.py [-h] {classify,train,eval} ...
 
@@ -290,28 +307,29 @@ optional arguments:
 
 ### Path 1
 
-This path makes use of one of the trained models (which can be found in `models` folder). In the folder there are some `*.pth` files which contains the parameters (`state_dict`) of the various pre-trained models which can be used as classifiers. The model names have the following structure:
+This path allows the recognition of the handwritten digits which come from either:
+* an image captured by the user webcam
+* an image stored in a user-defined folder
 
-`CNN-__b-__e-__l-a.pth` (if trained **with** data augmentation) or `CNN-__b-__e-__l.pth` (if trained **without** data augmentation).
+Additionaly, one can decide whether to:
+* use a supplied pre-trained model (which can be found in `models` folder) 
+* use a model trained by the user (following [path 1](#path-1))
 
-In both cases the underscores `__` are replaced with numbers according to:
+In both cases the models are stored as `.pth` files having the following notation:
+* `CNN-__b-__e-__l-a.pth` (if trained **with** data augmentation)
+* `CNN-__b-__e-__l.pth` (if trained **without** data augmentation).
+
+The underscores `__` are replaced with numbers according to:
 * `b`: batch size, `e`: number of epoch, `l`: learning rate
 
 _Example_:  
 `CNN-128b-60e-0.0001l-a.pth` represents the model trained with 128 samples per batch, in 60 epochs, with a learning rate of 0.0001 and data augmentation.
 
-In the following table the accuracies for each model are reported:
+The default models will be:
+* `CNN-128b-60e-0.0001l-a` (if the user specifies to use the model trained **with** data augmentation)
+* `CNN-128b-60e-0.0001l` (if the user specifies to use the model trained **without** data augmentation)
 
-| model                  | test acc. | validation acc. | training acc. |
-|------------------------|-----------|-----------------|---------------|
-| CNN-128b-60e-0.0001l-a |           |                 |               |
-| CNN-128b-60e-0.0001l   |           |                 |               |
-| CNN-128b-60e-0.001l-a  |           |                 |               |
-| CNN-128b-60e-0.001l    |           |                 |               |
-
-The model `CNN-128b-60e-0.0001l-a` will be considered the default classifier for the recognition procedure, since it showed the best accuracies on test set (among the other models).
-
-Alternatively, one can use its own trained model (which, by default will be saved accordingly with the previous notation).
+Alternatively, one can use its own trained model (which, by default, will be saved in the `models` folder accordingly with the previous notation).
 
 In order to do so, the following command can be typed into a terminal to show the usage of the `classify` execution mode:
   * `$ python3 hlnr.py classify -h`
@@ -331,11 +349,17 @@ In order to do so, the following command can be typed into a terminal to show th
     -d DEVICE, --device DEVICE
                           (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
   ``` 
+  
   * `$ python3 hlnr.py classify`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **without** data augmentation
+  
   * `$ python3 hlnr.py classify -a`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **with** data augmentation (`-a`)
+  
   * `$ python3 hlnr.py classify -m PATH_TO_MODEL`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+  
   * `$ python3 hlnr.py classify -f PATH_TO_IMAGE`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **without** data augmentation
+  
   * `$ python3 hlnr.py classify -f PATH_TO_IMAGE -a`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **with** data augmentation (`-a`) 
+  
   * `$ python3 hlnr.py classify -f PATH_TO_MODEL -m PATH_TO_MODEL`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
   
 
