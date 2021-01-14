@@ -2,7 +2,7 @@
 > Build a Neural Network capable of recognize long handwritten numbers via the use of a webcam.
 
 ---
-The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from her/his webcam.
+The aim of this project is to build a CNN model trained on MNIST dataset and to exploit its classification capabilities to recognize a sequence of several single handwritten digits (that can be considered as a long number) given as an input image that the user can take from the webcam.
 
 > **STRONG ASSUMPTION**: the input image must have homogeneous white background, and the digits must be written in dark color (or at least there must be a good constrast between the background and the foreground).
 
@@ -235,7 +235,7 @@ The last step is the following:
 
 The result of this procedure is a `torch.tensor` which stores the recognize number
 ```
-The recognize number is: 345678
+The recognized number is: 345678
 ```
 
 
@@ -243,7 +243,6 @@ The recognize number is: 345678
 
 For the training procedure, several models have been tried. In the following table the accuracies for each model are reported:
 
-<center>
 
 | model                   | test acc. | validation acc. | training acc. |
 |-------------------------|-----------|-----------------|---------------|
@@ -254,7 +253,6 @@ For the training procedure, several models have been tried. In the following tab
 | CNN-128b-60e-0.00001l-a |   98.60   |      98.56      |     97.80     |
 | CNN-128b-60e-0.00001l   |   98.57   |      98.36      |     99.63     |
 
-</center>
 
 <p align="center">
 <img src="img/models-performances.png" width="600">
@@ -278,7 +276,7 @@ The recognized number is: 237845
 ```
 > The `CNN-128b-60e-0.0001l` model, in this case, returns the recognized number: `237868`, which is obviously incorrect.
 
-However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) the number nine is usually mis-classified with the number seven or number 3.
+However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) the number 9 is usually misclassified as 7 or as 3.
 
 <p align="center">
 <img src="img/webcam/img-20210114-125102.png" width="200">
@@ -293,7 +291,7 @@ However, the network seems to have some problems recognizing digits such as 1, 7
 The recognized number is: 7387
 ```
 
-The number 1, similarly, is mis-classified with the number 2 and number 7. This is probably due to the fact that the MNIST dataset is mainly based on ones which are written as _vertical lines_ and which do not have any other traits. In fact, the second 1 of the previous image is similar to the last 7 since they are both composed of two lines.
+The number 1, similarly, is misclassified as 2 or as 7. This is probably due to the fact that the MNIST dataset is mainly based on 1s which are written as _vertical lines_ and which do not have any other traits. In fact, the second 1 of the previous image is similar to the last 7 since they are both composed of two lines.
 
 <p align="center">
 <img src="img/webcam/img-20210114-125513.png" width="200">
@@ -308,16 +306,16 @@ The number 1, similarly, is mis-classified with the number 2 and number 7. This 
 The recognized number is: 2777
 ```
 
-> For the latter two cases (in which the number are written orizontally), the network trained without data augmentation perform bad as well.
+> For the latters two cases (in which the numbers are written orizontally), the network trained without data augmentation perform bad as well.
 
-Despite the segmentation and the digits extraction procedure appears to work well, the network still have problems to classify in the proper manner all the numbers.
+Despite the segmentation and the digits extraction procedure appears to work well, the network still has troubles to correctly classify each number.
 
 In conclusion, the orientation of the digits is well recognized thanks to the data augmentation techniques, while the network could be better trained on the digits in which it perform worse (1, 9 and 7).
 
 
 ## Download and Setup
 
-First, be sure to have installed in your system at least the following:
+For the execution of this program the following requirements should be ensured:
 
 * `python 3.8.5`
 * `pip 20.0.2`
@@ -325,7 +323,7 @@ First, be sure to have installed in your system at least the following:
 
 I'm not able to guarantee that other versions will work correctly.
 
-Then, the project directory can be downloaded using the following commands in a Linux/MacOS/Windows terminal:
+The project directory can be downloaded using the following commands in a Linux/MacOS/Windows terminal:
 
 ```
 git clone https://github.com/filippoguerranti/handwritten_long_numbers_recognition.git
@@ -346,7 +344,10 @@ Once the repository has been downloaded and all the dependencies have been insta
 * [**Path 2**: train the model in your machine in order to use this new model as a classifier](#path-2)
 * [**Path 3**: evaluate the performance of a model on the test set of MNIST](#path-3)
 
-The three path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: `$ python3 hlrn.py -h`
+The three path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: 
+
+`$ python3 hlrn.py -h`
+
 ```
 usage: hlnr.py [-h] {classify,train,eval} ...
 
@@ -366,7 +367,7 @@ optional arguments:
 
 ### Path 1
 
-This path allows the recognition of the handwritten digits which come from either:
+This path allows the recognition of the handwritten digits which can come from either:
 * an image captured by the user webcam
 * an image stored in a user-defined folder
 
@@ -390,8 +391,8 @@ The default models will be:
 
 Alternatively, one can use its own trained model (which, by default, will be saved in the `models` folder accordingly with the previous notation).
 
-In order to do so, the following command can be typed into a terminal to show the usage of the `classify` execution mode:
-  * `$ python3 hlnr.py classify -h`
+The following command can be typed into a terminal to show the usage of the `classify` execution mode:
+`$ python3 hlnr.py classify -h`
   
   ```
   usage: hlnr.py classify [-h] [-f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
@@ -409,26 +410,37 @@ In order to do so, the following command can be typed into a terminal to show th
                           (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
   ``` 
   
-  * `$ python3 hlnr.py classify`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **without** data augmentation
+Adding the ad-hoc arguments, the following solutions are possible:
+
+`$ python3 hlnr.py classify`
+  * image from: **webcam**
+  * model: **default** pre-trained model **without** data augmentation
   
-  * `$ python3 hlnr.py classify -a`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **with** data augmentation (`-a`)
+`$ python3 hlnr.py classify -a`
+  * image from: **webcam**
+  * model: **default** pre-trained model **with** data augmentation
   
-  * `$ python3 hlnr.py classify -m PATH_TO_MODEL`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+`$ python3 hlnr.py classify -m PATH_TO_MODEL`
+  * image from: **webcam**
+  * model: **user** specified pre-trained model (`PATH_TO_MODEL`)
   
-  * `$ python3 hlnr.py classify -f PATH_TO_IMAGE`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **without** data augmentation
+`$ python3 hlnr.py classify -f PATH_TO_IMAGE`
+  * image from: user-defined **folder** (`PATH_TO_FOLDER`)
+  * model: **default** pre-trained model **without** data augmentation
   
-  * `$ python3 hlnr.py classify -f PATH_TO_IMAGE -a`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **with** data augmentation (`-a`) 
+`$ python3 hlnr.py classify -a -f PATH_TO_IMAGE` 
+  * image from: user-defined **folder** (`PATH_TO_FOLDER`)
+  * model: **default** pre-trained model **with** data augmentation
   
-  * `$ python3 hlnr.py classify -f PATH_TO_MODEL -m PATH_TO_MODEL`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+`$ python3 hlnr.py classify -f PATH_TO_MODEL -m PATH_TO_MODEL`
+  * image from: user-defined **folder** (`PATH_TO_FOLDER`)
+  * model: **user** specified pre-trained model (`PATH_TO_MODEL`)
   
 
 
 ### Path 2
-TODO
 
----
-
- 
+This path allows
 
 To start the training procedure, one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `train` mode of the `hlrn.py` script:
 
@@ -470,29 +482,48 @@ To start the training procedure, one can type the following commands in a termin
 .
 ├── hlnr.py
 ├── img
-│   ├── accuracies-a.png
-│   ├── accuracies.png
 │   ├── cnn-model.png
 │   ├── extraction.png
 │   ├── graph-based-segmentation.png
+│   ├── models-performances.png
 │   ├── segmentation.png
 │   ├── steps.png
 │   ├── training.png
 │   ├── webcam
-│   │   ├── img-20201229-22648.png
-│   │   ├── img-20201229-22722.png
-│   │   ├── img-20201229-22753.png
-│   │   ├── img-20210104-215659.png
-│   │   └── img-20210104-215724.png
+│   │   ├── img-20210114-124240-boxed.png
+│   │   ├── img-20210114-124240-digits.png
+│   │   ├── img-20210114-124240.png
+│   │   ├── img-20210114-124240-segmented.png
+│   │   ├── img-20210114-124351-boxed.png
+│   │   ├── img-20210114-124351-digits.png
+│   │   ├── img-20210114-124351.png
+│   │   ├── img-20210114-124351-segmented.png
+│   │   ├── img-20210114-124510-boxed.png
+│   │   ├── img-20210114-124510-digits.png
+│   │   ├── img-20210114-124510.png
+│   │   ├── img-20210114-124510-segmented.png
+│   │   ├── img-20210114-125102-boxed.png
+│   │   ├── img-20210114-125102-digits.png
+│   │   ├── img-20210114-125102.png
+│   │   ├── img-20210114-125102-segmented.png
+│   │   ├── img-20210114-125339-boxed.png
+│   │   ├── img-20210114-125339-digits.png
+│   │   ├── img-20210114-125339.png
+│   │   ├── img-20210114-125339-segmented.png
+│   │   ├── img-20210114-125513-boxed.png
+│   │   ├── img-20210114-125513-digits.png
+│   │   ├── img-20210114-125513.png
+│   │   └── img-20210114-125513-segmented.png
 │   └── workflow.png
 ├── __init__.py
 ├── LICENSE
 ├── models
-│   ├── CNN-batch_size128-lr0.001-epochs60.pth
-│   ├── CNN-batch_size150-lr0.001-epochs40-a.pth
-│   ├── CNN-batch_size150-lr0.001-epochs40.pth
-│   ├── CNN-batch_size64-lr0.001-epochs50-a.pth
-│   └── CNN-batch_size64-lr0.001-epochs50.pth
+│   ├── CNN-128b-60e-0.00001l-a.pth
+│   ├── CNN-128b-60e-0.00001l.pth
+│   ├── CNN-128b-60e-0.0001l-a.pth
+│   ├── CNN-128b-60e-0.0001l.pth
+│   ├── CNN-128b-60e-0.001l-a.pth
+│   └── CNN-128b-60e-0.001l.pth
 ├── modules
 │   ├── cnn.py
 │   ├── dataset.py
@@ -506,13 +537,23 @@ To start the training procedure, one can type the following commands in a termin
 ├── README.md
 ├── requirements.txt
 └── results
-    ├── CNN-batch_size150-lr0.001-epochs40-a.png
-    ├── CNN-batch_size150-lr0.001-epochs40.png
-    ├── CNN-batch_size64-lr0.001-epochs50-a.png
-    └── CNN-batch_size64-lr0.001-epochs50.png
+    ├── CNN-128b-60e-0.00001l-a-acc.png
+    ├── CNN-128b-60e-0.00001l-acc.png
+    ├── CNN-128b-60e-0.00001l-a.png
+    ├── CNN-128b-60e-0.00001l.png
+    ├── CNN-128b-60e-0.0001l-a-acc.png
+    ├── CNN-128b-60e-0.0001l-acc.png
+    ├── CNN-128b-60e-0.0001l-a.png
+    ├── CNN-128b-60e-0.0001l.png
+    ├── CNN-128b-60e-0.001l-a-acc.png
+    ├── CNN-128b-60e-0.001l-acc.png
+    ├── CNN-128b-60e-0.001l-a.png
+    └── CNN-128b-60e-0.001l.png
 ```
 
+
 ## Documentation
+
 * [MNIST dataset][mnist]
 * [PyTorch documentation][torch]
 * [Pillow documentation][pillow]
