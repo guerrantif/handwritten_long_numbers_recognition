@@ -246,10 +246,20 @@ For the training procedure, several models have been tried. In the following tab
 | CNN-128b-60e-0.001l     |   98.80   |      98.82      |     99.94     |
 | CNN-128b-60e-0.0001l-a  |   99.49   |      99.23      |     99.29     |
 | CNN-128b-60e-0.0001l    |   99.18   |      98.99      |     100.00    |
-| CNN-128b-60e-0.00001l-a |           |                 |               |
+| CNN-128b-60e-0.00001l-a |    98.6   |      98.56      |     97.80     |
 | CNN-128b-60e-0.00001l   |   98.57   |      98.36      |     99.63     |
 
 As we can see, the models trained with data augmentation techniques show a better behaviour on the test set compared to the ones trained without data augmentation. The latters fit the training set in a better way and that is reasonable since the training phase is less hard with respect to the training phase with augmentation. The choice of the learning rate seems to be in favour of 0.0001, although the model with learning rate of 0.00001 may have performed better if the number of epochs had been greater.
+
+
+During the recognition task (performed using the `CNN-128b-60e-0.0001l-a` model), the numbers are generally well classified even if they are presented in diagonal (the random rotation, applied during the training phase, seems to allow us to handle rotated digits), as shown in the figure below.
+
+<p align="center">
+<img src="img/webcam/img-20210114-124240.png" width="300">
+<img src="img/webcam/img-20210114-124240.png" width="300">
+<img src="img/webcam/img-20210114-124240.png" width="300">
+</p>
+
 
 So, using the `CNN-128b-60e-0.0001l-a` model, the task of recognizing the handwritten digits given an input image (either from webcam or from folder) perform well when the digits are well defined with respect to the background and well separated from each other.
 
