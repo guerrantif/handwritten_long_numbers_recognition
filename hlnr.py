@@ -1,10 +1,18 @@
-"""
+""" hlnr.py script
+
+Summary
+-------
+This is the main script which have the function of calling:
+ - classify execution
+ - train execution
+ - eval execution
+
+
 Copyright 2021 - Filippo Guerranti <filippo.guerranti@student.unisi.it>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
@@ -18,10 +26,18 @@ import modules.utils as utils
 
 
 def main():
+    """ Main function which calls one of the execution modes accordingly with the parsed arguments.
+    
+    Raises
+    ------
+    RuntimeError
+        if args.mode is not 'classify' or 'train' or 'eval'
+
+    """
     args = utils.main_args_parser()
 
     if args.mode == "classify":
-        utils.classify(args.folder, args.augmentation, args.model, args.device)
+        utils.classify(args.folder, args.model, args.augmentation, args.device)
 
     elif args.mode == "train":
         utils.train(args.augmentation, args.splits, args.batch_size, args.epochs, args.learning_rate, args.num_workers, args.device)
@@ -30,8 +46,7 @@ def main():
         utils.eval(args.model, args.device)
 
     else:
-        raise ValueError("Execution mode must be either (classify) or (train)")
-
+        raise RuntimeError("Execution mode must be either (classify), (train) or (eval).")
 
 
 
