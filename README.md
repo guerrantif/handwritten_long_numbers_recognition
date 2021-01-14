@@ -110,33 +110,8 @@ The training procedure is performed both with data augmentation and without it, 
 > **NOTE 1**: in this project the data augmentation technique consists of a random rotation (between -30° and +30°), followed by a crop of random scale (between 0.9 and 1.1) and of random ratio (between 3/4 and 4/3) of the original size which is then resized to the original 28x28 size.
 
 > **NOTE 2**: higher degrees of rotation may lead to unwanted behaviours (MNIST is not rotation-invariant: 6 -> 9)
-
-To start the training procedure, one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `train` mode of the `hlrn.py` script:
-
-  * `$ python3 hlnr.py train -h`: shows the help of the `train` execution mode 
-  ```
-  usage: hlnr.py train [-h] [-a] [-s TRAIN VAL] [-b BATCH_SIZE] [-e EPOCHS] [-l LEARNING_RATE] [-w NUM_WORKERS] [-d DEVICE]
-
-  TRAIN mode: re-train the model in your machine and save it to reuse in classify phase
-
-  optional arguments:
-    -h, --help            show this help message and exit
-    -a, --augmentation    set data-augmentation procedure ON (RandomRotation and RandomResizedCrop)
-    -s TRAIN VAL, --splits TRAIN VAL
-                          (default=[0.8,0.2]) proportions for the dataset split into training and validation set
-    -b BATCH_SIZE, --batch_size BATCH_SIZE
-                          (default=64) mini-batch size
-    -e EPOCHS, --epochs EPOCHS
-                          (default=10) number of training epochs
-    -l LEARNING_RATE, --learning_rate LEARNING_RATE
-                          (default=10) learning rate
-    -w NUM_WORKERS, --num_workers NUM_WORKERS
-                          (default=3) number of workers
-    -d DEVICE, --device DEVICE
-                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
-  ```
-  * `$ python3 hlnr.py train -a`: trains the network **with** data augmentation (keeps the default values for the other parameters)
-  * `$ python3 hlnr.py train`: trains the network **without** data augmentation (keeps the default values for the other parameters)
+  
+(_more details about the usage of the script are provided in [usage example](#usage-example)_)
  
 The script works as follows:
 * initializes the `CNN` classifier
@@ -165,8 +140,8 @@ This task is performed by the `modules.utils.webcam_capture()` function inside [
 It exploits the **OpenCV** library in the following way:
 * opens the webcam (`cv2.VideoCapture(0)`)
 * shows the captured frames in a while loop until:
-  * `SPACE` button is pressed: take a snapshot
-  * `ESC` button is pressed: close webcam and exit
+  * `SPACE` key is pressed: take a snapshot
+  * `ESC` key is pressed: close webcam and exit
 * once the snapshot is taken, it is directly send to the CNN model in order to be classified
   
   
@@ -234,30 +209,6 @@ This phase, is simpler than the others, and can be split into three steps:
 * [Output of the network: long number](#output-of-the-network-long-number)
 * [Results](#results)
 
-To start the classification procedure (the one in which the number written in the input image is recognized), one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `classify` mode of the `hlrn.py` script:
-
-  * `$ python3 hlnr.py classify -h`: shows the help of the `classify` execution mode 
-  ```
-  usage: hlnr.py classify [-h] [-w | -f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
-
-  CLASSIFY mode: classify an input image using the pre-trained model
-
-  optional arguments:
-    -h, --help            show this help message and exit
-    -w, --webcam          input image from webcam
-    -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
-                          input image from folder
-    -a, --augmentation    use model trained WITH data augmentation
-    -m PATH_TO_MODEL, --model PATH_TO_MODEL
-                          use custom model from path
-    -d DEVICE, --device DEVICE
-                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
-  ```
-  * `$ python3 hlnr.py classify -wa`: performs the recognition of the input image taken by the **webcam** (`w`) and exploiting the pre-trained model **with** data augmentation (`a`) 
-  * `$ python3 hlnr.py classify -w`: performs the recognition of the input image taken by the **webcam** (`w`) and exploiting the pre-trained model **without** data augmentation
-  * `$ python3 hlnr.py classify -fa`: performs the recognition of the input image taken from the user defined **folder** (`f`) the webcam and exploiting the pre-trained model **with** data augmentation (`a`) 
-  * `$ python3 hlnr.py classify -f`: performs the recognition of the input image taken from the user defined **folder** (`f`) and exploiting the pre-trained model **without** data augmentation
-
 
 #### Input of the network: extracted digits
 
@@ -284,6 +235,10 @@ The recognize number is: 345678
 ```
 
 
+#### Results
+
+
+
 
 ## Download and Setup
 
@@ -308,17 +263,34 @@ Some issues may arise for the OpenCV library. If it happens, please see the note
 
 > **NOTE**: informations about how to install OpenCV in your platform can be found [here][opencv-installation].
 
+
 ## Usage example
 
 Once the repository has been downloaded and all the dependencies have been installed, one can procede following two paths:
-* [**Path 1**: use the already trained model and start the long number recognition procedure (faster)](#path-1)
-* [**Path 2**: train the model in your machine and then go to the long number recognition procedure](#path-2)
+* [**Path 1**: use the already trained model and start the long number recognition procedure](#path-1)
+* [**Path 2**: train the model in your machine in order to use this new model as a classifier](#path-2)
 
 ### Path 1
-This path makes use of one of the trained models (which can be found in `models` folder). Here there are two `*.pt` files:
-* `CNN-batch_size64-lr0.001-epochs10-a.pth`: this model was trained using the data augmentation procedure
-* `CNN-batch_size64-lr0.001-epochs10.pth`: this model was trained without the data augmentation procedure  
-TODO
+This path makes use of one of the trained models (which can be found in `models` folder). In the folder there are some `*.pth` files which contains the parameters (`state_dict`) of the various pre-trained models which can be used as classifiers. The model names have the following structure:
+
+`CNN-__b-__e-__l-a.pth` (if trained **with** data augmentation) or `CNN-__b-__e-__l.pth` (if trained **without** data augmentation).
+
+In both cases the underscores `__` are replaced with numbers according to:
+* `__b`: batch size
+* `__e`: number of epochs
+* `__l`: learning rate
+
+_Example_:  
+`CNN-128b-60e-0.0001l-a.pth` represents the model trained with 128 samples per batch, in 60 epochs, with a learning rate of 0.0001 and data augmentation.
+
+In the following table the accuracies for each model are reported:
+
+| model                  | test acc. | validation acc. | training acc. |
+|------------------------|-----------|-----------------|---------------|
+| CNN-128b-60e-0.0001l-a |           |                 |               |
+| CNN-128b-60e-0.0001l   |           |                 |               |
+| CNN-128b-60e-0.001l-a  |           |                 |               |
+| CNN-128b-60e-0.001l    |           |                 |               |
 
 
 ### Path 2
@@ -326,8 +298,58 @@ TODO
 
 ---
 
-The `usage_example.ipynb` notebook shows some simple usage cases.
+ 
 
+To start the training procedure, one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `train` mode of the `hlrn.py` script:
+
+  * `$ python3 hlnr.py train -h`: shows the help of the `train` execution mode
+  * `$ python3 hlnr.py train -a`: trains the network **with** data augmentation (`-a`) (keeps the default values for the other parameters)
+  * `$ python3 hlnr.py train`: trains the network **without** data augmentation (keeps the default values for the other parameters)
+  ```
+  usage: hlnr.py train [-h] [-a] [-s TRAIN VAL] [-b BATCH_SIZE] [-e EPOCHS] [-l LEARNING_RATE] [-w NUM_WORKERS]
+                       [-d DEVICE]
+
+  TRAIN mode: re-train the model in your machine and save it to reuse in classify phase
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -a, --augmentation    set data-augmentation procedure ON (RandomRotation and RandomResizedCrop)
+    -s TRAIN VAL, --splits TRAIN VAL
+                          (default=[0.7,0.3]) proportions for the dataset split into training and validation set
+    -b BATCH_SIZE, --batch_size BATCH_SIZE
+                          (default=64) mini-batch size
+    -e EPOCHS, --epochs EPOCHS
+                          (default=10) number of training epochs
+    -l LEARNING_RATE, --learning_rate LEARNING_RATE
+                          (default=10) learning rate
+    -w NUM_WORKERS, --num_workers NUM_WORKERS
+                          (default=3) number of workers
+    -d DEVICE, --device DEVICE
+                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
+  ```
+
+
+  * `$ python3 hlnr.py classify -h`: shows the help of the `classify` execution mode 
+  * `$ python3 hlnr.py classify -a`: performs the recognition of the input image taken by the **webcam** (default behaviour) and exploiting the pre-trained model **with** data augmentation (`-a`) 
+  * `$ python3 hlnr.py classify`: performs the recognition of the input image taken by the **webcam** (default behaviour) and exploiting the pre-trained model **without** data augmentation
+  * `$ python3 hlnr.py classify -m PATH_TO_MODEL`: performs the recognition of the input image taken by the **webcam** (default behaviour) and exploiting the model specified by the user (`-m`)
+  * `$ python3 hlnr.py classify -fa`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the pre-trained model **with** data augmentation (`-a`) 
+  * `$ python3 hlnr.py classify -f`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the pre-trained model **without** data augmentation
+  ```
+  usage: hlnr.py classify [-h] [-f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
+
+  CLASSIFY mode: classify an input image using a pre-trained model
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
+                          input image from folder, if not specified from webcam
+    -a, --augmentation    use model trained WITH data augmentation
+    -m PATH_TO_MODEL, --model PATH_TO_MODEL
+                          user custom model from path
+    -d DEVICE, --device DEVICE
+                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
+  ```
 
 ## Future developments
 
