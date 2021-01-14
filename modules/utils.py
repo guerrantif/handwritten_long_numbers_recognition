@@ -482,7 +482,7 @@ def eval(
     print("\n\nEvaluation phase...\n")
 
     classifier = CNN(device=device)
-    classifier.load(model_name)
+    classifier.load(model_path)
 
     test_acc = classifier.eval_cnn(test_set)
 
