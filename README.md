@@ -243,7 +243,6 @@ The recognize number is: 345678
 
 For the training procedure, several models have been tried. In the following table the accuracies for each model are reported:
 
-<center>
 
 | model                   | test acc. | validation acc. | training acc. |
 |-------------------------|-----------|-----------------|---------------|
@@ -254,7 +253,6 @@ For the training procedure, several models have been tried. In the following tab
 | CNN-128b-60e-0.00001l-a |   98.60   |      98.56      |     97.80     |
 | CNN-128b-60e-0.00001l   |   98.57   |      98.36      |     99.63     |
 
-</center>
 
 <p align="center">
 <img src="img/models-performances.png" width="600">
@@ -317,7 +315,7 @@ In conclusion, the orientation of the digits is well recognized thanks to the da
 
 ## Download and Setup
 
-First, be sure to have installed in your system at least the following:
+For the execution of this program the following requirements should be ensured:
 
 * `python 3.8.5`
 * `pip 20.0.2`
@@ -325,7 +323,7 @@ First, be sure to have installed in your system at least the following:
 
 I'm not able to guarantee that other versions will work correctly.
 
-Then, the project directory can be downloaded using the following commands in a Linux/MacOS/Windows terminal:
+The project directory can be downloaded using the following commands in a Linux/MacOS/Windows terminal:
 
 ```
 git clone https://github.com/filippoguerranti/handwritten_long_numbers_recognition.git
@@ -366,7 +364,7 @@ optional arguments:
 
 ### Path 1
 
-This path allows the recognition of the handwritten digits which come from either:
+This path allows the recognition of the handwritten digits which can come from either:
 * an image captured by the user webcam
 * an image stored in a user-defined folder
 
@@ -390,7 +388,7 @@ The default models will be:
 
 Alternatively, one can use its own trained model (which, by default, will be saved in the `models` folder accordingly with the previous notation).
 
-In order to do so, the following command can be typed into a terminal to show the usage of the `classify` execution mode:
+The following command can be typed into a terminal to show the usage of the `classify` execution mode:
   * `$ python3 hlnr.py classify -h`
   
   ```
@@ -409,6 +407,8 @@ In order to do so, the following command can be typed into a terminal to show th
                           (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
   ``` 
   
+Adding the ad-hoc arguments, the following solutions are possible:
+
   * `$ python3 hlnr.py classify`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **without** data augmentation
   
   * `$ python3 hlnr.py classify -a`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **with** data augmentation (`-a`)
@@ -424,11 +424,8 @@ In order to do so, the following command can be typed into a terminal to show th
 
 
 ### Path 2
-TODO
 
----
-
- 
+This path allows
 
 To start the training procedure, one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `train` mode of the `hlrn.py` script:
 
@@ -470,29 +467,48 @@ To start the training procedure, one can type the following commands in a termin
 .
 ├── hlnr.py
 ├── img
-│   ├── accuracies-a.png
-│   ├── accuracies.png
 │   ├── cnn-model.png
 │   ├── extraction.png
 │   ├── graph-based-segmentation.png
+│   ├── models-performances.png
 │   ├── segmentation.png
 │   ├── steps.png
 │   ├── training.png
 │   ├── webcam
-│   │   ├── img-20201229-22648.png
-│   │   ├── img-20201229-22722.png
-│   │   ├── img-20201229-22753.png
-│   │   ├── img-20210104-215659.png
-│   │   └── img-20210104-215724.png
+│   │   ├── img-20210114-124240-boxed.png
+│   │   ├── img-20210114-124240-digits.png
+│   │   ├── img-20210114-124240.png
+│   │   ├── img-20210114-124240-segmented.png
+│   │   ├── img-20210114-124351-boxed.png
+│   │   ├── img-20210114-124351-digits.png
+│   │   ├── img-20210114-124351.png
+│   │   ├── img-20210114-124351-segmented.png
+│   │   ├── img-20210114-124510-boxed.png
+│   │   ├── img-20210114-124510-digits.png
+│   │   ├── img-20210114-124510.png
+│   │   ├── img-20210114-124510-segmented.png
+│   │   ├── img-20210114-125102-boxed.png
+│   │   ├── img-20210114-125102-digits.png
+│   │   ├── img-20210114-125102.png
+│   │   ├── img-20210114-125102-segmented.png
+│   │   ├── img-20210114-125339-boxed.png
+│   │   ├── img-20210114-125339-digits.png
+│   │   ├── img-20210114-125339.png
+│   │   ├── img-20210114-125339-segmented.png
+│   │   ├── img-20210114-125513-boxed.png
+│   │   ├── img-20210114-125513-digits.png
+│   │   ├── img-20210114-125513.png
+│   │   └── img-20210114-125513-segmented.png
 │   └── workflow.png
 ├── __init__.py
 ├── LICENSE
 ├── models
-│   ├── CNN-batch_size128-lr0.001-epochs60.pth
-│   ├── CNN-batch_size150-lr0.001-epochs40-a.pth
-│   ├── CNN-batch_size150-lr0.001-epochs40.pth
-│   ├── CNN-batch_size64-lr0.001-epochs50-a.pth
-│   └── CNN-batch_size64-lr0.001-epochs50.pth
+│   ├── CNN-128b-60e-0.00001l-a.pth
+│   ├── CNN-128b-60e-0.00001l.pth
+│   ├── CNN-128b-60e-0.0001l-a.pth
+│   ├── CNN-128b-60e-0.0001l.pth
+│   ├── CNN-128b-60e-0.001l-a.pth
+│   └── CNN-128b-60e-0.001l.pth
 ├── modules
 │   ├── cnn.py
 │   ├── dataset.py
@@ -506,13 +522,23 @@ To start the training procedure, one can type the following commands in a termin
 ├── README.md
 ├── requirements.txt
 └── results
-    ├── CNN-batch_size150-lr0.001-epochs40-a.png
-    ├── CNN-batch_size150-lr0.001-epochs40.png
-    ├── CNN-batch_size64-lr0.001-epochs50-a.png
-    └── CNN-batch_size64-lr0.001-epochs50.png
+    ├── CNN-128b-60e-0.00001l-a-acc.png
+    ├── CNN-128b-60e-0.00001l-acc.png
+    ├── CNN-128b-60e-0.00001l-a.png
+    ├── CNN-128b-60e-0.00001l.png
+    ├── CNN-128b-60e-0.0001l-a-acc.png
+    ├── CNN-128b-60e-0.0001l-acc.png
+    ├── CNN-128b-60e-0.0001l-a.png
+    ├── CNN-128b-60e-0.0001l.png
+    ├── CNN-128b-60e-0.001l-a-acc.png
+    ├── CNN-128b-60e-0.001l-acc.png
+    ├── CNN-128b-60e-0.001l-a.png
+    └── CNN-128b-60e-0.001l.png
 ```
 
+
 ## Documentation
+
 * [MNIST dataset][mnist]
 * [PyTorch documentation][torch]
 * [Pillow documentation][pillow]
