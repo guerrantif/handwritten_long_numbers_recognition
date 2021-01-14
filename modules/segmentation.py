@@ -5,7 +5,7 @@ This module contains the classes which are necessary for the graph-based image s
 proposed by Felzenszwalb et. al. ([paper](http://cs.brown.edu/people/pfelzens/papers/seg-ijcv.pdf)).  
 
 Classes
----------
+-------
 DisjointSetForest
     implements the base data structure for the graph-based segmentation algorithm
 
