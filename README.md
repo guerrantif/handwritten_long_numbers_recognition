@@ -249,8 +249,8 @@ For the training procedure, several models have been tried. In the following tab
 | CNN-128b-60e-0.00001l-a |    98.6   |      98.56      |     97.80     |
 | CNN-128b-60e-0.00001l   |   98.57   |      98.36      |     99.63     |
 
-As we can see, the models trained with data augmentation techniques show a better behaviour on the test set compared to the ones trained without data augmentation. The latters fit the training set in a better way and that is reasonable since the training phase is less hard with respect to the training phase with augmentation. The choice of the learning rate seems to be in favour of 0.0001, although the model with learning rate of 0.00001 may have performed better if the number of epochs had been greater.
 
+As we can see, the models trained with data augmentation techniques show a better behaviour on the test set compared to the ones trained without data augmentation. The latters fit the training set in a better way and that is reasonable since the training phase is less hard with respect to the training phase with augmentation. The choice of the learning rate seems to be in favour of 0.0001, although the model with learning rate of 0.00001 may have performed better if the number of epochs had been greater.
 
 During the recognition task (performed using the `CNN-128b-60e-0.0001l-a` model), the numbers are generally well classified even if they are presented in diagonal (the random rotation, applied during the training phase, seems to allow us to handle rotated digits), as shown in the figure below.
 
@@ -266,12 +266,41 @@ During the recognition task (performed using the `CNN-128b-60e-0.0001l-a` model)
 ```
 The recognize number is: 237845
 ```
+> The `CNN-128b-60e-0.0001l` model, in this case, returns the recognized number: `237868`, which is obviously incorrect.
 
-However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) 
+However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) the number nine is usually mis-classified with the number seven or number 3. The same happens to number one.
 
-So, using the `CNN-128b-60e-0.0001l-a` model, the task of recognizing the handwritten digits given an input image (either from webcam or from folder) perform well when the digits are well defined with respect to the background and well separated from each other.
+<p align="center">
+<img src="img/webcam/img-20210114-125102.png" width="200">
+<img src="img/webcam/img-20210114-125102-segmented.png" width="200">
+<img src="img/webcam/img-20210114-125102-boxed.png" width="200">
+</p>
+<p align="center">
+<img src="img/webcam/img-20210114-125102-digits.png" width="600">
+</p>
 
-In the example shown below, we can see that when they are partially overlapped, the segmentation task (and in particular the phase in which the boxes are drawn around the digits) may not worked as expected. This is also the case of images in which the background is not homogeneous.
+```
+The recognize number is: 7387
+```
+
+<p align="center">
+<img src="img/webcam/img-20210114-125513.png" width="200">
+<img src="img/webcam/img-20210114-125513-segmented.png" width="200">
+<img src="img/webcam/img-20210114-125513-boxed.png" width="200">
+</p>
+<p align="center">
+<img src="img/webcam/img-20210114-125513-digits.png" width="600">
+</p>
+
+```
+The recognize number is: 2777
+```
+
+> For the latter two cases (in which the number are written orizontally), the network trained without data augmentation perform bad as well.
+
+Despite the segmentation and the digits extraction procedure appears to work well, the network still have problems to classify in the proper manner all the numbers.
+
+In conclusion, the orientation of the digits is well recognized thanks to the data augmentation techniques, while the network could be better trained on the digits in which it perform worse (1, 9 and 7).
 
 
 ## Download and Setup
