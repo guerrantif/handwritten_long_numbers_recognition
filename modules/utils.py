@@ -276,7 +276,7 @@ def classify(image_path, augmentation, model, device):
 
     output = classifier.classify(segmented.digits)
     output = ''.join(str(digit.item()) for digit in output)
-    print('\n\nThe recognize number is: {}\n\n'.format(output))
+    print('\n\nThe recognized number is: {}\n\n'.format(output))
 
 
 
