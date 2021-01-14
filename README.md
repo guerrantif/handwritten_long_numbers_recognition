@@ -245,10 +245,14 @@ For the training procedure, several models have been tried. In the following tab
 | CNN-128b-60e-0.001l-a   |   99.03   |      99.11      |     99.05     |
 | CNN-128b-60e-0.001l     |   98.80   |      98.82      |     99.94     |
 | CNN-128b-60e-0.0001l-a  |   99.49   |      99.23      |     99.29     |
-| CNN-128b-60e-0.0001l    |   99.18   |      98.99      |     100.00    |
-| CNN-128b-60e-0.00001l-a |    98.6   |      98.56      |     97.80     |
+| CNN-128b-60e-0.0001l    |   99.18   |      98.99      |     100.0     |
+| CNN-128b-60e-0.00001l-a |   98.60   |      98.56      |     97.80     |
 | CNN-128b-60e-0.00001l   |   98.57   |      98.36      |     99.63     |
 
+
+<p align="center">
+<img src="img/models-performances.png" width="600">
+</p>
 
 As we can see, the models trained with data augmentation techniques show a better behaviour on the test set compared to the ones trained without data augmentation. The latters fit the training set in a better way and that is reasonable since the training phase is less hard with respect to the training phase with augmentation. The choice of the learning rate seems to be in favour of 0.0001, although the model with learning rate of 0.00001 may have performed better if the number of epochs had been greater.
 
@@ -264,11 +268,11 @@ During the recognition task (performed using the `CNN-128b-60e-0.0001l-a` model)
 </p>
 
 ```
-The recognize number is: 237845
+The recognized number is: 237845
 ```
 > The `CNN-128b-60e-0.0001l` model, in this case, returns the recognized number: `237868`, which is obviously incorrect.
 
-However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) the number nine is usually mis-classified with the number seven or number 3. The same happens to number one.
+However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) the number nine is usually mis-classified with the number seven or number 3.
 
 <p align="center">
 <img src="img/webcam/img-20210114-125102.png" width="200">
@@ -280,8 +284,10 @@ However, the network seems to have some problems recognizing digits such as 1, 7
 </p>
 
 ```
-The recognize number is: 7387
+The recognized number is: 7387
 ```
+
+The number 1, similarly, is mis-classified with the number 2 and number 7. This is probably due to the fact that the MNIST dataset is mainly based on ones which are written as _vertical lines_ and which do not have any other traits. In fact, the second 1 of the previous image is similar to the last 7 since they are both composed of two lines.
 
 <p align="center">
 <img src="img/webcam/img-20210114-125513.png" width="200">
@@ -293,7 +299,7 @@ The recognize number is: 7387
 </p>
 
 ```
-The recognize number is: 2777
+The recognized number is: 2777
 ```
 
 > For the latter two cases (in which the number are written orizontally), the network trained without data augmentation perform bad as well.
