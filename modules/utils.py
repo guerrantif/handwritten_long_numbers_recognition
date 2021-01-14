@@ -1,4 +1,4 @@
-"""
+""" modules.utils.py
 Summary
 -------
 This module contains some utility functions used by other modules and by the main function.
@@ -339,7 +339,7 @@ def classify(
     segmented.segment(k=4500, min_size=100, preprocessing=True)
 
     segmented.generate_image()
-    segmented.draw_boxes()
+    segmented.digits_boxes_and_areas()
     segmented.extract_digits()
 
     save_image_steps(image_path, segmented)
