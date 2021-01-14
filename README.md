@@ -522,9 +522,12 @@ One possible usage is the following:
 
 ## Future developments
 
-* Enhance `draw_boxes()` to draw rotated boxes around digits which are written in diagonal  
-  This may guarantees better performances in managing rotated numbers
+* Enhance `modules.segmentation.MNIST().draw_boxes()` method to draw rotated boxes around digits which are written in diagonal (to increase the performances in rotated digits)
 * Train a more robust network in order to better classify 1s, 7s and 9s
+* Accelerate segmentation procedure
+* Implement a simple GUI
+* Implement a second model architecture
+* Accelerate the `modules.dataset.store_file_to_tensor()` function
 
    
 ## Directory structure
