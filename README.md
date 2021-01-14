@@ -344,7 +344,10 @@ Once the repository has been downloaded and all the dependencies have been insta
 * [**Path 2**: train the model in your machine in order to use this new model as a classifier](#path-2)
 * [**Path 3**: evaluate the performance of a model on the test set of MNIST](#path-3)
 
-The three path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: `$ python3 hlrn.py -h`
+The three path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: 
+
+`$ python3 hlrn.py -h`
+
 ```
 usage: hlnr.py [-h] {classify,train,eval} ...
 
@@ -389,7 +392,7 @@ The default models will be:
 Alternatively, one can use its own trained model (which, by default, will be saved in the `models` folder accordingly with the previous notation).
 
 The following command can be typed into a terminal to show the usage of the `classify` execution mode:
-  * `$ python3 hlnr.py classify -h`
+`$ python3 hlnr.py classify -h`
   
   ```
   usage: hlnr.py classify [-h] [-f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
@@ -409,17 +412,29 @@ The following command can be typed into a terminal to show the usage of the `cla
   
 Adding the ad-hoc arguments, the following solutions are possible:
 
-  * `$ python3 hlnr.py classify`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **without** data augmentation
+`$ python3 hlnr.py classify`
+  * image from: **webcam**
+  * model: **default** pre-trained model **without** data augmentation
   
-  * `$ python3 hlnr.py classify -a`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **with** data augmentation (`-a`)
+`$ python3 hlnr.py classify -a`
+  * image from: **webcam**
+  * model: **default** pre-trained model **with** data augmentation
   
-  * `$ python3 hlnr.py classify -m PATH_TO_MODEL`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+`$ python3 hlnr.py classify -m PATH_TO_MODEL`
+  * image from: **webcam**
+  * model: **user** specified pre-trained model (`PATH_TO_MODEL`)
   
-  * `$ python3 hlnr.py classify -f PATH_TO_IMAGE`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **without** data augmentation
+`$ python3 hlnr.py classify -f PATH_TO_IMAGE`
+  * image from: user-defined **folder** (`PATH_TO_FOLDER`)
+  * model: **default** pre-trained model **without** data augmentation
   
-  * `$ python3 hlnr.py classify -f PATH_TO_IMAGE -a`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **with** data augmentation (`-a`) 
+`$ python3 hlnr.py classify -a -f PATH_TO_IMAGE` 
+  * image from: user-defined **folder** (`PATH_TO_FOLDER`)
+  * model: **default** pre-trained model **with** data augmentation
   
-  * `$ python3 hlnr.py classify -f PATH_TO_MODEL -m PATH_TO_MODEL`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+`$ python3 hlnr.py classify -f PATH_TO_MODEL -m PATH_TO_MODEL`
+  * image from: user-defined **folder** (`PATH_TO_FOLDER`)
+  * model: **user** specified pre-trained model (`PATH_TO_MODEL`)
   
 
 
