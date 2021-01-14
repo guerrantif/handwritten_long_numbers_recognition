@@ -320,8 +320,8 @@ class CNN(nn.Module):
         # model name for saving
         # ----------------------
         aug = '-a' if self.data_augmentation else ''
-        self.model_name = "CNN-batch_size{}-lr{}-epochs{}{}".format(
-                        batch_size, lr, epochs, aug)
+        self.model_name = "CNN-{}b-{}e-{}l{}".format(
+                        batch_size, epochs, lr, aug)
         filepath = '{}.pth'.format(os.path.join(model_path, self.model_name))
         # ----------------------
 
@@ -582,9 +582,9 @@ class CNN(nn.Module):
         """
         # retrieve batch_size, lr and epochs from model name
         fields = self.model_name.split('-')
-        batch_size = int(fields[1][10:])
-        lr = float(fields[2][2:])
-        epochs = int(fields[3][6:])
+        batch_size = int(fields[1][:-1])
+        epochs = int(fields[2][:-1])
+        lr = float(fields[3][:-1])
 
         x = list(range(1, epochs + 1))
         plt.plot(x, self.epochs_training_accuracy_list, label='Training')
@@ -592,7 +592,7 @@ class CNN(nn.Module):
         plt.grid(True)
         plt.xlabel('Epochs')
         plt.ylabel('Accuracy %')
-        title = 'data_augmentation={}, batch_size={}, lr={}, epochs={}'.format(self.data_augmentation, batch_size, lr, epochs)
+        title = 'data_augmentation={}, batch_size={}, epochs={}, lr={}'.format(self.data_augmentation, batch_size, epochs, lr)
         plt.title(title)
         plt.legend()
 

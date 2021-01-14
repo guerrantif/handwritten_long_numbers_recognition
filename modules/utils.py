@@ -28,7 +28,7 @@ from datetime import datetime
 
 
 
-def webcam_capture() -> np.ndarray:
+def webcam_capture() -> (np.ndarray, str):
 
     # opens a camera for video capturing
     cam = cv2.VideoCapture(0)
@@ -80,62 +80,40 @@ def webcam_capture() -> np.ndarray:
         image_path = os.path.join(image_dir, image_name)
         cv2.imwrite(image_path, image) 
 
-    return image
+    return image, image_path
 
 
 
-def save_image_steps(image, segmented, path):
-
-    fig = plt.figure(figsize=(10, 15))
-    outer = gridspec.GridSpec(3, 1, wspace=0.2, hspace=0.2)
-
-    # original image
-    # ------------------------
-    if isinstance(image, str):
-        image = plt.imread(image)
-    ax = plt.Subplot(fig, outer[0])
-    ax.imshow(image)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    fig.add_subplot(ax)
-    # ------------------------
+def save_image_steps(image_path, segmented):
 
     # segmented image
     # ------------------------
-    inner = gridspec.GridSpecFromSubplotSpec(1, 2, 
-                    subplot_spec=outer[1], wspace=0.1, hspace=0.1)
-    ax = plt.Subplot(fig, inner[0])
-    ax.imshow(segmented.segmented_img)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    fig.add_subplot(ax)
+    segmented_image = segmented.segmented_img
+    segmented_path = '{}-segmented.png'.format(image_path[:-4])
+    segmented_image.save(segmented_path)
+    print("\n\nSegmented image saved: {}".format(segmented_path))
     # ------------------------
 
     # boxed image
     # ------------------------
-    ax = plt.Subplot(fig, inner[1])
-    ax.imshow(segmented.boxed_img)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    fig.add_subplot(ax)
+    boxed_image = segmented.boxed_img
+    boxed_path = '{}-boxed.png'.format(image_path[:-4])
+    boxed_image.save(boxed_path)
+    print("Boxed image saved: {}".format(boxed_path))
     # ------------------------
 
     # extracted digits image
     # ------------------------
-    num_digits = len(segmented.digits)
-    inner = gridspec.GridSpecFromSubplotSpec(1, num_digits, 
-                    subplot_spec=outer[2], wspace=0.1, hspace=0.1)
-
-    for i in range(num_digits):
-        ax = plt.Subplot(fig, inner[i])
-        ax.imshow(segmented.digits[i][0], cmap='gray')
-        ax.set_xticks([])
-        ax.set_yticks([])
-        fig.add_subplot(ax)
+    digits_path = '{}-digits.png'.format(image_path[:-4])
+    fig = plt.figure(figsize=(30,15))
+    for i in range(len(segmented.digits)):
+        image = segmented.digits[i][0]
+        sp = fig.add_subplot(3, len(segmented.digits), i+1)
+        plt.axis('off')
+        plt.imshow(image, cmap='gray')
+    plt.savefig(digits_path)
+    print("Digits image saved: {}\n".format(digits_path))
     # ------------------------
-
-    print('\nResult image saved in {}\n'.format(path))
-    plt.savefig(path)
 
 
 
@@ -257,7 +235,7 @@ def classify(image_path, augmentation, model, device):
     # take a webcam image
     # ------------------------
     else:
-        image = webcam_capture()
+        image, image_path = webcam_capture()
         if image is None:
             raise RuntimeError("Unable to take webcam image. When window appears press SPACE to take a snapshot.")
     # ------------------------
@@ -275,9 +253,9 @@ def classify(image_path, augmentation, model, device):
         # load pre-trained model
         # ------------------------
         if augmentation:
-            classifier.load('models/CNN-batch_size150-lr0.001-epochs40-a.pth')
+            classifier.load('models/CNN-128b-60e-0.0001l-a.pth')
         else:
-            classifier.load('models/CNN-batch_size150-lr0.001-epochs40.pth')
+            classifier.load('models/CNN-128b-60e-0.0001l.pth')
         # ------------------------
     # ------------------------
 
@@ -293,7 +271,7 @@ def classify(image_path, augmentation, model, device):
     segmented.draw_boxes()
     segmented.extract_digits()
 
-    save_image_steps(image, segmented, 'img/steps.png')
+    save_image_steps(image_path, segmented)
     # ------------------------
 
     output = classifier.classify(segmented.digits)
@@ -386,8 +364,8 @@ def train(augmentation, splits, batch_size, epochs, lr, num_workers, device):
     print("\n\nValidation phase...\n")
 
     # load the best classifier model
-    model_name = '{}CNN-batch_size{}-lr{}-epochs{}{}.pth'.format\
-                    (model_path, batch_size, lr, epochs, '-a' if augmentation else '')
+    model_name = '{}CNN-{}b-{}e-{}l{}.pth'.format\
+                    (model_path, batch_size, epochs, lr, '-a' if augmentation else '')
     classifier.load(model_name)
 
     training_acc = classifier.eval_cnn(training_set)
