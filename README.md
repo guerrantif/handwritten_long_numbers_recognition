@@ -517,7 +517,7 @@ optional arguments:
   
 One possible usage is the following:
 
-`$ python3 hlnr.py eval models/CNN-128b-60e-0.0001l-a`: evaluates the performance of the `CNN-128b-60e-0.0001l-a` model.
+`$ python3 hlnr.py eval models/CNN-128b-60e-0.0001l-a.pth`: evaluates the performance of the `CNN-128b-60e-0.0001l-a` model.
 
 
 ## Future developments
