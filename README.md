@@ -392,23 +392,24 @@ The default models will be:
 Alternatively, one can use its own trained model (which, by default, will be saved in the `models` folder accordingly with the previous notation).
 
 The following command can be typed into a terminal to show the usage of the `classify` execution mode:
+
 `$ python3 hlnr.py classify -h`
   
-  ```
-  usage: hlnr.py classify [-h] [-f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
+```
+usage: hlnr.py classify [-h] [-f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
 
-  CLASSIFY mode: classify an input image using a pre-trained model
+CLASSIFY mode: classify an input image using a pre-trained model
 
-  optional arguments:
-    -h, --help            show this help message and exit
-    -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
-                          input image from folder, if not specified from webcam
-    -a, --augmentation    use model trained WITH data augmentation
-    -m PATH_TO_MODEL, --model PATH_TO_MODEL
-                          user custom model from path
-    -d DEVICE, --device DEVICE
-                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
-  ``` 
+optional arguments:
+  -h, --help            show this help message and exit
+  -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
+                        input image from folder, if not specified from webcam
+  -a, --augmentation    use model trained WITH data augmentation
+  -m PATH_TO_MODEL, --model PATH_TO_MODEL
+                        user custom model from path
+  -d DEVICE, --device DEVICE
+                        (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
+``` 
   
 Adding the ad-hoc arguments, the following solutions are possible:
 
@@ -435,45 +436,95 @@ Adding the ad-hoc arguments, the following solutions are possible:
 `$ python3 hlnr.py classify -f PATH_TO_MODEL -m PATH_TO_MODEL`
   * image from: user-defined **folder** (`PATH_TO_FOLDER`)
   * model: **user** specified pre-trained model (`PATH_TO_MODEL`)
-  
 
 
 ### Path 2
 
-This path allows
+This path allows the user to train the model in its own machine using the desired parameters. As mentioned in the previous section, the trained model will be save accordingly with the usual notation (here reported):
+* `CNN-__b-__e-__l-a.pth` (if trained **with** data augmentation)
+* `CNN-__b-__e-__l.pth` (if trained **without** data augmentation).
 
-To start the training procedure, one can type the following commands in a terminal (being sure to be inside the `handwritten-long-numbers-recognition` folder) which calls the `train` mode of the `hlrn.py` script:
+The following command can be typed into a terminal to show the usage of the train execution mode: 
 
-  * `$ python3 hlnr.py train -h`: shows the help of the `train` execution mode
-  * `$ python3 hlnr.py train -a`: trains the network **with** data augmentation (`-a`) (keeps the default values for the other parameters)
-  * `$ python3 hlnr.py train`: trains the network **without** data augmentation (keeps the default values for the other parameters)
+`$ python3 hlnr.py train -h`
+
+```
+usage: hlnr.py train [-h] [-a] [-s TRAIN VAL] [-b BATCH_SIZE] [-e EPOCHS] [-l LEARNING_RATE] [-w NUM_WORKERS]
+                     [-d DEVICE]
+
+TRAIN mode: re-train the model in your machine and save it to reuse in classify phase
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a, --augmentation    set data-augmentation procedure ON (RandomRotation and RandomResizedCrop)
+  -s TRAIN VAL, --splits TRAIN VAL
+                        (default=[0.7,0.3]) proportions for the dataset split into training and validation set
+  -b BATCH_SIZE, --batch_size BATCH_SIZE
+                        (default=64) mini-batch size
+  -e EPOCHS, --epochs EPOCHS
+                        (default=10) number of training epochs
+  -l LEARNING_RATE, --learning_rate LEARNING_RATE
+                        (default=10) learning rate
+  -w NUM_WORKERS, --num_workers NUM_WORKERS
+                        (default=3) number of workers
+  -d DEVICE, --device DEVICE
+                        (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
   ```
-  usage: hlnr.py train [-h] [-a] [-s TRAIN VAL] [-b BATCH_SIZE] [-e EPOCHS] [-l LEARNING_RATE] [-w NUM_WORKERS]
-                       [-d DEVICE]
+  
+Adding the ad-hoc arguments, the following solutions are possible:
 
-  TRAIN mode: re-train the model in your machine and save it to reuse in classify phase
+`$ python3 hlnr.py train`
+  * data augmentation: **false**
+  * parameters: **default**
+  
+`$ python3 hlnr.py train -a`
+  * data augmentation: **true**
+  * parameters: **default**
+  
+`$ python3 hlnr.py train -s 0.8 0.2`
+  * data augmentation: **false**
+  * parameters: **`splits=[0.8,0.2]`**, others default
+  
+`$ python3 hlnr.py train -a -e 100`
+  * data augmentation: **true**
+  * parameters: **`epochs=100`**, other default
+  
+And so on.
 
-  optional arguments:
-    -h, --help            show this help message and exit
-    -a, --augmentation    set data-augmentation procedure ON (RandomRotation and RandomResizedCrop)
-    -s TRAIN VAL, --splits TRAIN VAL
-                          (default=[0.7,0.3]) proportions for the dataset split into training and validation set
-    -b BATCH_SIZE, --batch_size BATCH_SIZE
-                          (default=64) mini-batch size
-    -e EPOCHS, --epochs EPOCHS
-                          (default=10) number of training epochs
-    -l LEARNING_RATE, --learning_rate LEARNING_RATE
-                          (default=10) learning rate
-    -w NUM_WORKERS, --num_workers NUM_WORKERS
-                          (default=3) number of workers
-    -d DEVICE, --device DEVICE
-                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
-  ```
+
+### Path 3
+
+This path allows the user to evaluate a model over the MNIST test set.
+
+The following command can be typed into a terminal to show the usage of the train execution mode: 
+
+`$ python3 hlnr.py eval -h`
+
+```
+usage: hlnr.py eval [-h] [-d DEVICE] PATH_TO_MODEL
+
+EVAL mode: evaluate the model accuracy on the test set of MNIST
+
+positional arguments:
+  PATH_TO_MODEL         <required> path to the model to be evaluated
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DEVICE, --device DEVICE
+                        (default=cpu) device to be used for computations {cpu, cuda:0,
+                        cuda:1, ...}
+```
+  
+One possible usage is the following:
+
+`$ python3 hlnr.py eval models/CNN-128b-60e-0.0001l-a`: evaluates the performance of the `CNN-128b-60e-0.0001l-a` model.
 
 
 ## Future developments
 
-* Draw rotated boxes around numbers which are written in diagonal
+* Enhance `draw_boxes()` to draw rotated boxes around digits which are written in diagonal  
+  This may guarantees better performances in managing rotated numbers
+* Train a more robust network in order to better classify 1s, 7s and 9s
 
    
 ## Directory structure
