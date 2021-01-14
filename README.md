@@ -260,7 +260,7 @@ During the recognition task (performed using the `CNN-128b-60e-0.0001l-a` model)
 <img src="img/webcam/img-20210114-124240-boxed.png" width="200">
 </p>
 <p align="center">
-<img src="img/webcam/img-20210114-124240-digits.png" width="150">
+<img src="img/webcam/img-20210114-124240-digits.png" width="600">
 </p>
 
 ```
