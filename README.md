@@ -270,15 +270,32 @@ Once the repository has been downloaded and all the dependencies have been insta
 * [**Path 1**: use the already trained model and start the long number recognition procedure](#path-1)
 * [**Path 2**: train the model in your machine in order to use this new model as a classifier](#path-2)
 
+The two path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: `$ python3 hlrn.py -h`
+```
+usage: hlnr.py [-h] {classify,train,eval} ...
+
+Handwritten long number recognition
+
+positional arguments:
+  {classify,train,eval}
+                        <required> program execution mode: classify with a pre-trained model
+                        or re-train the model
+    classify            classify an input image using the pre-trained model
+    train               re-train the model in your machine and save it to reuse in classify phase
+    eval                evaluate the model accuracy on the test set of MNIST
+
+optional arguments:
+  -h, --help            show this help message and exit
+```
+
 ### Path 1
+
 This path makes use of one of the trained models (which can be found in `models` folder). In the folder there are some `*.pth` files which contains the parameters (`state_dict`) of the various pre-trained models which can be used as classifiers. The model names have the following structure:
 
 `CNN-__b-__e-__l-a.pth` (if trained **with** data augmentation) or `CNN-__b-__e-__l.pth` (if trained **without** data augmentation).
 
 In both cases the underscores `__` are replaced with numbers according to:
-* `__b`: batch size
-* `__e`: number of epochs
-* `__l`: learning rate
+* `b`: batch size, `e`: number of epoch, `l`: learning rate
 
 _Example_:  
 `CNN-128b-60e-0.0001l-a.pth` represents the model trained with 128 samples per batch, in 60 epochs, with a learning rate of 0.0001 and data augmentation.
@@ -291,6 +308,36 @@ In the following table the accuracies for each model are reported:
 | CNN-128b-60e-0.0001l   |           |                 |               |
 | CNN-128b-60e-0.001l-a  |           |                 |               |
 | CNN-128b-60e-0.001l    |           |                 |               |
+
+The model `CNN-128b-60e-0.0001l-a` will be considered the default classifier for the recognition procedure, since it showed the best accuracies on test set (among the other models).
+
+Alternatively, one can use its own trained model (which, by default will be saved accordingly with the previous notation).
+
+In order to do so, the following command can be typed into a terminal to show the usage of the `classify` execution mode:
+  * `$ python3 hlnr.py classify -h`
+  
+  ```
+  usage: hlnr.py classify [-h] [-f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
+
+  CLASSIFY mode: classify an input image using a pre-trained model
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
+                          input image from folder, if not specified from webcam
+    -a, --augmentation    use model trained WITH data augmentation
+    -m PATH_TO_MODEL, --model PATH_TO_MODEL
+                          user custom model from path
+    -d DEVICE, --device DEVICE
+                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
+  ``` 
+  * `$ python3 hlnr.py classify`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **without** data augmentation
+  * `$ python3 hlnr.py classify -a`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the pre-trained model **with** data augmentation (`-a`)
+  * `$ python3 hlnr.py classify -m PATH_TO_MODEL`: performs the recognition of the input image taken by **webcam** (default behaviour) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+  * `$ python3 hlnr.py classify -f PATH_TO_IMAGE`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **without** data augmentation
+  * `$ python3 hlnr.py classify -f PATH_TO_IMAGE -a`: performs the recognition of the input image taken from the user-defined **folder** (`-f PATH_TO_IMAGE`) and exploiting the pre-trained model **with** data augmentation (`-a`) 
+  * `$ python3 hlnr.py classify -f PATH_TO_MODEL -m PATH_TO_MODEL`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the model specified by the user (`-m PATH_TO_MODEL`)
+  
 
 
 ### Path 2
@@ -328,28 +375,6 @@ To start the training procedure, one can type the following commands in a termin
                           (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
   ```
 
-
-  * `$ python3 hlnr.py classify -h`: shows the help of the `classify` execution mode 
-  * `$ python3 hlnr.py classify -a`: performs the recognition of the input image taken by the **webcam** (default behaviour) and exploiting the pre-trained model **with** data augmentation (`-a`) 
-  * `$ python3 hlnr.py classify`: performs the recognition of the input image taken by the **webcam** (default behaviour) and exploiting the pre-trained model **without** data augmentation
-  * `$ python3 hlnr.py classify -m PATH_TO_MODEL`: performs the recognition of the input image taken by the **webcam** (default behaviour) and exploiting the model specified by the user (`-m`)
-  * `$ python3 hlnr.py classify -fa`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the pre-trained model **with** data augmentation (`-a`) 
-  * `$ python3 hlnr.py classify -f`: performs the recognition of the input image taken from the user-defined **folder** (`-f`) and exploiting the pre-trained model **without** data augmentation
-  ```
-  usage: hlnr.py classify [-h] [-f PATH_TO_IMAGE] [-a | -m PATH_TO_MODEL] [-d DEVICE]
-
-  CLASSIFY mode: classify an input image using a pre-trained model
-
-  optional arguments:
-    -h, --help            show this help message and exit
-    -f PATH_TO_IMAGE, --folder PATH_TO_IMAGE
-                          input image from folder, if not specified from webcam
-    -a, --augmentation    use model trained WITH data augmentation
-    -m PATH_TO_MODEL, --model PATH_TO_MODEL
-                          user custom model from path
-    -d DEVICE, --device DEVICE
-                          (default=cpu) device to be used for computations {cpu, cuda:0, cuda:1, ...}
-  ```
 
 ## Future developments
 
