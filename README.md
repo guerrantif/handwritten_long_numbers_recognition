@@ -24,7 +24,7 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 **Workflow**
 
   <p align="center">
-  <img src="img/workflow.png" width="500">
+  <img src="img/workflow.png" width="600">
   </p>
 
 As the picture shows, the project may be divided into three main phases:
@@ -71,7 +71,7 @@ Its decoding and management is handled by the [`modules.dataset`][modules-datase
 For the purpose of this project, the network used for the digit recognition task is a Convolutional Neural Network (CNN). The architecture of the model is the one shown below.
 
   <p align="center">
-  <img src="img/cnn-model.png" width="300">
+  <img src="img/cnn-model.png" width="350">
   </p>  
 
 The input image (which has a shape of 1x28x28) is fed into the first convolutional layer (having 12 output channels, 5x5 kernel and stride equal to 1), it is then passed through a ReLU function and a max pooling layer (having a 2x2 kernel and a stride equal to 2). This procedure is repeated (the only difference is the number of output channel of the new convolutional layer, which are 24), thus obtaining a 24x4x4 image. A flatten layer is applied, then a linear layer and another ReLu. In order to make the training phase more robust, the dropout technique is used, and another linear layer is applied at the end letting us obtain 10 output neurons of which we take the one having maximum value (softmax is applied).
@@ -156,7 +156,7 @@ It exploits the **OpenCV** library in the following way:
 In this project, the image segmentation task, is computed by exploiting the **Graph-based image segmentation algortihm** proposed by Felzenszwalb et. al. ([paper][graph-based-segmentation-paper]). In the aforementioned paper and notebook, more details are provided about the algorithm functioning.
 
 <p align="center">
-<img src="img/graph-based-segmentation.png" width="500">
+<img src="img/graph-based-segmentation.png" width="600">
 </p>
 
 This procedure is handled by the [`modules.segmentation`][modules-segmentation] module and, in particular by the `module.segmentation.GraphBasedSegmentation()` class, built as follows:
@@ -188,7 +188,7 @@ This procedure is handled by the [`modules.segmentation`][modules-segmentation] 
 The `GraphBasedSegmentation()` class is based on the `modules.segmentation.DisjointSetForest()` class, which represents the data-structure used by the algorithm (this class is only used within the `GraphBasedSegmentation()` class).
 
 <p align="center">
-<img src="img/segmentation.png" width="900">
+<img src="img/segmentation.png" width="600">
 </p>
 
 #### Digits extraction 
@@ -202,7 +202,7 @@ Once the regions' boundaries are found:
 * the resized slices are modified in order to obtain an image which is as close as possible to the one that the network saw in training phase
 * the modified slices are converted into a `torch.tensor` which will be used as input to the network
 <p align="center">
-<img src="img/extraction.png" width="900">
+<img src="img/extraction.png" width="600">
 </p>
 
 
