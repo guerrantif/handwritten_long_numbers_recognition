@@ -255,11 +255,17 @@ As we can see, the models trained with data augmentation techniques show a bette
 During the recognition task (performed using the `CNN-128b-60e-0.0001l-a` model), the numbers are generally well classified even if they are presented in diagonal (the random rotation, applied during the training phase, seems to allow us to handle rotated digits), as shown in the figure below.
 
 <p align="center">
-<img src="img/webcam/img-20210114-124240.png" width="300">
-<img src="img/webcam/img-20210114-124240.png" width="300">
-<img src="img/webcam/img-20210114-124240.png" width="300">
+<img src="img/webcam/img-20210114-124240.png" width="150">
+<img src="img/webcam/img-20210114-124240-segmented.png" width="150">
+<img src="img/webcam/img-20210114-124240-boxed.png" width="150">
+<img src="img/webcam/img-20210114-124240-digits.png" width="150">
 </p>
 
+```
+The recognize number is: 237845
+```
+
+However, the network seems to have some problems recognizing digits such as 1, 7 and 9. In particular (as shown below) 
 
 So, using the `CNN-128b-60e-0.0001l-a` model, the task of recognizing the handwritten digits given an input image (either from webcam or from folder) perform well when the digits are well defined with respect to the background and well separated from each other.
 
