@@ -30,7 +30,7 @@ The aim of this project is to build a CNN model trained on MNIST dataset and to 
 As the picture shows, the project may be divided into three main phases:
 
  * [**Phase 1**: Training of the model](#phase-1-training-of-the-model)
- * [**Phase 2**: Input image segmentation and digit extraction](#phase-2-input-image-segmentation-and-digit-extraction)
+ * [**Phase 2**: Input image segmentation and digits extraction](#phase-2-input-image-segmentation-and-digits-extraction)
  * [**Phase 3**: Long number recognition](#phase-3-long-number-recognition)
  
 In a nutshell: the CNN model is trained on the MNIST dataset (with data augmentation techniques and without them) in order to obtain a trained model. Once the trained model is ready, it can be fed with the input image (taken from the webcam) which has been preprocessed and segmented accordingly. At this point the model can classify all the single digits written on the input image and returns the whole long number.
@@ -121,7 +121,7 @@ The script works as follows:
 * prepares the `MNIST` dataset into training, validation and test sets
 * trains the classifier by means of the `train_cnn()` function of the `CNN()` class
   
-For the training phase, several parameters can be choosen such as:
+For the training phase, several parameters can be chosen such as:
 * the splits proportions
 * the learning rate
 * the number of epochs
@@ -130,7 +130,7 @@ For the training phase, several parameters can be choosen such as:
 * the device used
 
 
-### Phase 2: Input image segmentation and digit extraction
+### Phase 2: Input image segmentation and digits extraction
 
 This phase takes care of several tasks:
 * [Webcam image capture](#webcam-capture)
@@ -218,9 +218,9 @@ This phase, is simpler than the others, and can be split into three steps:
 
 This task is mainly handled by the `modules.utils.classify()` function inside the [`modules.utils`][modules-utils] module.
 It works as follows:
-* starts the webcam image capture procedure (if `webcam==True`) or takes an input image from a folder defined by the user (if `image_path is not None`)
+* starts the webcam image capture procedure (if `image_path is None`) or takes an input image from a folder defined by the user (if `image_path is not None`)
 * initializes the `CNN` classifier
-* loads the pre-trained model **with** data augmentation (if `augmentation==True`) or the one **without** data augmentation (if `augmentation==False`)
+* loads the pre-trained model **with** data augmentation (if `augmentation==True`) or the one **without** data augmentation (if `augmentation==False`) or loads a user-trained model (if `model is not None`)
 * segments the image via the `segment()` method of the `GraphBasedSegmentation()` class
 * extracts the digits via the `extract_digits()` method of the `GraphBasedSegmentation()` class
 
@@ -340,9 +340,9 @@ Some issues may arise for the OpenCV library. If it happens, please see the note
 ## Usage example
 
 Once the repository has been downloaded and all the dependencies have been installed, one can procede with the paths listed here:
-* [**Path 1**: use the already trained model and start the long number recognition procedure](#path-1)
-* [**Path 2**: train the model in your machine in order to use this new model as a classifier](#path-2)
-* [**Path 3**: evaluate the performance of a model on the test set of MNIST](#path-3)
+* [**Path 1**: use the already trained model and start the long number recognition procedure](#path-1-classify)
+* [**Path 2**: train the model in your machine in order to use this new model as a classifier](#path-2-train)
+* [**Path 3**: evaluate the performance of a model on the test set of MNIST](#path-3-eval)
 
 The three path can be taken by using the `hlrn.py` script, whose behaviour is shown by typing: 
 
@@ -365,7 +365,7 @@ optional arguments:
   -h, --help            show this help message and exit
 ```
 
-### Path 1
+### Path 1: classify
 
 This path allows the recognition of the handwritten digits which can come from either:
 * an image captured by the user webcam
@@ -373,7 +373,7 @@ This path allows the recognition of the handwritten digits which can come from e
 
 Additionaly, one can decide whether to:
 * use a supplied pre-trained model (which can be found in `models` folder) 
-* use a model trained by the user (following [path 1](#path-1))
+* use a model trained by the user (following [path 2](#path-2))
 
 In both cases the models are stored as `.pth` files having the following notation:
 * `CNN-__b-__e-__l-a.pth` (if trained **with** data augmentation)
@@ -438,7 +438,7 @@ Adding the ad-hoc arguments, the following solutions are possible:
   * model: **user** specified pre-trained model (`PATH_TO_MODEL`)
 
 
-### Path 2
+### Path 2: train
 
 This path allows the user to train the model in its own machine using the desired parameters. As mentioned in the previous section, the trained model will be save accordingly with the usual notation (here reported):
 * `CNN-__b-__e-__l-a.pth` (if trained **with** data augmentation)
@@ -492,7 +492,7 @@ Adding the ad-hoc arguments, the following solutions are possible:
 And so on.
 
 
-### Path 3
+### Path 3: eval
 
 This path allows the user to evaluate a model over the MNIST test set.
 
