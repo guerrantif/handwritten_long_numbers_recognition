@@ -86,6 +86,7 @@ def webcam_capture() -> (np.ndarray, str):
         if k % 256 == 27:
             print("Exiting...")
             image = None
+            image_path = None
             break
         
         # SPACE is pressed 
@@ -318,7 +319,7 @@ def classify(
             raise ValueError("Wrong image path.")
     else:
         image, image_path = webcam_capture()
-        if image is None:
+        if image is None or image_path is None:
             raise RuntimeError("Unable to take webcam image. When window appears press SPACE to take a snapshot.")
     #endregion
 
